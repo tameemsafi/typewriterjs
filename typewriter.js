@@ -130,14 +130,11 @@
 		var string_chars = this._getCharacters(string);
 
 		this._addToEventQue([this._typeCharacters, [string_chars]]);
-
 		return this;
 	};
 
 	TypewriterPrototype.deleteAll = function() {
-
 		this._addToEventQue([this._deleteChars, ['all']]);
-
 		return this;
 	};
 
