@@ -473,10 +473,10 @@
 	};
 
 	TypewriterPrototype._getCharacters = function(string) {
-    if(typeof string !== 'string') {
-    	return false;
-    }
-    return string.split("");
+		if(typeof string !== 'string') {
+			return false;
+		}
+		return string.split("");
 	};
 
 	TypewriterPrototype._getStringsAsCharsArray = function() {
@@ -498,9 +498,9 @@
 				break;
 			}
 			strings_chars_array.push(string_chars);
-    }
+    	}
 
-    return strings_chars_array;
+    	return strings_chars_array;
 	};
 
 	TypewriterPrototype._cursorAnimationFrame = function() {
@@ -570,12 +570,12 @@
 
 	TypewriterPrototype._randomID = function() {
 		var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    for( var i=0; i < this._randomInteger(5, 15); i++ ) {
-    	text += possible.charAt(Math.floor(Math.random() * possible.length));
+    	for( var i=0; i < this._randomInteger(5, 15); i++ ) {
+    		text += possible.charAt(Math.floor(Math.random() * possible.length));
 		}
-    return text;
+    	return text;
 	};
 
 	TypewriterPrototype._generateUniqueID = function() {
