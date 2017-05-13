@@ -1,6 +1,6 @@
 /*
  * Title: Typewriter JS
- * Descritpion: A native javascript plugin that can be used to create an elegent automatic typewriter animation effect on websites.
+ * Description: A native javascript plugin that can be used to create an elegent automatic typewriter animation effect on websites.
  * Author: Tameem Safi
  * Website: https://safi.me.uk
  * Version: 1.0.0
