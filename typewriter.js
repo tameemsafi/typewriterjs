@@ -39,7 +39,13 @@
 	        };
 	}());
 
-	window.Typewriter = function Typewriter(element, options) {
+	// 'new' an object
+	window.Typewriter = function(element, options) {
+		return new Typewriter.init(element,options);
+	};
+
+	// the actual object is created here, allowing to 'new' an object without calling 'new'
+	Typewriter.init = function(element, options) {
 		this._settings = {
 			cursorAnimationPaused: false,
 			opacityIncreasing: false,
@@ -105,7 +111,8 @@
 
 	};
 
-	var TypewriterPrototype = window.Typewriter.prototype;
+	// So  we don't have to use 'new' keyword
+	var TypewriterPrototype = window.Typewriter.prototype = Typewriter.init.prototype;
 
 	TypewriterPrototype.stop = function() {
 		this._addToEventQue(this._stopEventLoop)
