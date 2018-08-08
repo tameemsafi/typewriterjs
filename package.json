@@ -1,0 +1,19 @@
+{
+  "name": "typewriterjs",
+  "version": "0.0.1",
+  "description": "A simple yet powerful native javascript plugin for a cool typewriter effect. ",
+  "main": "typewriter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tameemsafi/typewriterjs.git"
+  },
+  "author": "Tameem Safi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tameemsafi/typewriterjs/issues"
+  },
+  "homepage": "https://github.com/tameemsafi/typewriterjs#readme"
+}
