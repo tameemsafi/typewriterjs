@@ -61,12 +61,8 @@ import Typewriter from 'typewriter-effect';
 
 # CDN JS
 
-**This is only working for v1 at the moment, will update this file once v2 is on CDN**
-
 You can use the CDN JS version of this plugin for fast and easy setup.
 
-https://cdnjs.com/libraries/TypewriterJS
-
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/TypewriterJS/1.0.0/typewriter.min.js"></script>
+<script src="https://unpkg.com/typewriter-effect@2.1.1/dist/core.js"></script>
 ```
