@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Example - Chained</title>
+</head>
+<body>
+
+  <div id="typewriter"></div>
+
+  <script src='../../dist/typewriter.bundle.js'></script>
+  <script type='text/javascript'>
+    const typewriter = new Typewriter('#typewriter');
+
+    typewriter.typeString('Hello World!')
+      .callFunction(() => {
+        console.log('String typed out!');
+      })
+      .pauseFor(2500)
+      .deleteAll()
+      .callFunction(() => {
+        console.log('All strings were deleted');
+      })
+      .start();
+  </script>
+  
+</body>
+</html>

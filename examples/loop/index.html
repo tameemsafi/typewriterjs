@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Example - Loop</title>
+</head>
+<body>
+
+  <div id="typewriter"></div>
+
+  <script src='../../dist/typewriter.bundle.js'></script>
+  <script type="text/javascript">
+    const instance = new Typewriter('#typewriter', {
+      strings: ['Hello', 'World'],
+      autoStart: true,
+      loop: true,
+    });
+  </script>
+
+</body>
+</html>
