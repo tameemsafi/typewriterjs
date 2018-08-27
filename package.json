@@ -1,5 +1,5 @@
 {
-  "name": "typewriterjs",
+  "name": "typewriter-effect",
   "version": "2.0.0",
   "main": "dist/typewriter.bundle.js",
   "repository": "git@github.com:tameemsafi/typewriterjs.git",
