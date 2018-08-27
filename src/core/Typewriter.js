@@ -385,9 +385,9 @@ class Typewriter {
    * ['apple', 'bannana']
    * 
    * Output:
-   * [ ['a', 'p', 'p', 'l', 'e'], ['b', 'a', 'n', 'n', 'a'] ]
+   * [ ['a', 'p', 'p', 'l', 'e'], ['b', 'a', 'n', 'n', 'a', 'n', 'a'] ]
    * 
-   * @return {Array} Array of characters array
+   * @return {Array} Two dimentional array of characters
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   getStringsAsCharacters = () => {
