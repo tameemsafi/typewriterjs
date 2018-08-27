@@ -14,7 +14,10 @@ class Typewriter extends Component {
       instance,
     }, () => {
       const { onInit } = this.props;
-      onInit(instance);
+      
+      if(onInit) {
+        onInit(instance);
+      }
     });
   }
 

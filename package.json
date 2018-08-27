@@ -1,7 +1,7 @@
 {
   "name": "typewriter-effect",
   "version": "2.0.0",
-  "main": "dist/typewriter.bundle.js",
+  "main": "dist/react.js",
   "repository": "git@github.com:tameemsafi/typewriterjs.git",
   "author": "Tameem Safi <tameem@safi.me.uk>",
   "license": "MIT",
