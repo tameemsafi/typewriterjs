@@ -2,7 +2,7 @@ import { resolve } from 'path';
 
 const config = {
   entry: {
-    typewriter: resolve('src', 'core', 'index.js'),
+    core: resolve('src', 'core', 'index.js'),
     react: resolve('src', 'react'),
   },
 
