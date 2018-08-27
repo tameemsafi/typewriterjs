@@ -68,6 +68,7 @@ class Typewriter {
 
   init() {
     this.setupWrapperElement();
+
     if(this.options.autoStart === true && this.options.strings) {
       this.typeOutAllStrings().start();
 		}
@@ -82,8 +83,10 @@ class Typewriter {
   setupWrapperElement = () => {
     this.state.elements.wrapper.className = this.options.wrapperClassName;
     this.state.elements.cursor.className = this.options.cursorClassName;
+
     this.state.elements.cursor.innerHTML = this.options.cursor;
-		this.state.elements.container.innerHTML = '';
+    this.state.elements.container.innerHTML = '';
+    
     this.state.elements.container.appendChild(this.state.elements.wrapper);
     this.state.elements.container.appendChild(this.state.elements.cursor);
   }
