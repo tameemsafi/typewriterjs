@@ -4,6 +4,7 @@ A simple yet powerful native javascript plugin for a cool typewriter effect, dev
 
 I am still learning so any advice or feedback would be amazing. You can find my email on my profile page.
 
+[NPM Repository](https://npmjs.org/typewriter-effect)
 [Website](https://safi.me.uk/typewriterjs)
 
 # Core
