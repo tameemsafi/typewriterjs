@@ -64,5 +64,5 @@ import Typewriter from 'typewriter-effect';
 You can use the CDN JS version of this plugin for fast and easy setup.
 
 ```html
-<script src="https://unpkg.com/typewriter-effect@2.1.1/dist/core.js"></script>
+<script src="https://unpkg.com/typewriter-effect/dist/core.js"></script>
 ```
