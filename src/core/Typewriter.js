@@ -278,6 +278,7 @@ class Typewriter {
       
       // Reset event queue if we are looping
       this.state.eventQueue = this.state.calledEvents;
+      this.addEventToQueue(this.eventNames.REMOVE_ALL, null, true);
       this.state.calledEvents = [];
     }
 
