@@ -37,12 +37,11 @@ class Typewriter {
       container: null,
       wrapper: document.createElement('span'),
       cursor: document.createElement('span'),
-      htmlTagReferences: [],
     },
   }
 
   options = {
-    strings: false,
+    strings: null,
     cursor: '|',
     delay: 'natural',
     loop: false,
@@ -248,7 +247,7 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   deleteAll = () => {
-    this.addEventToQueue(this.eventNames.REMOVE_ALL, null);
+    this.addEventToQueue(this.eventNames.REMOVE_ALL, { removingCharacterNode: false });
 
     return this;
   }

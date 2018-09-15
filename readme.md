@@ -22,6 +22,32 @@ new Typewriter('#typewriter', {
 });
 ```
 
+## Options
+
+| Name | Type | Default value | Description |
+| --- | --- | --- | --- |
+| strings | String|Array | null | Strings to type out when using ``autoStart`` option |
+| cursor | String | '|' | String value to use as the cursor. |
+| delay | 'natural'|Number | 'natural' | The delay between each key when typing. |
+| loop | Boolean | false | Wether to keep looping or not. |
+| autoStart | Boolean | false | Wether to autostart typing strings or not. You are required to provide ``strings`` option. |
+| devMode | Boolean | false | Wether or not to display console logs. |
+| wrapperClassName | String | 'Typewriter__wrapper' | Class name for the wrapper element. |
+| cursorClassName | String | 'Typewriter__cursor' | Class name for the cursor element. |
+
+## Methods
+
+| Name | Params | Description |
+| --- | --- | --- |
+| start | - | Start the typewriter effect. |
+| stop | - | Stop the typewriter effect. |
+| pauseFor | ``ms`` Time to pause for in milliseconds | Pause for milliseconds |
+| typeString | ``string`` String to type out, it can contain HTML tags | Type out a string using the typewriter effect. |
+| deleteAll | - | Delete everything that is visible inside of the typewriter wrapper element. |
+| deleteChars | ``amount`` Number of characters | Delete and amount of characters, starting at the end of the visible string. |
+| callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
+
+
 # React
 
 This incldues a React component which can be used within your project. You can pass in a onInit function which will be called with the instance of the typewriter so you can use the typewriter core API.
