@@ -26,9 +26,9 @@ new Typewriter('#typewriter', {
 
 | Name | Type | Default value | Description |
 | --- | --- | --- | --- |
-| strings | String|Array | null | Strings to type out when using ``autoStart`` option |
+| strings | String or Array | null | Strings to type out when using ``autoStart`` option |
 | cursor | String | '|' | String value to use as the cursor. |
-| delay | 'natural'|Number | 'natural' | The delay between each key when typing. |
+| delay | 'natural' or Number | 'natural' | The delay between each key when typing. |
 | loop | Boolean | false | Wether to keep looping or not. |
 | autoStart | Boolean | false | Wether to autostart typing strings or not. You are required to provide ``strings`` option. |
 | devMode | Boolean | false | Wether or not to display console logs. |
