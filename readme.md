@@ -6,6 +6,7 @@ I am still learning so any advice or feedback would be amazing. You can find my 
 
 [NPM Repository](https://npmjs.org/typewriter-effect)
 [Website](https://safi.me.uk/typewriterjs)
+[JSFiddle Example](https://jsfiddle.net/shbqy0mv/9/)
 
 # Core
 
