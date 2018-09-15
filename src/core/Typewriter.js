@@ -1,4 +1,9 @@
 import raf from 'raf';
+import {
+  doesStringContainHTMLTag,
+  getDOMElementFromString,
+  getRandomInteger,
+} from './../utils';
 import './Typewriter.scss';
 
 class Typewriter {
@@ -6,8 +11,16 @@ class Typewriter {
     TYPE_CHARACTER: 'TYPE_CHARACTER',
     REMOVE_CHARACTER: 'REMOVE_CHARACTER',
     REMOVE_ALL: 'REMOVE_ALL',
+    REMOVE_LAST_VISIBLE_NODE: 'REMOVE_LAST_VISIBLE_NODE',
     PAUSE_FOR: 'PAUSE_FOR',
     CALL_FUNCTION: 'CALL_FUNCTION',
+    ADD_HTML_TAG_ELEMENT: 'ADD_HTML_TAG_ELEMENT',
+    REMOVE_HTML_TAG_ELEMENT: 'REMOVE_HTML_TAG_ELEMENT',
+  }
+
+  visibleNodeTypes = {
+    HTML_TAG: 'HTML_TAG',
+    TEXT_NODE: 'TEXT_NODE',
   }
 
   state = {
@@ -17,12 +30,14 @@ class Typewriter {
     eventQueue: [],
     eventLoop: null,
     eventLoopPaused: false,
+    reverseCalledEvents: [],
     calledEvents: [],
-    visibleString: '',
+    visibleNodes: [],
     elements: {
       container: null,
       wrapper: document.createElement('span'),
       cursor: document.createElement('span'),
+      htmlTagReferences: [],
     },
   }
 
@@ -92,25 +107,6 @@ class Typewriter {
   }
 
   /**
-   * Start typewriter effect by typing
-   * out all strings provided
-   * 
-   * @author Tameem Safi <tamem@safi.me.uk>
-   */
-  typeOutAllStrings = () => {
-    const allCharacters = this.getStringsAsCharacters();
-
-    allCharacters.forEach(characters => {
-      this.typeCharacters(characters);
-      this.pauseFor(1500);
-      this.removeCharacters(characters);
-      this.pauseFor(1500);
-    });
-
-		return this;
-  }
-
-  /**
    * Start typewriter effect
    */
   start = () => {
@@ -148,6 +144,8 @@ class Typewriter {
    * Add pause event to queue for ms provided
    * 
    * @param {Number} ms Time in ms to pause for
+   * @return {Typewriter}
+   * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   pauseFor = (ms) => {
@@ -157,12 +155,47 @@ class Typewriter {
   }
 
   /**
+   * Start typewriter effect by typing
+   * out all strings provided
+   * 
+   * @return {Typewriter}
+   * 
+   * @author Tameem Safi <tamem@safi.me.uk>
+   */
+  typeOutAllStrings = () => {
+    if(typeof this.options.strings === 'string') {
+      this.typeString(this.options.strings)
+        .pauseFor(1500);
+      return this;
+    }
+
+    this.options.strings.forEach((string, index) => {
+      this.typeString(string);
+
+      if(index !== this.options.strings.length - 1) {
+        this.typeString(' ');
+      }
+
+      this.pauseFor(1500);
+    });
+
+    return this;
+  }
+
+  /**
    * Adds string characters to event queue for typing
    * 
    * @param {String} string String to type
+   * @return {Typewriter}
+   * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeString = (string) => {
+    if(doesStringContainHTMLTag(string)) {
+      
+      return this.typeOutHTMLString(string);
+    }
+
     const characters = string.split('');
 
     characters.forEach(character => {
@@ -173,7 +206,44 @@ class Typewriter {
   }
 
   /**
+   * Type out a string which is wrapper around HTML tag
+   * 
+   * @param {String} string String to type
+   * @return {Typewriter}
+   * 
+   * @author Tameem Safi <tamem@safi.me.uk>
+   */
+  typeOutHTMLString = (string) => {
+    const htmlTagElement = getDOMElementFromString(string);
+    const text = htmlTagElement.innerText;
+    const characters = text.split('');
+
+    if(!characters.length) {
+      return this;
+    }
+
+    // Reset innerText of HTML element
+    htmlTagElement.innerText = '';
+
+    // Add event queue item to insert HTML tag before typing characters
+    this.addEventToQueue(this.eventNames.ADD_HTML_TAG_ELEMENT, {
+      htmlTagElement,
+    });
+
+    characters.forEach(character => {
+      this.addEventToQueue(this.eventNames.TYPE_CHARACTER, {
+        character,
+        htmlTagElement,
+      });
+    });
+    
+    return this;
+  }
+
+  /**
    * Add delete all characters to event queue
+   * 
+   * @return {Typewriter}
    * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
@@ -187,6 +257,8 @@ class Typewriter {
    * Add delete character to event queue for amount of characters provided
    * 
    * @param {Number} amount Number of characters to remove
+   * @return {Typewriter}
+   * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   deleteChars = (amount) => {
@@ -202,6 +274,8 @@ class Typewriter {
    * 
    * @param {cb}      cb        Callback function to call
    * @param {Object}  thisArg   thisArg to use when calling function
+   * @return {Typewriter}
+   * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   callFunction = (cb, thisArg) => {
@@ -216,24 +290,30 @@ class Typewriter {
    * Add type character event for each character
    * 
    * @param {Array} characters Array of characters
+   * @return {Typewriter}
+   * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeCharacters = (characters) => {
     characters.forEach(character => {
       this.addEventToQueue(this.eventNames.TYPE_CHARACTER, { character });
     });
+    return this;
   }
 
   /**
    * Add remove character event for each character
    * 
    * @param {Array} characters Array of characters
+   * @return {Typewriter}
+   * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   removeCharacters = (characters) => {
     characters.forEach(() => {
       this.addEventToQueue(this.eventNames.REMOVE_CHARACTER);
     });
+    return this;
   }
 
   /**
@@ -242,19 +322,74 @@ class Typewriter {
    * @param {String}  eventName Name of the event
    * @param {String}  eventArgs Arguments to pass to event callback
    * @param {Boolean} prepend   Prepend to begining of event queue
+   * @return {Typewriter}
+   * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   addEventToQueue = (eventName, eventArgs, prepend = false) => {
+    return this.addEventToStateProperty(
+      eventName,
+      eventArgs,
+      prepend,
+      'eventQueue'
+    );
+  }
+
+  /**
+   * Add an event to reverse called events used for looping
+   * 
+   * @param {String}  eventName Name of the event
+   * @param {String}  eventArgs Arguments to pass to event callback
+   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @return {Typewriter}
+   * 
+   * @author Tameem Safi <tamem@safi.me.uk>
+   */
+  addReverseCalledEvent = (eventName, eventArgs, prepend = false) => {
+    const { loop } = this.options;
+
+    if(!loop) {
+      return this;
+    }
+
+    return this.addEventToStateProperty(
+      eventName,
+      eventArgs,
+      prepend,
+      'reverseCalledEvents'
+    );
+  }
+
+  /**
+   * Add an event to correct state property
+   * 
+   * @param {String}  eventName Name of the event
+   * @param {String}  eventArgs Arguments to pass to event callback
+   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param {String}  property  Property name of state object
+   * @return {Typewriter}
+   * 
+   * @author Tameem Safi <tamem@safi.me.uk>
+   */
+  addEventToStateProperty = (eventName, eventArgs, prepend = false, property) => {
     const eventItem = {
       eventName,
       eventArgs,
     };
 
     if(prepend) {
-      this.state.eventQueue.unshift(eventItem);
+      this.state[property] = [
+        eventItem,
+        ...this.state[property],
+      ];
     } else {
-      this.state.eventQueue.push(eventItem);
+      this.state[property] = [
+        ...this.state[property],
+        eventItem,
+      ];
     }
+
+    return this;
   }
 
   /**
@@ -278,8 +413,8 @@ class Typewriter {
       
       // Reset event queue if we are looping
       this.state.eventQueue = this.state.calledEvents;
-      this.addEventToQueue(this.eventNames.REMOVE_ALL, null, true);
       this.state.calledEvents = [];
+      this.addEventToQueue(this.eventNames.REMOVE_ALL, null, true);
     }
 
     // Request next frame
@@ -301,7 +436,7 @@ class Typewriter {
       this.state.pauseUntil = null;
     }
     
-    const delay = this.options.delay === 'natural' ? this.getRandomInteger(100, 200) : this.options.delay;
+    const delay = this.options.delay === 'natural' ? getRandomInteger(100, 200) : this.options.delay;
 
     // Check if frame should run or be
     // skipped based on fps interval
@@ -311,7 +446,6 @@ class Typewriter {
 
     // Get first event from queue
     const currentEvent = this.state.eventQueue.shift();
-    let visibleString = this.state.visibleString;
 
     // Get current event args
     const { eventName, eventArgs } = currentEvent;
@@ -321,30 +455,34 @@ class Typewriter {
     // Run item from event loop
     switch(eventName) {
       case this.eventNames.TYPE_CHARACTER: {
-        const { character } = eventArgs;
-        visibleString = `${visibleString}${character}`;
+        const { character, htmlTagElement } = eventArgs;
+        const textNode = document.createTextNode(character);
+
+        if(htmlTagElement) {
+          htmlTagElement.appendChild(textNode);
+        } else {
+          this.state.elements.wrapper.appendChild(textNode);
+        }
+
+        this.state.visibleNodes = [
+          ...this.state.visibleNodes,
+          {
+            type: this.visibleNodeTypes.TEXT_NODE,
+            node: textNode,
+          },
+        ];
+
         break;
       }
 
       case this.eventNames.REMOVE_CHARACTER: {
-        visibleString = visibleString.slice(0, -1);
+        this.addEventToQueue(this.eventNames.REMOVE_LAST_VISIBLE_NODE, { removingCharacterNode: true }, true);
         break;
       }
 
       case this.eventNames.PAUSE_FOR: {
-        this.state.pauseUntil = Date.now() + parseInt(eventArgs.ms);
-        break;
-      }
-
-      case this.eventNames.REMOVE_ALL: {
-        // Add an event item for each character of visible string
-        const characters = visibleString.split('');
-
-        // Add event item to remove each character
-        characters.reverse().forEach(() => {
-          this.addEventToQueue(this.eventNames.REMOVE_CHARACTER, null, true);
-        });
-
+        const { ms } = currentEvent.eventArgs;
+        this.state.pauseUntil = Date.now() + parseInt(ms);
         break;
       }
 
@@ -352,10 +490,48 @@ class Typewriter {
         const { cb, thisArg } = currentEvent.eventArgs;
 
         cb.call(thisArg, {
-          visibleString,
           elements: this.state.elements,
         });
 
+        break;
+      }
+
+      case this.eventNames.ADD_HTML_TAG_ELEMENT: {
+        const { htmlTagElement } = currentEvent.eventArgs;
+        this.state.elements.wrapper.appendChild(htmlTagElement);
+        this.state.visibleNodes = [
+          ...this.state.visibleNodes,
+          {
+            type: this.visibleNodeTypes.HTML_TAG,
+            node: htmlTagElement,
+          },
+        ];
+        break;
+      }
+
+      case this.eventNames.REMOVE_ALL: {
+        const { visibleNodes } = this.state;
+
+        for(let i = 0, length = visibleNodes.length; i < length; i++) {
+          this.addEventToQueue(this.eventNames.REMOVE_LAST_VISIBLE_NODE, { removingCharacterNode: false }, true);
+        }
+
+        break;
+      }
+
+      case this.eventNames.REMOVE_LAST_VISIBLE_NODE: {
+        const { removingCharacterNode } = currentEvent.eventArgs;
+
+        if(this.state.visibleNodes.length) {
+          const { type, node } = this.state.visibleNodes.pop();
+          node.remove();
+
+          // If we are removing characters only then remove one more
+          // item if current element was wrapper html tag
+          if(type === this.visibleNodeTypes.HTML_TAG && removingCharacterNode) {
+            this.addEventToQueue(this.eventNames.REMOVE_LAST_VISIBLE_NODE, null, true);
+          }
+        }
         break;
       }
 
@@ -364,56 +540,18 @@ class Typewriter {
       }
     }
 
-    if(visibleString !== this.state.visibleString) {
-      this.state.visibleString = visibleString;
-      this.state.elements.wrapper.innerText = this.state.visibleString;
-    }
-
     // Add que item to called queue if we are looping
-    // Skip for remove all event as it just creates new event items to remove characters
-    if(this.options.loop && currentEvent.eventName !== this.eventNames.REMOVE_ALL) {
-      this.state.calledEvents.push(currentEvent);
+    if(this.options.loop) {
+      if(
+        currentEvent.eventName !== this.eventNames.REMOVE_ALL ||
+        currentEvent.eventName !== this.eventNames.REMOVE_LAST_VISIBLE_NODE
+      ) {
+        this.state.calledEvents.push(currentEvent);
+      }
     }
 
     // Set last frame time so it can be used to calculate next frame
     this.state.lastFrameTime = nowTime;
-  }
-
-  /**
-   * Get all current provided strings as character arrays
-   * 
-   * Given:
-   * ['apple', 'bannana']
-   * 
-   * Output:
-   * [ ['a', 'p', 'p', 'l', 'e'], ['b', 'a', 'n', 'n', 'a', 'n', 'a'] ]
-   * 
-   * @return {Array} Two dimentional array of characters
-   * @author Tameem Safi <tamem@safi.me.uk>
-   */
-  getStringsAsCharacters = () => {
-    if(typeof this.options.strings === 'string') {
-      return [this.options.strings.split('')];
-    }
-
-    return this.options.strings.map(string => {
-      if(typeof string !== 'string') {
-        return false;
-      }
-
-      return string.split('');
-    });
-  }
-
-  /**
-   * Return a random integer between min/max values
-   * 
-   * @param {Number} min Minimum number to generate
-   * @param {Number} max Maximum number to generate
-   * @author Tameem Safi <tamem@safi.me.uk>
-   */
-  getRandomInteger = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   /**

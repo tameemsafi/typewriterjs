@@ -10,9 +10,11 @@
 
   <div id="typewriter"></div>
 
-  <script src='//unpkg.com/typewriter-effect/dist/core.js'></script>
+  <script src='../../dist/core.js'></script>
   <script type='text/javascript'>
-    const typewriter = new Typewriter('#typewriter', {});
+    const typewriter = new Typewriter('#typewriter', {
+      loop: true,
+    });
 
     typewriter.typeString('Hello World!')
       .pauseFor(2500)
@@ -20,7 +22,8 @@
       .typeString('Strings can be removed')
       .pauseFor(2500)
       .deleteChars(7)
-      .typeString('altered!')
+      .typeString('<strong>altered!<strong>')
+      .pauseFor(2500)
       .start();
   </script>
   
