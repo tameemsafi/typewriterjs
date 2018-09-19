@@ -38,6 +38,8 @@ new Typewriter('#typewriter', {
 
 ## Methods
 
+All methods can be chained together.
+
 | Name | Params | Description |
 | --- | --- | --- |
 | start | - | Start the typewriter effect. |
