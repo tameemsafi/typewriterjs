@@ -48,6 +48,7 @@ new Typewriter('#typewriter', {
 | deleteChars | ``amount`` Number of characters | Delete and amount of characters, starting at the end of the visible string. |
 | callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
 | changeDeleteSpeed | ``speed`` Delete speed | The speed at which to delete the characters, lower number is faster. |
+| changeDelay | ``delay`` - Number or 'natural' | Change the delay when typing out each character |
 
 
 # React

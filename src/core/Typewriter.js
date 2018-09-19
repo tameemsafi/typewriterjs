@@ -17,6 +17,7 @@ class Typewriter {
     ADD_HTML_TAG_ELEMENT: 'ADD_HTML_TAG_ELEMENT',
     REMOVE_HTML_TAG_ELEMENT: 'REMOVE_HTML_TAG_ELEMENT',
     CHANGE_DELETE_SPEED: 'CHANGE_DELETE_SPEED',
+    CHANGE_DELAY: 'CHANGE_DELAY',
   }
 
   visibleNodeTypes = {
@@ -262,6 +263,19 @@ class Typewriter {
    */
   changeDeleteSpeed = (speed) => {
     this.addEventToQueue(this.eventNames.CHANGE_DELETE_SPEED, { speed });
+    return this;
+  }
+
+  /**
+   * Change delay when typing
+   * 
+   * @param {Number} delay Delay when typing out characters
+   * @return {Typewriter}
+   * 
+   * @author Tameem Safi <tamem@safi.me.uk>
+   */
+  changeDelay = (delay) => {
+    this.addEventToQueue(this.eventNames.CHANGE_DELAY, { delay });
     return this;
   }
 
@@ -593,6 +607,11 @@ class Typewriter {
 
       case this.eventNames.CHANGE_DELETE_SPEED: {
         this.options.deleteSpeed = currentEvent.eventArgs.speed;
+        break;
+      }
+
+      case this.eventNames.CHANGE_DELAY: {
+        this.options.delay = currentEvent.eventArgs.delay;
         break;
       }
 
