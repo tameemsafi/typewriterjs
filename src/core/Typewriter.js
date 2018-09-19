@@ -503,7 +503,10 @@ class Typewriter {
       }
 
       case this.eventNames.REMOVE_CHARACTER: {
-        this.addEventToQueue(this.eventNames.REMOVE_LAST_VISIBLE_NODE, { removingCharacterNode: true }, true);
+        eventQueue.unshift({
+          eventName: this.eventNames.REMOVE_LAST_VISIBLE_NODE,
+          eventArgs: { removingCharacterNode: true },
+        });
         break;
       }
 
@@ -579,7 +582,10 @@ class Typewriter {
           // If we are removing characters only then remove one more
           // item if current element was wrapper html tag
           if(type === this.visibleNodeTypes.HTML_TAG && removingCharacterNode) {
-            this.addEventToQueue(this.eventNames.REMOVE_LAST_VISIBLE_NODE, null, true);
+            eventQueue.unshift({
+              eventName: this.eventNames.REMOVE_LAST_VISIBLE_NODE,
+              eventArgs: {},
+            });
           }
         }
         break;
