@@ -16,6 +16,7 @@ class Typewriter {
     CALL_FUNCTION: 'CALL_FUNCTION',
     ADD_HTML_TAG_ELEMENT: 'ADD_HTML_TAG_ELEMENT',
     REMOVE_HTML_TAG_ELEMENT: 'REMOVE_HTML_TAG_ELEMENT',
+    CHANGE_DELETE_SPEED: 'CHANGE_DELETE_SPEED',
   }
 
   visibleNodeTypes = {
@@ -33,6 +34,7 @@ class Typewriter {
     reverseCalledEvents: [],
     calledEvents: [],
     visibleNodes: [],
+    initialOptions: null,
     elements: {
       container: null,
       wrapper: document.createElement('span'),
@@ -44,6 +46,7 @@ class Typewriter {
     strings: null,
     cursor: '|',
     delay: 'natural',
+    deleteSpeed: 'natural',
     loop: false,
     autoStart: false,
     devMode: false,
@@ -76,6 +79,9 @@ class Typewriter {
         ...options
       };
     }
+
+    // Make a copy of the options used to reset options when looping
+    this.state.initialOptions = this.options;
 
     this.init();
   }
@@ -169,13 +175,9 @@ class Typewriter {
     }
 
     this.options.strings.forEach((string, index) => {
-      this.typeString(string);
-
-      if(index !== this.options.strings.length - 1) {
-        this.typeString(' ');
-      }
-
-      this.pauseFor(1500);
+      this.typeString(string)
+        .pauseFor(1500)
+        .deleteAll();
     });
 
     return this;
@@ -191,7 +193,6 @@ class Typewriter {
    */
   typeString = (string) => {
     if(doesStringContainHTMLTag(string)) {
-      
       return this.typeOutHTMLString(string);
     }
 
@@ -246,9 +247,21 @@ class Typewriter {
    * 
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  deleteAll = () => {
-    this.addEventToQueue(this.eventNames.REMOVE_ALL, { removingCharacterNode: false });
+  deleteAll = (speed = 'natural') => {
+    this.addEventToQueue(this.eventNames.REMOVE_ALL, { speed });
+    return this;
+  }
 
+  /**
+   * Change delete speed
+   * 
+   * @param {Number} speed Speed to use for deleting characters
+   * @return {Typewriter}
+   * 
+   * @author Tameem Safi <tamem@safi.me.uk>
+   */
+  changeDeleteSpeed = (speed) => {
+    this.addEventToQueue(this.eventNames.CHANGE_DELETE_SPEED, { speed });
     return this;
   }
 
@@ -363,7 +376,7 @@ class Typewriter {
    * Add an event to correct state property
    * 
    * @param {String}  eventName Name of the event
-   * @param {String}  eventArgs Arguments to pass to event callback
+   * @param {Object}  eventArgs Arguments to pass to event callback
    * @param {Boolean} prepend   Prepend to begining of event queue
    * @param {String}  property  Property name of state object
    * @return {Typewriter}
@@ -373,7 +386,7 @@ class Typewriter {
   addEventToStateProperty = (eventName, eventArgs, prepend = false, property) => {
     const eventItem = {
       eventName,
-      eventArgs,
+      eventArgs: eventArgs || {},
     };
 
     if(prepend) {
@@ -413,6 +426,7 @@ class Typewriter {
       // Reset event queue if we are looping
       this.state.eventQueue = this.state.calledEvents;
       this.state.calledEvents = [];
+      this.options = this.state.initialOptions;
       this.addEventToQueue(this.eventNames.REMOVE_ALL, null, true);
     }
 
@@ -435,16 +449,30 @@ class Typewriter {
       this.state.pauseUntil = null;
     }
     
-    const delay = this.options.delay === 'natural' ? getRandomInteger(100, 200) : this.options.delay;
+    // Make a clone of event queue
+    const eventQueue = [...this.state.eventQueue];
+
+    // Get first event from queue
+    const currentEvent = eventQueue.shift();
+
+    // Setup delay variable
+    let delay = 0;
 
     // Check if frame should run or be
     // skipped based on fps interval
+    if(
+      currentEvent.eventName === this.eventNames.REMOVE_LAST_VISIBLE_NODE ||
+      currentEvent.eventName === this.eventNames.REMOVE_CHARACTER
+    ) {
+      delay = this.options.deleteSpeed === 'natural' ? getRandomInteger(40, 80) : this.options.deleteSpeed;
+
+    } else {
+      delay = this.options.delay === 'natural' ? getRandomInteger(120, 160) : this.options.delay;
+    }
+
     if(delta <= delay) {
       return;
     }
-
-    // Get first event from queue
-    const currentEvent = this.state.eventQueue.shift();
 
     // Get current event args
     const { eventName, eventArgs } = currentEvent;
@@ -510,10 +538,33 @@ class Typewriter {
 
       case this.eventNames.REMOVE_ALL: {
         const { visibleNodes } = this.state;
+        const { speed } = eventArgs;
+        const removeAllEventItems = [];
+
+        // Change speed before deleteing
+        if(speed) {
+          removeAllEventItems.push({
+            eventName: this.eventNames.CHANGE_DELETE_SPEED,
+            eventArgs: { speed },
+          });
+        }
 
         for(let i = 0, length = visibleNodes.length; i < length; i++) {
-          this.addEventToQueue(this.eventNames.REMOVE_LAST_VISIBLE_NODE, { removingCharacterNode: false }, true);
+          removeAllEventItems.push({
+            eventName: this.eventNames.REMOVE_LAST_VISIBLE_NODE,
+            eventArgs: { removingCharacterNode: false },
+          });
         }
+
+        // Change speed back to normal after deleteing
+        if(speed) {
+          removeAllEventItems.push({
+            eventName: this.eventNames.CHANGE_DELETE_SPEED,
+            eventArgs: { speed: this.options.deleteSpeed },
+          });
+        }
+
+        eventQueue.unshift(...removeAllEventItems);
 
         break;
       }
@@ -534,6 +585,11 @@ class Typewriter {
         break;
       }
 
+      case this.eventNames.CHANGE_DELETE_SPEED: {
+        this.options.deleteSpeed = currentEvent.eventArgs.speed;
+        break;
+      }
+
       default: {
         break;
       }
@@ -545,9 +601,15 @@ class Typewriter {
         currentEvent.eventName !== this.eventNames.REMOVE_ALL ||
         currentEvent.eventName !== this.eventNames.REMOVE_LAST_VISIBLE_NODE
       ) {
-        this.state.calledEvents.push(currentEvent);
+        this.state.calledEvents = [
+          ...this.state.calledEvents,
+          currentEvent
+        ];
       }
     }
+
+    // Replace state even queue with cloned queue
+    this.state.eventQueue = eventQueue;
 
     // Set last frame time so it can be used to calculate next frame
     this.state.lastFrameTime = nowTime;

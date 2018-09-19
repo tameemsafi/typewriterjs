@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Example - Type out all strings</title>
+  <title>Example - deleteAll with custom speed</title>
 </head>
 <body>
 
@@ -13,9 +13,15 @@
   <script src='../../dist/core.js'></script>
   <script type="text/javascript">
     const instance = new Typewriter('#typewriter', {
-      strings: ['Hello', 'World'],
-      autoStart: true,
+      loop: true,
     });
+
+    instance.typeString('Hello world!')
+      .pauseFor(1000)
+      .deleteAll(15)
+      .typeString('Another message here...')
+      .pauseFor(1000)
+      .start();
   </script>
 
 </body>
