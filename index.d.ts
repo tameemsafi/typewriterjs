@@ -1,4 +1,4 @@
-declare module "typewriter-effect" {
+declare module "typewriter-effect/core" {
   export interface Options {
     strings: ?Array<string>,
     cursor: string,
