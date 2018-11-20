@@ -1,3 +1,4 @@
+import './../polyfills';
 import raf from 'raf';
 import {
   doesStringContainHTMLTag,
@@ -215,28 +216,41 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeOutHTMLString = (string) => {
-    const htmlTagElement = getDOMElementFromString(string);
-    const text = htmlTagElement.innerText;
-    const characters = text.split('');
+    const childNodes = getDOMElementFromString(string);
 
-    if(!characters.length) {
-      return this;
+    if(childNodes.length > 0 ) {
+      for(let i = 0; i < childNodes.length; i++) {
+        const node = childNodes[i];
+        if(node.nodeType && node.nodeType === 1) {
+          console.log(node, node.nodeType);
+          const text = node.innerText;
+          const characters = text.split('');
+
+          // Reset innerText of HTML element
+          node.innerText = '';
+
+          // Add event queue item to insert HTML tag before typing characters
+          this.addEventToQueue(this.eventNames.ADD_HTML_TAG_ELEMENT, {
+            node,
+          });
+
+          if(!characters.length) {
+            return this;
+          }
+
+          characters.forEach(character => {
+            this.addEventToQueue(this.eventNames.TYPE_CHARACTER, {
+              character,
+              node,
+            });
+          });
+        } else {
+          if(node.textContent) {
+            this.typeString(node.textContent);
+          }
+        }
+      }
     }
-
-    // Reset innerText of HTML element
-    htmlTagElement.innerText = '';
-
-    // Add event queue item to insert HTML tag before typing characters
-    this.addEventToQueue(this.eventNames.ADD_HTML_TAG_ELEMENT, {
-      htmlTagElement,
-    });
-
-    characters.forEach(character => {
-      this.addEventToQueue(this.eventNames.TYPE_CHARACTER, {
-        character,
-        htmlTagElement,
-      });
-    });
     
     return this;
   }
@@ -496,11 +510,11 @@ class Typewriter {
     // Run item from event loop
     switch(eventName) {
       case this.eventNames.TYPE_CHARACTER: {
-        const { character, htmlTagElement } = eventArgs;
+        const { character, node } = eventArgs;
         const textNode = document.createTextNode(character);
 
-        if(htmlTagElement) {
-          htmlTagElement.appendChild(textNode);
+        if(node) {
+          node.appendChild(textNode);
         } else {
           this.state.elements.wrapper.appendChild(textNode);
         }
@@ -541,13 +555,13 @@ class Typewriter {
       }
 
       case this.eventNames.ADD_HTML_TAG_ELEMENT: {
-        const { htmlTagElement } = currentEvent.eventArgs;
-        this.state.elements.wrapper.appendChild(htmlTagElement);
+        const { node } = currentEvent.eventArgs;
+        this.state.elements.wrapper.appendChild(node);
         this.state.visibleNodes = [
           ...this.state.visibleNodes,
           {
             type: this.visibleNodeTypes.HTML_TAG,
-            node: htmlTagElement,
+            node,
           },
         ];
         break;
