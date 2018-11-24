@@ -222,7 +222,6 @@ class Typewriter {
       for(let i = 0; i < childNodes.length; i++) {
         const node = childNodes[i];
         if(node.nodeType && node.nodeType === 1) {
-          console.log(node, node.nodeType);
           const text = node.innerText;
           const characters = text.split('');
 
