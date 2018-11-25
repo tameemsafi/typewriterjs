@@ -99,7 +99,7 @@ class Typewriter {
   /**
    * Replace all child nodes of provided element with
    * state wrapper element used for typewriter effect
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   setupWrapperElement = () => {
@@ -108,7 +108,7 @@ class Typewriter {
 
     this.state.elements.cursor.innerHTML = this.options.cursor;
     this.state.elements.container.innerHTML = '';
-    
+
     this.state.elements.container.appendChild(this.state.elements.wrapper);
     this.state.elements.container.appendChild(this.state.elements.cursor);
   }
@@ -125,7 +125,7 @@ class Typewriter {
 
   /**
    * Pause the event loop
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   pause = () => {
@@ -136,23 +136,23 @@ class Typewriter {
 
   /**
    * Destroy current running instance
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   stop = () => {
     if(this.state.eventLoop) {
       raf.cancel(this.state.eventLoop);
     }
-    
+
     return this;
   }
-  
+
   /**
    * Add pause event to queue for ms provided
-   * 
+   *
    * @param {Number} ms Time in ms to pause for
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   pauseFor = (ms) => {
@@ -164,9 +164,9 @@ class Typewriter {
   /**
    * Start typewriter effect by typing
    * out all strings provided
-   * 
+   *
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeOutAllStrings = () => {
@@ -187,10 +187,10 @@ class Typewriter {
 
   /**
    * Adds string characters to event queue for typing
-   * 
+   *
    * @param {String} string String to type
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeString = (string) => {
@@ -209,10 +209,10 @@ class Typewriter {
 
   /**
    * Type out a string which is wrapper around HTML tag
-   * 
+   *
    * @param {String} string String to type
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeOutHTMLString = (string) => {
@@ -256,9 +256,9 @@ class Typewriter {
 
   /**
    * Add delete all characters to event queue
-   * 
+   *
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   deleteAll = (speed = 'natural') => {
@@ -268,10 +268,10 @@ class Typewriter {
 
   /**
    * Change delete speed
-   * 
+   *
    * @param {Number} speed Speed to use for deleting characters
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   changeDeleteSpeed = (speed) => {
@@ -281,10 +281,10 @@ class Typewriter {
 
   /**
    * Change delay when typing
-   * 
+   *
    * @param {Number} delay Delay when typing out characters
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   changeDelay = (delay) => {
@@ -294,10 +294,10 @@ class Typewriter {
 
   /**
    * Add delete character to event queue for amount of characters provided
-   * 
+   *
    * @param {Number} amount Number of characters to remove
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   deleteChars = (amount) => {
@@ -310,11 +310,11 @@ class Typewriter {
 
   /**
    * Add an event item to call a callback function
-   * 
+   *
    * @param {cb}      cb        Callback function to call
    * @param {Object}  thisArg   thisArg to use when calling function
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   callFunction = (cb, thisArg) => {
@@ -324,13 +324,13 @@ class Typewriter {
 
     return this;
   }
-  
+
   /**
    * Add type character event for each character
-   * 
+   *
    * @param {Array} characters Array of characters
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeCharacters = (characters) => {
@@ -342,10 +342,10 @@ class Typewriter {
 
   /**
    * Add remove character event for each character
-   * 
+   *
    * @param {Array} characters Array of characters
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   removeCharacters = (characters) => {
@@ -357,12 +357,12 @@ class Typewriter {
 
   /**
    * Add an event to the event queue
-   * 
+   *
    * @param {String}  eventName Name of the event
    * @param {String}  eventArgs Arguments to pass to event callback
    * @param {Boolean} prepend   Prepend to begining of event queue
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   addEventToQueue = (eventName, eventArgs, prepend = false) => {
@@ -376,12 +376,12 @@ class Typewriter {
 
   /**
    * Add an event to reverse called events used for looping
-   * 
+   *
    * @param {String}  eventName Name of the event
    * @param {String}  eventArgs Arguments to pass to event callback
    * @param {Boolean} prepend   Prepend to begining of event queue
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   addReverseCalledEvent = (eventName, eventArgs, prepend = false) => {
@@ -401,13 +401,13 @@ class Typewriter {
 
   /**
    * Add an event to correct state property
-   * 
+   *
    * @param {String}  eventName Name of the event
    * @param {Object}  eventArgs Arguments to pass to event callback
    * @param {Boolean} prepend   Prepend to begining of event queue
    * @param {String}  property  Property name of state object
    * @return {Typewriter}
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   addEventToStateProperty = (eventName, eventArgs, prepend = false, property) => {
@@ -433,7 +433,7 @@ class Typewriter {
 
   /**
    * Run the event loop and do anything inside of the queue
-   * 
+   *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   runEventLoop = () => {
@@ -449,7 +449,7 @@ class Typewriter {
       if(!this.options.loop) {
         return;
       }
-      
+
       // Reset event queue if we are looping
       this.state.eventQueue = this.state.calledEvents;
       this.state.calledEvents = [];
@@ -475,7 +475,7 @@ class Typewriter {
       // Reset pause time
       this.state.pauseUntil = null;
     }
-    
+
     // Make a clone of event queue
     const eventQueue = [...this.state.eventQueue];
 
@@ -604,7 +604,7 @@ class Typewriter {
 
         if(this.state.visibleNodes.length) {
           const { type, node } = this.state.visibleNodes.pop();
-          node.remove();
+          node.parentElement.removeChild(node);
 
           // If we are removing characters only then remove one more
           // item if current element was wrapper html tag
@@ -655,7 +655,7 @@ class Typewriter {
 
   /**
    * Log a message in development mode
-   * 
+   *
    * @param {Mixed} message Message or item to console.log
    * @author Tameem Safi <tamem@safi.me.uk>
    */
