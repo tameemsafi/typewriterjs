@@ -1,6 +1,6 @@
 {
   "name": "typewriter-effect",
-  "version": "2.4.6",
+  "version": "2.5.0",
   "main": "dist/react.js",
   "keywords": [
     "typewriter",
@@ -22,7 +22,7 @@
     "@babel/core": "^7.0.0-rc.3",
     "@babel/plugin-proposal-class-properties": "^7.0.0-rc.3",
     "@babel/plugin-transform-runtime": "^7.0.0-rc.3",
-    "@babel/polyfill": "^7.0.0-rc.3",
+    "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.0.0-rc.3",
     "@babel/preset-react": "^7.0.0-rc.3",
     "@babel/register": "^7.0.0-rc.3",
