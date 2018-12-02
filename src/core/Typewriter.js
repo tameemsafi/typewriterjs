@@ -1,4 +1,3 @@
-import './../polyfills';
 import raf from 'raf';
 import {
   doesStringContainHTMLTag,
@@ -451,9 +450,9 @@ class Typewriter {
       }
 
       // Reset event queue if we are looping
-      this.state.eventQueue = this.state.calledEvents;
+      this.state.eventQueue = [...this.state.calledEvents];
       this.state.calledEvents = [];
-      this.options = this.state.initialOptions;
+      this.options = {...this.state.initialOptions};
       this.addEventToQueue(this.eventNames.REMOVE_ALL, null, true);
     }
 
@@ -636,8 +635,7 @@ class Typewriter {
     // Add que item to called queue if we are looping
     if(this.options.loop) {
       if(
-        currentEvent.eventName !== this.eventNames.REMOVE_ALL ||
-        currentEvent.eventName !== this.eventNames.REMOVE_LAST_VISIBLE_NODE
+        currentEvent.eventName !== this.eventNames.REMOVE_ALL
       ) {
         this.state.calledEvents = [
           ...this.state.calledEvents,
