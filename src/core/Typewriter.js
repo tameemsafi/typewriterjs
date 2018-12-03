@@ -635,7 +635,8 @@ class Typewriter {
     // Add que item to called queue if we are looping
     if(this.options.loop) {
       if(
-        currentEvent.eventName !== this.eventNames.REMOVE_ALL
+        currentEvent.eventName !== this.eventNames.REMOVE_ALL &&
+        currentEvent.eventName !== this.eventNames.REMOVE_CHARACTER
       ) {
         this.state.calledEvents = [
           ...this.state.calledEvents,
