@@ -603,7 +603,7 @@ class Typewriter {
 
         if(this.state.visibleNodes.length) {
           const { type, node } = this.state.visibleNodes.pop();
-          node.parentElement.removeChild(node);
+          node.parentNode.removeChild(node);
 
           // If we are removing characters only then remove one more
           // item if current element was wrapper html tag
