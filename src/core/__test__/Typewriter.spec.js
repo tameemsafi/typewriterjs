@@ -22,6 +22,7 @@ describe('Typewriter', () => {
   
   afterEach(() => {
     clock = clock.uninstall();
+    jest.clearAllMocks();
   });
 
   it('shoud setup correctly with default settings', () => {
