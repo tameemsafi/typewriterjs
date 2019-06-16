@@ -1,5 +1,7 @@
 # TypewriterJS v2
 
+[![CircleCI](https://circleci.com/gh/tameemsafi/typewriterjs.svg?style=svg)](https://circleci.com/gh/tameemsafi/typewriterjs)
+
 A simple yet powerful native javascript plugin for a cool typewriter effect, developed by Tameem Safi.
 
 I am still learning so any advice or feedback would be amazing. You can find my email on my profile page.
