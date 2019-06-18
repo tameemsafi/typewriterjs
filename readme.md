@@ -32,7 +32,7 @@ new Typewriter('#typewriter', {
 | strings | String or Array | null | Strings to type out when using ``autoStart`` option |
 | cursor | String | Pipe character | String value to use as the cursor. |
 | delay | 'natural' or Number | 'natural' | The delay between each key when typing. |
-| loop | Boolean | false | Wether to keep looping or not. |
+| loop | Boolean | false | Whether to keep looping or not. |
 | autoStart | Boolean | false | Wether to autostart typing strings or not. You are required to provide ``strings`` option. |
 | devMode | Boolean | false | Wether or not to display console logs. |
 | wrapperClassName | String | 'Typewriter__wrapper' | Class name for the wrapper element. |
