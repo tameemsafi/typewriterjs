@@ -16,7 +16,7 @@ This include the core typewriter library, which can be used directly through the
 
 See examples in the 'examples' folder.
 
-```
+```js
 import Typewriter from 'typewriter-effect/dist/core';
 
 new Typewriter('#typewriter', {
@@ -59,7 +59,7 @@ All methods can be chained together.
 
 This incldues a React component which can be used within your project. You can pass in a onInit function which will be called with the instance of the typewriter so you can use the typewriter core API.
 
-```
+```jsx
 import Typewriter from 'typewriter-effect';
 
 <Typewriter
@@ -80,7 +80,7 @@ import Typewriter from 'typewriter-effect';
 
 Alternatively you can also pass in options to use auto play and looping for example:
 
-```
+```jsx
 import Typewriter from 'typewriter-effect';
 
 <Typewriter
