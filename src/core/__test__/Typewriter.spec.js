@@ -207,6 +207,20 @@ describe('Typewriter', () => {
       });
     });
 
+    describe('changeCursor', () => {
+        it('should add event item with new cursor', () => {
+            instance.changeCursor('$');
+            expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
+            expect(instance.state.eventQueue[0].eventArgs.cursor).toEqual('$');
+        });
+
+        it('should throw error if no new cursor is provided', () => {
+            expect(() => {
+                instance.changeCursor();
+            }).toThrowError('Must provide new cursor');
+        });
+    });
+
     describe('deleteChars', () => {
       it('should add event items for amount of characters', () => {
         instance.deleteChars(10);
