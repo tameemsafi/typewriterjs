@@ -283,6 +283,24 @@ class Typewriter {
     return this;
   }
 
+    /**
+     * Change cursor
+     *
+     * @param {String} character/string to represent as cursor
+     * @return {Typewriter}
+     *
+     * @author Y.Paing <ye@y3p.io>
+     */
+    changeCursor = (cursor) => {
+        if(!cursor) {
+            throw new Error('Must provide new cursor');
+        }
+
+        this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor });
+
+        return this;
+    }
+
   /**
    * Add delete character to event queue for amount of characters provided
    *
@@ -630,6 +648,12 @@ class Typewriter {
 
       case EVENT_NAMES.CHANGE_DELAY: {
         this.options.delay = currentEvent.eventArgs.delay;
+        break;
+      }
+
+      case EVENT_NAMES.CHANGE_CURSOR: {
+        this.options.cursor = currentEvent.eventArgs.cursor;
+        this.state.elements.cursor.innerHTML = currentEvent.eventArgs.cursor;
         break;
       }
 
