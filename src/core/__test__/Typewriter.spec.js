@@ -715,6 +715,23 @@ describe('Typewriter', () => {
             expect(instance.options.delay).toEqual(6000);
           });
         });
+
+        describe(`${EVENT_NAMES.CHANGE_CURSOR}`, () => {
+          it('should set options and inner html of cursor element correctly', () => {
+            instance.state.elements.cursor = document.createElement('div');
+            instance.state.eventQueue = [
+              {
+                eventName: EVENT_NAMES.CHANGE_CURSOR,
+                eventArgs: {
+                  cursor: '$$$$',
+                },
+              },
+            ];
+            instance.runEventLoop();
+            expect(instance.options.cursor).toEqual('$$$$');
+            expect(instance.state.elements.cursor.innerHTML).toEqual('$$$$');
+          });
+        });
       });
     });
 
