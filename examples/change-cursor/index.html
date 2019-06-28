@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Example - Change Cursor</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Example - Change Cursor</title>
 </head>
 <body>
+  <div id="typewriter"></div>
 
-<div id="typewriter"></div>
-
-<script src='../../dist/core.js'></script>
-<script type='text/javascript'>
-    const typewriter = new Typewriter('#typewriter');
+  <script src='../../dist/core.js'></script>
+  <script type='text/javascript'>
+    const typewriter = new Typewriter('#typewriter', {
+      loop: true,
+    });
 
     typewriter.typeString('Hello World!')
         .pauseFor(2500)
+        .deleteAll()
+        .pauseFor(500)
         .changeCursor('$')
         .typeString('This is a new cursor')
+        .pauseFor(2500)
         .start();
-</script>
-
+  </script>
 </body>
 </html>

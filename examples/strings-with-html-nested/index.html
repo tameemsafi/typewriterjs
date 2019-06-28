@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Example - Strings with HTML tags</title>
+  <title>Example - Strings with nested HTML</title>
 </head>
 <body>
 
@@ -13,7 +13,7 @@
   <script src='../../dist/core.js'></script>
   <script type="text/javascript">
     const instance = new Typewriter('#typewriter', {
-      strings: ['Hello', '<strong>World</strong>'],
+      strings: ['<span class="wrapper"><span class="span-1">Hello</span>, <span class="span-2">How</span> <span class="span-3">are</span> <span class="span-4">you</span>?</span>', '<span class="wrapper"><strong>Test</strong></span>'],
       autoStart: true,
       loop: true,
     });

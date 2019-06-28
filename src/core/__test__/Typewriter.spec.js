@@ -163,6 +163,13 @@ describe('Typewriter', () => {
         instance.typeOutHTMLString('<strong>hello world</strong> <div>how are you?</div> <p>Google</p>!!!!');
         expect(instance.state.eventQueue).toMatchSnapshot();
       });
+
+      it('should correctly add event items for nested html and parent node', () => {
+        const parentNode = document.createElement('div');
+        parentNode.className = 'parent-node';
+        instance.typeOutHTMLString('<div class="wrapper"><p><strong>test</strong></p>!</div>', parentNode);
+        expect(instance.state.eventQueue).toMatchSnapshot();
+      });
     });
 
     describe('deleteAll', () => {
@@ -622,6 +629,33 @@ describe('Typewriter', () => {
               {
                 type: VISIBLE_NODE_TYPES.HTML_TAG,
                 node,
+                parentNode: instance.state.elements.wrapper,
+              },
+            ]);
+          });
+
+          it('should append node to parent node if passed as eventArgs', () => {
+            const node = document.createElement('div');
+            const parentNode = document.createElement('div');
+            parentNode.className = 'parent-node';
+            parentNode.appendChild = jest.fn();
+            instance.state.eventQueue = [
+              {
+                eventName: EVENT_NAMES.ADD_HTML_TAG_ELEMENT,
+                eventArgs: {
+                  node,
+                  parentNode,
+                },
+              },
+            ];
+            instance.runEventLoop();
+            expect(parentNode.appendChild).toHaveBeenCalledTimes(1);
+            expect(parentNode.appendChild).toHaveBeenCalledWith(node);
+            expect(instance.state.visibleNodes).toEqual([
+              {
+                type: VISIBLE_NODE_TYPES.HTML_TAG,
+                node,
+                parentNode,
               },
             ]);
           });
@@ -737,7 +771,7 @@ describe('Typewriter', () => {
 
     describe('logInDevMode', () => {
       it('should log message to console when option devMode is true', () => {
-        const spy = jest.spyOn(global.console, 'log');
+        const spy = jest.spyOn(global.console, 'log').mockImplementation(() => {});
         instance.options.devMode = true;
         instance.logInDevMode('test');
         expect(spy).toHaveBeenCalledTimes(1);
@@ -745,7 +779,7 @@ describe('Typewriter', () => {
       });
 
       it('should not log message to console when option devMode is false', () => {
-        const spy = jest.spyOn(global.console, 'log');
+        const spy = jest.spyOn(global.console, 'log').mockImplementation(() => {});
         instance.options.devMode = false;
         instance.logInDevMode('test');
         expect(spy).toHaveBeenCalledTimes(0);

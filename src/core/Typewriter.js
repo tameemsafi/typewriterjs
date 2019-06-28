@@ -170,21 +170,20 @@ class Typewriter {
    * Adds string characters to event queue for typing
    *
    * @param {String} string String to type
+   * @param {HTMLElement} node Node to add character inside of
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeString = (string) => {
+  typeString = (string, node = null) => {
     if(doesStringContainHTMLTag(string)) {
-      return this.typeOutHTMLString(string);
+      return this.typeOutHTMLString(string, node);
     }
 
-    const characters = string.split('');
-
-    characters.forEach(character => {
-      this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character });
-    });
-
+    if(string) {
+      this.typeCharacters(string.split(''), node);
+    }
+  
     return this;
   }
 
@@ -192,41 +191,33 @@ class Typewriter {
    * Type out a string which is wrapper around HTML tag
    *
    * @param {String} string String to type
+   * @param {HTMLElement} parentNode Node to add inner nodes to
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeOutHTMLString = (string) => {
+  typeOutHTMLString = (string, parentNode = null) => {
     const childNodes = getDOMElementFromString(string);
 
     if(childNodes.length > 0 ) {
       for(let i = 0; i < childNodes.length; i++) {
         const node = childNodes[i];
-        if(node.nodeType && node.nodeType === 1) {
-          const text = node.textContent;
-          const characters = text.split('');
+        const nodeHTML = node.innerHTML;
 
+        if(node && node.nodeType !== 3) {
           // Reset innerText of HTML element
-          node.textContent = '';
+          node.innerHTML = '';
 
           // Add event queue item to insert HTML tag before typing characters
           this.addEventToQueue(EVENT_NAMES.ADD_HTML_TAG_ELEMENT, {
             node,
+            parentNode,
           });
 
-          if(!characters.length) {
-            return this;
-          }
-
-          characters.forEach(character => {
-            this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, {
-              character,
-              node,
-            });
-          });
+          this.typeString(nodeHTML, node);
         } else {
           if(node.textContent) {
-            this.typeString(node.textContent);
+            this.typeString(node.textContent, parentNode);
           }
         }
       }
@@ -283,23 +274,23 @@ class Typewriter {
     return this;
   }
 
-    /**
-     * Change cursor
-     *
-     * @param {String} character/string to represent as cursor
-     * @return {Typewriter}
-     *
-     * @author Y.Paing <ye@y3p.io>
-     */
-    changeCursor = (cursor) => {
-        if(!cursor) {
-            throw new Error('Must provide new cursor');
-        }
-
-        this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor });
-
-        return this;
+  /**
+   * Change cursor
+   *
+   * @param {String} character/string to represent as cursor
+   * @return {Typewriter}
+   *
+   * @author Y.Paing <ye@y3p.io>
+   */
+  changeCursor = (cursor) => {
+    if(!cursor) {
+      throw new Error('Must provide new cursor');
     }
+
+    this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor });
+
+    return this;
+  }
 
   /**
    * Add delete character to event queue for amount of characters provided
@@ -344,18 +335,20 @@ class Typewriter {
    * Add type character event for each character
    *
    * @param {Array} characters Array of characters
+   * @param {HTMLElement} node Node to add character inside of
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeCharacters = (characters) => {
+  typeCharacters = (characters, node = null) => {
     if(!characters || !Array.isArray(characters)) {
       throw new Error('Characters must be an array');
     }
     
     characters.forEach(character => {
-      this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character });
+      this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
     });
+
     return this;
   }
 
@@ -479,6 +472,7 @@ class Typewriter {
       this.state.calledEvents = [];
       this.options = {...this.state.initialOptions};
       this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null, true);
+      this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor }, true);
     }
 
     // Request next frame
@@ -578,13 +572,20 @@ class Typewriter {
       }
 
       case EVENT_NAMES.ADD_HTML_TAG_ELEMENT: {
-        const { node } = currentEvent.eventArgs;
-        this.state.elements.wrapper.appendChild(node);
+        const { node, parentNode } = currentEvent.eventArgs;
+
+        if(!parentNode) {
+          this.state.elements.wrapper.appendChild(node);
+        } else {
+          parentNode.appendChild(node);
+        }
+        
         this.state.visibleNodes = [
           ...this.state.visibleNodes,
           {
             type: VISIBLE_NODE_TYPES.HTML_TAG,
             node,
+            parentNode: parentNode || this.state.elements.wrapper,
           },
         ];
         break;

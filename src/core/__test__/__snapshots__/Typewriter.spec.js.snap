@@ -73,6 +73,12 @@ Array [
 exports[`Typewriter methods runEventLoop should reset queue correctly if event queue is empty and loop option is true 1`] = `
 Array [
   Object {
+    "eventArgs": Object {
+      "cursor": "|",
+    },
+    "eventName": "CHANGE_CURSOR",
+  },
+  Object {
     "eventArgs": Object {},
     "eventName": "REMOVE_ALL",
   },
@@ -124,30 +130,35 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "h",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "e",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "0",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -159,72 +170,84 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "H",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "e",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": " ",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "w",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "r",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "d",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "!",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -242,30 +265,35 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "H",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "e",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -284,48 +312,56 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "w",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "r",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "d",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "!",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": ",",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": " ",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -344,18 +380,21 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "H",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "w",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -374,18 +413,21 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "a",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "r",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "e",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -404,24 +446,28 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "y",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "u",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "?",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -445,24 +491,28 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "t",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "e",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "s",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "t",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -474,6 +524,7 @@ Array [
   Object {
     "eventArgs": Object {
       "node": <strong />,
+      "parentNode": null,
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
@@ -557,12 +608,14 @@ Array [
   Object {
     "eventArgs": Object {
       "character": " ",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "node": <div />,
+      "parentNode": null,
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
@@ -653,12 +706,14 @@ Array [
   Object {
     "eventArgs": Object {
       "character": " ",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "node": <p />,
+      "parentNode": null,
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
@@ -707,24 +762,97 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "!",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "!",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "!",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "!",
+      "node": null,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+]
+`;
+
+exports[`Typewriter methods typeOutHTMLString should correctly add event items for nested html and parent node 1`] = `
+Array [
+  Object {
+    "eventArgs": Object {
+      "node": <div
+        class="wrapper"
+      />,
+      "parentNode": <div
+        class="parent-node"
+      />,
+    },
+    "eventName": "ADD_HTML_TAG_ELEMENT",
+  },
+  Object {
+    "eventArgs": Object {
+      "node": <p />,
+      "parentNode": <div
+        class="wrapper"
+      />,
+    },
+    "eventName": "ADD_HTML_TAG_ELEMENT",
+  },
+  Object {
+    "eventArgs": Object {
+      "node": <strong />,
+      "parentNode": <p />,
+    },
+    "eventName": "ADD_HTML_TAG_ELEMENT",
+  },
+  Object {
+    "eventArgs": Object {
+      "character": "t",
+      "node": <strong />,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  Object {
+    "eventArgs": Object {
+      "character": "e",
+      "node": <strong />,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  Object {
+    "eventArgs": Object {
+      "character": "s",
+      "node": <strong />,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  Object {
+    "eventArgs": Object {
+      "character": "t",
+      "node": <strong />,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  Object {
+    "eventArgs": Object {
+      "character": "!",
+      "node": <div
+        class="wrapper"
+      />,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -736,72 +864,84 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "H",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "e",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": " ",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "w",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "r",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "d",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "!",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -904,30 +1044,35 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "H",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "e",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
@@ -946,36 +1091,42 @@ Array [
   Object {
     "eventArgs": Object {
       "character": "w",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "o",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "r",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "l",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "d",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
   Object {
     "eventArgs": Object {
       "character": "!",
+      "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
