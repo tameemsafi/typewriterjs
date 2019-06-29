@@ -5,7 +5,7 @@
 ![](preview.gif)
 
 [NPM Repository](https://npmjs.org/typewriter-effect)
-[JSFiddle Example](https://jsfiddle.net/j0k5fv8q/)
+[JSFiddle Example](https://jsfiddle.net/hzfxp2L9/)
 
 # CDN
 
