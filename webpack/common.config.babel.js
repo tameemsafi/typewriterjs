@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 const config = {
   entry: {
@@ -15,6 +16,10 @@ const config = {
     umdNamedDefine: true,
   },
 
+  externals: {
+    react: 'React',
+  },
+
   module: {
     rules: [
       {
@@ -24,27 +29,34 @@ const config = {
           loader: 'babel-loader',
           options: {
             presets: [
-              ['@babel/preset-env', { useBuiltIns: 'usage' }],
+              [
+                '@babel/preset-env',
+                {
+                  useBuiltIns: 'entry',
+                  corejs: 3,
+                  targets: {
+                    browsers: [
+                      'last 2 versions',
+                      'ie >= 11',
+                    ],
+                  },
+                },
+            ],
               '@babel/preset-react',
             ],
             plugins: [
               '@babel/plugin-proposal-class-properties',
+              'babel-plugin-transform-react-remove-prop-types',
             ]
           }
         }
       },
-
-      {
-        test: /\.scss$/,
-        use: [
-          'style-loader',   // creates style nodes from JS strings
-          'css-loader',     // translates CSS into CommonJS
-          'postcss-loader', // PostCSS plugins
-          'sass-loader',    // compiles Sass to CSS, using Node Sass by default
-        ]
-      }
     ]
-  }
+  },
+
+  plugins: [
+    new BundleAnalyzerPlugin()
+  ]
 };
 
 export default config;

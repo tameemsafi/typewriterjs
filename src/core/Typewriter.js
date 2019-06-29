@@ -3,9 +3,13 @@ import {
   doesStringContainHTMLTag,
   getDOMElementFromString,
   getRandomInteger,
+  addStyles,
 } from './../utils';
-import { EVENT_NAMES, VISIBLE_NODE_TYPES } from './constants';
-import './Typewriter.scss';
+import {
+  EVENT_NAMES,
+  VISIBLE_NODE_TYPES,
+  STYLES,
+} from './constants';
 
 class Typewriter {
   state = {
@@ -34,6 +38,7 @@ class Typewriter {
     loop: false,
     autoStart: false,
     devMode: false,
+    skipAddStyles: false,
     wrapperClassName: 'Typewriter__wrapper',
     cursorClassName: 'Typewriter__cursor',
   }
@@ -71,6 +76,11 @@ class Typewriter {
   init() {
     this.setupWrapperElement();
 
+    if(!window.___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
+      addStyles(STYLES);
+      window.___TYPEWRITER_JS_STYLES_ADDED___ = true;
+    }
+    
     if(this.options.autoStart === true && this.options.strings) {
       this.typeOutAllStrings().start();
 		}

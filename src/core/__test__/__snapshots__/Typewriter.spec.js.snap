@@ -985,6 +985,7 @@ Object {
     "deleteSpeed": "natural",
     "devMode": false,
     "loop": false,
+    "skipAddStyles": false,
     "strings": null,
     "wrapperClassName": "Typewriter__wrapper",
   },
@@ -1004,6 +1005,7 @@ Object {
   "deleteSpeed": "natural",
   "devMode": false,
   "loop": false,
+  "skipAddStyles": false,
   "strings": null,
   "wrapperClassName": "Typewriter__wrapper",
 }

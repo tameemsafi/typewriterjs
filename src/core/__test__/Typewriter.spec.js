@@ -1,7 +1,11 @@
 import lolex from 'lolex';
 import raf, { cancel as cancelRaf } from 'raf';
 import Typewriter from '../Typewriter';
-import { EVENT_NAMES, VISIBLE_NODE_TYPES } from '../constants';
+import {
+  EVENT_NAMES,
+  VISIBLE_NODE_TYPES,
+  STYLES,
+} from '../constants';
 
 jest.mock('raf', () => ({
   __esModule: true,
@@ -12,17 +16,44 @@ jest.mock('raf', () => ({
 describe('Typewriter', () => {
   let wrapperElement;
   let clock;
+  let styleNode;
 
   beforeEach(() => {
+    window.___TYPEWRITER_JS_STYLES_ADDED___ = false;
     wrapperElement = document.createElement('div');
     wrapperElement.id = 'test';
     document.body.appendChild(wrapperElement);
+    document.head.appendChild = jest.fn(node => styleNode = node);
     clock = lolex.install();
   });
   
   afterEach(() => {
+    styleNode = undefined;
     clock = clock.uninstall();
     jest.clearAllMocks();
+  });
+
+  it('should have added styles correctly', () => {
+    new Typewriter(wrapperElement);
+    expect(document.head.appendChild).toHaveBeenCalledTimes(1);
+    expect(styleNode.innerHTML).toEqual(STYLES);
+    expect(window.___TYPEWRITER_JS_STYLES_ADDED___).toEqual(true);
+  });
+
+  it('should have added styles only once', () => {
+    new Typewriter(wrapperElement);
+    new Typewriter(wrapperElement);
+    new Typewriter(wrapperElement);
+    expect(document.head.appendChild).toHaveBeenCalledTimes(1);
+    expect(styleNode.innerHTML).toEqual(STYLES);
+    expect(window.___TYPEWRITER_JS_STYLES_ADDED___).toEqual(true);
+  });
+
+  it('should not add styles when skip option is passed', () => {
+    new Typewriter(wrapperElement, { skipAddStyles: true });
+    expect(document.head.appendChild).toHaveBeenCalledTimes(0);
+    expect(styleNode).toEqual(undefined);
+    expect(window.___TYPEWRITER_JS_STYLES_ADDED___).toEqual(false);
   });
 
   it('shoud setup correctly with default settings', () => {
@@ -40,6 +71,7 @@ describe('Typewriter', () => {
       loop: true,
       autoStart: true,
       devMode: true,
+      skipAddStyles: true,
       wrapperClassName: 'wrapper-class',
       cursorClassName: 'cursor-class',
     };
