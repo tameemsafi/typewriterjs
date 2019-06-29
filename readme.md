@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/tameemsafi/typewriterjs.svg?style=svg)](https://circleci.com/gh/tameemsafi/typewriterjs)
 
-A simple yet powerful native javascript plugin for a cool typewriter effect and only 5kb Gzipped!
+![](preview.gif)
 
 [NPM Repository](https://npmjs.org/typewriter-effect)
 [JSFiddle Example](https://jsfiddle.net/j0k5fv8q/)
