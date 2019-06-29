@@ -7,9 +7,9 @@ A simple yet powerful native javascript plugin for a cool typewriter effect and 
 [NPM Repository](https://npmjs.org/typewriter-effect)
 [JSFiddle Example](https://jsfiddle.net/j0k5fv8q/)
 
-# CDN JS
+# CDN
 
-You can use the CDN JS version of this plugin for fast and easy setup.
+You can use the CDN version of this plugin for fast and easy setup.
 
 ```html
 <script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
