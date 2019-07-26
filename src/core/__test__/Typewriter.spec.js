@@ -142,8 +142,8 @@ describe('Typewriter', () => {
 
     it('pauseFor should correctly add event item to queue', () => {
       instance.pauseFor(5000);
-      expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.PAUSE_FOR);
-      expect(instance.state.eventQueue[0].eventArgs.ms).toEqual(5000);
+      expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.PAUSE_FOR);
+      expect(instance.state.eventQueue[2].eventArgs.ms).toEqual(5000);
     });
 
     describe('typeOutAllStrings', () => {
@@ -167,11 +167,13 @@ describe('Typewriter', () => {
     });
 
     describe('typeString', () => {
-      it('should correctly call if string contains html', () => {
+      it('should correctly call `typeOutHTMLString` if string contains html', () => {
         instance.typeOutHTMLString = jest.fn();
         instance.typeString('Hello <strong>world</strong>!');
         expect(instance.typeOutHTMLString).toHaveBeenCalledTimes(1);
-        expect(instance.state.eventQueue).toEqual([]);
+        expect(instance.state.eventQueue.length).toEqual(2);
+        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+        expect(instance.state.eventQueue[1].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
       });
 
       it('should correctly add event items to queue if string does not contain html', () => {
@@ -183,7 +185,9 @@ describe('Typewriter', () => {
     describe('typeOutHTMLString', () => {
       it('should not add anything to event queue if string is empty', () => {
         instance.typeOutHTMLString('');
-        expect(instance.state.eventQueue).toEqual([]);
+        expect(instance.state.eventQueue.length).toEqual(2);
+        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+        expect(instance.state.eventQueue[1].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
       });
 
       it('should correctly add event item when string contains only string', () => {
@@ -207,22 +211,22 @@ describe('Typewriter', () => {
     describe('deleteAll', () => {
       it('should add remove all event item with natural speed by default', () => {
         instance.deleteAll();
-        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
-        expect(instance.state.eventQueue[0].eventArgs.speed).toEqual('natural');
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual('natural');
       });
   
       it('should add remove all event item with natural speed by default', () => {
         instance.deleteAll(500);
-        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
-        expect(instance.state.eventQueue[0].eventArgs.speed).toEqual(500);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(500);
       });
     });
 
     describe('changeDeleteSpeed', () => {
       it('should add event item with new speed', () => {
         instance.changeDeleteSpeed(500);
-        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.CHANGE_DELETE_SPEED);
-        expect(instance.state.eventQueue[0].eventArgs.speed).toEqual(500);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CHANGE_DELETE_SPEED);
+        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(500);
       });
 
       it('should throw error if no new speed is provided', () => {
@@ -235,8 +239,8 @@ describe('Typewriter', () => {
     describe('changeDelay', () => {
       it('should add event item with new delay', () => {
         instance.changeDelay(500);
-        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.CHANGE_DELAY);
-        expect(instance.state.eventQueue[0].eventArgs.delay).toEqual(500);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CHANGE_DELAY);
+        expect(instance.state.eventQueue[2].eventArgs.delay).toEqual(500);
       });
 
       it('should throw error if no new speed is provided', () => {
@@ -249,8 +253,8 @@ describe('Typewriter', () => {
     describe('changeCursor', () => {
         it('should add event item with new cursor', () => {
             instance.changeCursor('$');
-            expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
-            expect(instance.state.eventQueue[0].eventArgs.cursor).toEqual('$');
+            expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
+            expect(instance.state.eventQueue[2].eventArgs.cursor).toEqual('$');
         });
 
         it('should throw error if no new cursor is provided', () => {
@@ -277,18 +281,18 @@ describe('Typewriter', () => {
       it('should add event items to call callback function', () => {
         const cb = () => {};
         instance.callFunction(cb);
-        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.CALL_FUNCTION);
-        expect(instance.state.eventQueue[0].eventArgs.cb).toEqual(cb);
-        expect(instance.state.eventQueue[0].eventArgs.thisArg).toEqual(undefined);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CALL_FUNCTION);
+        expect(instance.state.eventQueue[2].eventArgs.cb).toEqual(cb);
+        expect(instance.state.eventQueue[2].eventArgs.thisArg).toEqual(undefined);
       });
 
       it('should add event items to call callback function with thisArg', () => {
         const cb = () => {};
         const thisArg = { hello: 1 };
         instance.callFunction(cb, thisArg);
-        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.CALL_FUNCTION);
-        expect(instance.state.eventQueue[0].eventArgs.cb).toEqual(cb);
-        expect(instance.state.eventQueue[0].eventArgs.thisArg).toEqual(thisArg);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CALL_FUNCTION);
+        expect(instance.state.eventQueue[2].eventArgs.cb).toEqual(cb);
+        expect(instance.state.eventQueue[2].eventArgs.thisArg).toEqual(thisArg);
       });
 
       it('should throw error if callback function is not provided', () => {
@@ -520,9 +524,9 @@ describe('Typewriter', () => {
           expect(instance.state.calledEvents[0]).toEqual(event);
         });
 
-        it(`should not add called event to state if event is ${EVENT_NAMES.REMOVE_ALL} when loop option is true`, () => {
+        it(`should not add called event to state if event is ${EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE} when loop option is true`, () => {
           const event = {
-            eventName: EVENT_NAMES.REMOVE_ALL,
+            eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
             eventArgs: {
               speed: 100,
             }
@@ -533,9 +537,10 @@ describe('Typewriter', () => {
           expect(instance.state.calledEvents).toEqual([]);
         });
 
-        it(`should not add called event to state if event is ${EVENT_NAMES.REMOVE_CHARACTER} when loop option is true`, () => {
+        it(`should not add called event to state if eventArgs has temp value when loop option is true`, () => {
           const event = {
-            eventName: EVENT_NAMES.REMOVE_CHARACTER,
+            eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
+            eventArgs: { temp: true },
           };
           instance.options.loop = true;
           instance.state.eventQueue = [event];

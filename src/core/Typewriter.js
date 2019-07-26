@@ -75,6 +75,8 @@ class Typewriter {
 
   init() {
     this.setupWrapperElement();
+    this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor }, true);
+    this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null, true);
 
     if(!window.___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
       addStyles(STYLES);
@@ -481,8 +483,6 @@ class Typewriter {
       this.state.eventQueue = [...this.state.calledEvents];
       this.state.calledEvents = [];
       this.options = {...this.state.initialOptions};
-      this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null, true);
-      this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor }, true);
     }
 
     // Request next frame
@@ -520,7 +520,6 @@ class Typewriter {
       currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
     ) {
       delay = this.options.deleteSpeed === 'natural' ? getRandomInteger(40, 80) : this.options.deleteSpeed;
-
     } else {
       delay = this.options.delay === 'natural' ? getRandomInteger(120, 160) : this.options.delay;
     }
@@ -610,7 +609,7 @@ class Typewriter {
         if(speed) {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
-            eventArgs: { speed },
+            eventArgs: { speed, temp: true },
           });
         }
 
@@ -625,7 +624,7 @@ class Typewriter {
         if(speed) {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
-            eventArgs: { speed: this.options.deleteSpeed },
+            eventArgs: { speed: this.options.deleteSpeed, temp: true },
           });
         }
 
@@ -676,8 +675,8 @@ class Typewriter {
     // Add que item to called queue if we are looping
     if(this.options.loop) {
       if(
-        currentEvent.eventName !== EVENT_NAMES.REMOVE_ALL &&
-        currentEvent.eventName !== EVENT_NAMES.REMOVE_CHARACTER
+        currentEvent.eventName !== EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE &&
+        !(currentEvent.eventArgs && currentEvent.eventArgs.temp)
       ) {
         this.state.calledEvents = [
           ...this.state.calledEvents,
@@ -686,7 +685,7 @@ class Typewriter {
       }
     }
 
-    // Replace state even queue with cloned queue
+    // Replace state event queue with cloned queue
     this.state.eventQueue = eventQueue;
 
     // Set last frame time so it can be used to calculate next frame
