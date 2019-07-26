@@ -56,7 +56,7 @@ const config = {
   },
 
   plugins: [
-    new BundleAnalyzerPlugin()
+    // new BundleAnalyzerPlugin()
   ]
 };
 
