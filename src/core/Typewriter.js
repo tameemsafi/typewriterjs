@@ -78,7 +78,7 @@ class Typewriter {
     this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor }, true);
     this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null, true);
 
-    if(!window.___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
+    if(window && !window.___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
       addStyles(STYLES);
       window.___TYPEWRITER_JS_STYLES_ADDED___ = true;
     }

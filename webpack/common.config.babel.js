@@ -13,6 +13,7 @@ const config = {
     library: 'Typewriter',
     libraryTarget: 'umd',
     libraryExport: 'default',
+    globalObject: 'typeof self !== \'undefined\' ? self : this',
     umdNamedDefine: true,
   },
 

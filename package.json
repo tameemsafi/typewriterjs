@@ -35,10 +35,10 @@
     "jest": "^24.8.0",
     "lolex": "^4.1.0",
     "regenerator-runtime": "^0.13.2",
-    "webpack": "^4.35.0",
-    "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.5",
-    "webpack-merge": "^4.1.4"
+    "webpack": "^4.40.2",
+    "webpack-bundle-analyzer": "^3.5.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "prop-types": "^15.6.2",
