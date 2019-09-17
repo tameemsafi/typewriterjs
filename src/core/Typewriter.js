@@ -41,6 +41,7 @@ class Typewriter {
     skipAddStyles: false,
     wrapperClassName: 'Typewriter__wrapper',
     cursorClassName: 'Typewriter__cursor',
+    stringSplitter: null,
   }
 
   constructor(container, options) {
@@ -193,7 +194,9 @@ class Typewriter {
     }
 
     if(string) {
-      this.typeCharacters(string.split(''), node);
+      const { stringSplitter } = this.options || {};
+      const characters = typeof stringSplitter === 'function' ? stringSplitter(string) : string.split('');
+      this.typeCharacters(characters, node);
     }
   
     return this;
