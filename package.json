@@ -1,6 +1,6 @@
 {
   "name": "typewriter-effect",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "main": "dist/react.js",
   "keywords": [
     "typewriter",
