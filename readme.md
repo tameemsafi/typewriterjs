@@ -6,6 +6,7 @@
 
 [NPM Repository](https://npmjs.org/typewriter-effect)
 [JSFiddle Example](https://jsfiddle.net/hzfxp2L9/)
+[Emoji Example](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e)
 
 # CDN
 
