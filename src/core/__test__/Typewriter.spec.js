@@ -74,6 +74,7 @@ describe('Typewriter', () => {
       skipAddStyles: true,
       wrapperClassName: 'wrapper-class',
       cursorClassName: 'cursor-class',
+      stringSplitter: null,
     };
 
     const instance = new Typewriter('#test', options);

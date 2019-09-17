@@ -1079,6 +1079,7 @@ Object {
     "devMode": false,
     "loop": false,
     "skipAddStyles": false,
+    "stringSplitter": null,
     "strings": null,
     "wrapperClassName": "Typewriter__wrapper",
   },
@@ -1099,6 +1100,7 @@ Object {
   "devMode": false,
   "loop": false,
   "skipAddStyles": false,
+  "stringSplitter": null,
   "strings": null,
   "wrapperClassName": "Typewriter__wrapper",
 }
