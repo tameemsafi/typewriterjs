@@ -54,6 +54,7 @@ All methods can be chained together.
 | stop | - | Stop the typewriter effect. |
 | pauseFor | ``ms`` Time to pause for in milliseconds | Pause for milliseconds |
 | typeString | ``string`` String to type out, it can contain HTML tags | Type out a string using the typewriter effect. |
+| pasteString | ``string`` String to paste out, it can contain HTML tags | Paste out a string. |
 | deleteAll | ``speed`` Speed to delete all visibles nodes, can be number or 'natural' | Delete everything that is visible inside of the typewriter wrapper element. |
 | deleteChars | ``amount`` Number of characters | Delete and amount of characters, starting at the end of the visible string. |
 | callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
