@@ -183,6 +183,23 @@ describe('Typewriter', () => {
       });
     });
 
+    describe('pasteString', () => {
+      it('should correctly call `typeOutHTMLString` passing `pasteString` true if string contains html', () => {
+        instance.typeOutHTMLString = jest.fn();
+        instance.pasteString('Hello <strong>world</strong>!');
+        expect(instance.typeOutHTMLString).toHaveBeenCalledTimes(1);
+        expect(instance.typeOutHTMLString).toHaveBeenCalledWith("Hello <strong>world</strong>!", null, true);
+        expect(instance.state.eventQueue.length).toEqual(2);
+        expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+        expect(instance.state.eventQueue[1].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
+      });
+
+      it('should correctly add event items to queue if string does not contain html', () => {
+        instance.pasteString('Hello world!');
+        expect(instance.state.eventQueue).toMatchSnapshot();
+      });
+    });
+
     describe('typeOutHTMLString', () => {
       it('should not add anything to event queue if string is empty', () => {
         instance.typeOutHTMLString('');

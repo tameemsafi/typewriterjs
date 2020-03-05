@@ -55,6 +55,28 @@ Array [
 ]
 `;
 
+exports[`Typewriter methods pasteString should correctly add event items to queue if string does not contain html 1`] = `
+Array [
+  Object {
+    "eventArgs": Object {},
+    "eventName": "REMOVE_ALL",
+  },
+  Object {
+    "eventArgs": Object {
+      "cursor": "|",
+    },
+    "eventName": "CHANGE_CURSOR",
+  },
+  Object {
+    "eventArgs": Object {
+      "character": "Hello world!",
+      "node": null,
+    },
+    "eventName": "PASTE_STRING",
+  },
+]
+`;
+
 exports[`Typewriter methods removeCharacters should add event items for amount of characters 1`] = `
 Array [
   Object {
