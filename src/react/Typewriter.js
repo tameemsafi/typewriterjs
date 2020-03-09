@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import TypewriterCore from './../core';
+import isEqual from 'lodash/isEqual';
 
 class Typewriter extends Component {
   state = {
@@ -21,6 +22,14 @@ class Typewriter extends Component {
     });
   }
 
+  componentDidUpdate(prevProps) {
+    if(!isEqual(this.props.options, prevProps.options)) {
+      this.setState({
+        instance: new TypewriterCore(this.typewriter, this.props.options)
+      });
+    }
+  }
+
   componentWillUnmount() {
     if(this.state.instance) {
       this.state.instance.stop();
@@ -29,7 +38,11 @@ class Typewriter extends Component {
 
   render() {
     return (
-      <div className='Typewriter' ref={(ref) => this.typewriter = ref}></div>
+      <div
+        ref={(ref) => this.typewriter = ref}
+        className='Typewriter'
+        data-testid='typewriter-wrapper'
+      ></div>
     );
   }
 }
