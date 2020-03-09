@@ -203,6 +203,27 @@ class Typewriter {
   }
 
   /**
+   * Adds entire strings to event queue for paste effect
+   *
+   * @param {String} string String to paste
+   * @param {HTMLElement} node Node to add string inside of
+   * @return {Typewriter}
+   *
+   * @author Luiz Felicio <unifelicio@gmail.com>
+   */
+  pasteString = (string, node = null) => {
+    if(doesStringContainHTMLTag(string)) {
+      return this.typeOutHTMLString(string, node, true);
+    }
+
+    if(string) {
+      this.addEventToQueue(EVENT_NAMES.PASTE_STRING, { character: string, node });
+    }
+  
+    return this;
+  }
+
+  /**
    * Type out a string which is wrapper around HTML tag
    *
    * @param {String} string String to type
@@ -211,7 +232,7 @@ class Typewriter {
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeOutHTMLString = (string, parentNode = null) => {
+  typeOutHTMLString = (string, parentNode = null, pasteEffect) => {
     const childNodes = getDOMElementFromString(string);
 
     if(childNodes.length > 0 ) {
@@ -229,10 +250,10 @@ class Typewriter {
             parentNode,
           });
 
-          this.typeString(nodeHTML, node);
+            pasteEffect ? this.pasteString(nodeHTML, node) :  this.typeString(nodeHTML, node);
         } else {
           if(node.textContent) {
-            this.typeString(node.textContent, parentNode);
+            pasteEffect ? this.pasteString(node.textContent, parentNode) :  this.typeString(node.textContent, parentNode);
           }
         }
       }
@@ -538,6 +559,7 @@ class Typewriter {
 
     // Run item from event loop
     switch(eventName) {
+      case EVENT_NAMES.PASTE_STRING:
       case EVENT_NAMES.TYPE_CHARACTER: {
         const { character, node } = eventArgs;
         const textNode = document.createTextNode(character);
