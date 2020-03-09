@@ -38,11 +38,14 @@ new Typewriter('#typewriter', {
 | strings | String or Array | null | Strings to type out when using ``autoStart`` option |
 | cursor | String | Pipe character | String value to use as the cursor. |
 | delay | 'natural' or Number | 'natural' | The delay between each key when typing. |
+| deleteSpeed | 'natural' or Number | 'natural' | The delay between deleting each character. |
 | loop | Boolean | false | Whether to keep looping or not. |
 | autoStart | Boolean | false | Whether to autostart typing strings or not. You are required to provide ``strings`` option. |
 | devMode | Boolean | false | Whether or not to display console logs. |
+| skipAddStyles | Boolean | Skip adding default typewriter css styles. |
 | wrapperClassName | String | 'Typewriter__wrapper' | Class name for the wrapper element. |
 | cursorClassName | String | 'Typewriter__cursor' | Class name for the cursor element. |
+| stringSplitter | Function | String splitter function, can be used to [split emoji's](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e) |
 
 ## Methods
 
