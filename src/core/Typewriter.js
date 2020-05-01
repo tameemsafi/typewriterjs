@@ -173,7 +173,7 @@ class Typewriter {
     this.options.strings.forEach(string => {
       this.typeString(string)
         .pauseFor(1500)
-        .deleteAll();
+        .deleteAll(this.options.deleteSpeed);
     });
 
     return this;
