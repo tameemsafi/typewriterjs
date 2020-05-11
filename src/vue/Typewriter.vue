@@ -2,7 +2,7 @@
   <span></span>
 </template>
 <script>
-  import Typewriter from 'typewriter-effect/dist/core';
+  import Typewriter from './../core';
   export default {
     props: {
       strings: {
