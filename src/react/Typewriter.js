@@ -42,7 +42,7 @@ class Typewriter extends Component {
         ref={(ref) => this.typewriter = ref}
         className='Typewriter'
         data-testid='typewriter-wrapper'
-      ></div>
+      ><span>{this.props.options.initialText}</span></div>
     );
   }
 }
