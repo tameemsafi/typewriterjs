@@ -56,7 +56,7 @@ All methods can be chained together.
 | --- | --- | --- |
 | start | - | Start the typewriter effect. |
 | stop | - | Stop the typewriter effect. |
-| clear | - | Clear the text wrapper immediately. |
+| clearWrapper | - | Clear the text wrapper immediately. |
 | pauseFor | ``ms`` Time to pause for in milliseconds | Pause for milliseconds |
 | typeString | ``string`` String to type out, it can contain HTML tags | Type out a string using the typewriter effect. |
 | pasteString | ``string`` String to paste out, it can contain HTML tags | Paste out a string. |
