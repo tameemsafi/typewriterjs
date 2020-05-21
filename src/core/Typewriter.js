@@ -31,6 +31,7 @@ class Typewriter {
   }
 
   options = {
+    initialText: '',
     strings: null,
     cursor: '|',
     delay: 'natural',
@@ -85,8 +86,12 @@ class Typewriter {
     }
     
     if(this.options.autoStart === true && this.options.strings) {
-      this.typeOutAllStrings().start();
-		}
+      const that = this;
+      window.setTimeout(
+        () => that.typeOutAllStrings().start(),
+        this.options.initialText ? 1500 : 0
+      );
+    }
   }
 
   /**
@@ -101,6 +106,18 @@ class Typewriter {
 
     this.state.elements.cursor.innerHTML = this.options.cursor;
     this.state.elements.container.innerHTML = '';
+
+    // initial text
+    let txt = this.options.initialText;
+    if(txt)
+      txt.split('').forEach(s => {
+        const textNode = document.createTextNode(s);
+        this.state.elements.wrapper.appendChild(textNode);
+        this.state.visibleNodes.push({
+          type: VISIBLE_NODE_TYPES.TEXT_NODE,
+          node: textNode,
+        });
+      });
 
     this.state.elements.container.appendChild(this.state.elements.wrapper);
     this.state.elements.container.appendChild(this.state.elements.cursor);
