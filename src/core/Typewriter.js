@@ -35,6 +35,7 @@ class Typewriter {
     cursor: '|',
     delay: 'natural',
     deleteSpeed: 'natural',
+    initialText: "",
     loop: false,
     autoStart: false,
     devMode: false,
@@ -76,8 +77,14 @@ class Typewriter {
 
   init() {
     this.setupWrapperElement();
-    this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor }, true);
-    this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null, true);
+
+    // if initial text is set, set up a 1500ms pause at
+    // front of event loop
+    if (this.options.initialText)
+      this.addEventToQueue(EVENT_NAMES.PAUSE_FOR, { ms: 1500 });
+
+    this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null);
+    this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor });
 
     if(window && !window.___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
       addStyles(STYLES);
@@ -101,6 +108,18 @@ class Typewriter {
 
     this.state.elements.cursor.innerHTML = this.options.cursor;
     this.state.elements.container.innerHTML = '';
+
+    // initial text
+    let txt = this.options.initialText;
+    if(txt)
+      txt.split('').forEach(s => {
+        const textNode = document.createTextNode(s);
+        this.state.visibleNodes.push({
+          type: VISIBLE_NODE_TYPES.TEXT_NODE,
+          node: textNode,
+        });
+        this.state.elements.wrapper.appendChild(textNode);
+      });
 
     this.state.elements.container.appendChild(this.state.elements.wrapper);
     this.state.elements.container.appendChild(this.state.elements.cursor);
@@ -164,19 +183,17 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeOutAllStrings = () => {
-    if(typeof this.options.strings === 'string') {
-      this.typeString(this.options.strings)
-        .pauseFor(1500);
-      return this;
-    }
 
-    this.options.strings.forEach(string => {
-      this.typeString(string)
-        .pauseFor(1500)
-        .deleteAll(this.options.deleteSpeed);
-    });
+    if(typeof this.options.strings === 'string')
+      return this.typeString(this.options.strings)
+                 .pauseFor(1500);
 
-    return this;
+    else return this.options.strings.forEach(string =>
+        this.typeString(string)
+            .pauseFor(1500)
+            .deleteAll(this.options.deleteSpeed)
+    ), this;
+
   }
 
   /**
@@ -691,6 +708,10 @@ class Typewriter {
         this.state.elements.cursor.innerHTML = currentEvent.eventArgs.cursor;
         break;
       }
+
+      case EVENT_NAMES.CLEAR_WRAPPER:
+        this.state.elements.wrapper.textContent = '';
+        break;
 
       default: {
         break;
