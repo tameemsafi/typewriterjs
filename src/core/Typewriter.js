@@ -86,9 +86,10 @@ class Typewriter {
     }
     
     if(this.options.autoStart === true && this.options.strings) {
-      const that = this;
       window.setTimeout(
-        () => that.typeOutAllStrings().start(),
+        () => {
+          this.typeOutAllStrings(this.options.strings).start()
+        },
         this.options.initialText ? 1500 : 0
       );
     }
@@ -406,6 +407,18 @@ class Typewriter {
   }
 
   /**
+   * Clear wrapper content immediately.
+   *
+   * @return {Typewriter}
+   *
+   * @author Telework Inc. <hello@trytelework.com>
+   */
+  clearWrapper = () => {
+    this.state.elements.wrapper.innerHTML = "";
+    return this;
+  }
+
+  /**
    * Add remove character event for each character
    *
    * @param {Array} characters Array of characters
@@ -708,6 +721,10 @@ class Typewriter {
         this.state.elements.cursor.innerHTML = currentEvent.eventArgs.cursor;
         break;
       }
+
+      case EVENT_NAMES.CLEAR_WRAPPER:
+        this.clearWrapper();
+        break;
 
       default: {
         break;

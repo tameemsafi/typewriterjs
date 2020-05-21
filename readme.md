@@ -56,6 +56,7 @@ All methods can be chained together.
 | start | - | Start the typewriter effect. |
 | stop | - | Stop the typewriter effect. |
 | pauseFor | ``ms`` Time to pause for in milliseconds | Pause for milliseconds |
+| initialText | ``string`` String to prefill the wrapper with | Prefill the wrapper with a string. |
 | typeString | ``string`` String to type out, it can contain HTML tags | Type out a string using the typewriter effect. |
 | pasteString | ``string`` String to paste out, it can contain HTML tags | Paste out a string. |
 | deleteAll | ``speed`` Speed to delete all visibles nodes, can be number or 'natural' | Delete everything that is visible inside of the typewriter wrapper element. |
