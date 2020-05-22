@@ -45,7 +45,6 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@babel/compat-data": "^7.9.6",
     "prop-types": "^15.6.2",
     "raf": "^3.4.0"
   }
