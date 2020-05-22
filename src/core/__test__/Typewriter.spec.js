@@ -71,6 +71,7 @@ describe('Typewriter', () => {
       loop: true,
       autoStart: true,
       devMode: true,
+      initialText: "",
       skipAddStyles: true,
       wrapperClassName: 'wrapper-class',
       cursorClassName: 'cursor-class',

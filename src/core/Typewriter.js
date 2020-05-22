@@ -86,12 +86,15 @@ class Typewriter {
     }
     
     if(this.options.autoStart === true && this.options.strings) {
-      window.setTimeout(
-        () => {
-          this.typeOutAllStrings(this.options.strings).start()
-        },
-        this.options.initialText ? 1500 : 0
-      );
+
+      const txt = this.options.initialText;
+      const setInitial = () => {
+        this.typeOutAllStrings(this.options.strings).start()
+      }
+
+      if (txt) window.setTimeout(setInitial, 1500);
+      else setInitial();
+
     }
   }
 
