@@ -88,12 +88,12 @@ class Typewriter {
     if(this.options.autoStart === true && this.options.strings) {
 
       const txt = this.options.initialText;
-      const setInitial = () => {
-        this.typeOutAllStrings(this.options.strings).start()
+      const startTyping = () => {
+        this.typeOutAllStrings(this.options.strings).start();
       }
 
-      if (txt) window.setTimeout(setInitial, 1500);
-      else setInitial();
+      if (txt) window.setTimeout(startTyping, 1500);
+      else startTyping();
 
     }
   }
