@@ -162,6 +162,13 @@ class Typewriter {
     return this;
   }
 
+  /**
+   * Add pause event to queue for ms provided
+   *
+   * @return {Typewriter}
+   *
+   * @author Telework Inc. <hello@trytelework.com>
+   */
   clear = () => {
     return this.addEventToQueue(EVENT_NAMES.CLEAR_WRAPPER);
   }
