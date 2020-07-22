@@ -67,7 +67,7 @@ All methods can be chained together.
 
 # React
 
-This incldues a React component which can be used within your project. You can pass in a onInit function which will be called with the instance of the typewriter so you can use the typewriter core API.
+This includes a React component which can be used within your project. You can pass in a onInit function which will be called with the instance of the typewriter so you can use the typewriter core API.
 
 ```jsx
 import Typewriter from 'typewriter-effect';
