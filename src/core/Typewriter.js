@@ -34,6 +34,7 @@ class Typewriter {
     strings: null,
     cursor: '|',
     delay: 'natural',
+    pauseFor: 1500,
     deleteSpeed: 'natural',
     loop: false,
     autoStart: false,
@@ -83,7 +84,7 @@ class Typewriter {
       addStyles(STYLES);
       window.___TYPEWRITER_JS_STYLES_ADDED___ = true;
     }
-    
+
     if(this.options.autoStart === true && this.options.strings) {
       this.typeOutAllStrings().start();
 		}
@@ -166,13 +167,13 @@ class Typewriter {
   typeOutAllStrings = () => {
     if(typeof this.options.strings === 'string') {
       this.typeString(this.options.strings)
-        .pauseFor(1500);
+        .pauseFor(this.options.pauseFor);
       return this;
     }
 
     this.options.strings.forEach(string => {
       this.typeString(string)
-        .pauseFor(1500)
+        .pauseFor(this.options.pauseFor)
         .deleteAll(this.options.deleteSpeed);
     });
 
@@ -198,7 +199,7 @@ class Typewriter {
       const characters = typeof stringSplitter === 'function' ? stringSplitter(string) : string.split('');
       this.typeCharacters(characters, node);
     }
-  
+
     return this;
   }
 
@@ -219,7 +220,7 @@ class Typewriter {
     if(string) {
       this.addEventToQueue(EVENT_NAMES.PASTE_STRING, { character: string, node });
     }
-  
+
     return this;
   }
 
@@ -258,7 +259,7 @@ class Typewriter {
         }
       }
     }
-    
+
     return this;
   }
 
@@ -361,7 +362,7 @@ class Typewriter {
     if(!cb || typeof cb !== 'function') {
       throw new Error('Callbak must be a function');
     }
-    
+
     this.addEventToQueue(EVENT_NAMES.CALL_FUNCTION, { cb, thisArg });
 
     return this;
@@ -380,7 +381,7 @@ class Typewriter {
     if(!characters || !Array.isArray(characters)) {
       throw new Error('Characters must be an array');
     }
-    
+
     characters.forEach(character => {
       this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
     });
@@ -613,7 +614,7 @@ class Typewriter {
         } else {
           parentNode.appendChild(node);
         }
-        
+
         this.state.visibleNodes = [
           ...this.state.visibleNodes,
           {
