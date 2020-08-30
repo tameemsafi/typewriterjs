@@ -10,6 +10,11 @@
     "react typewriter",
     "react typewriter effect"
   ],
+  "files": [
+    "dist",
+    "LICENSE",
+    "readme.md"
+  ],
   "repository": "git@github.com:tameemsafi/typewriterjs.git",
   "author": "Tameem Safi <tameem@safi.me.uk>",
   "license": "MIT",
