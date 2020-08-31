@@ -12,6 +12,7 @@
   ],
   "files": [
     "dist",
+    "index.d.ts",
     "LICENSE",
     "readme.md"
   ],
