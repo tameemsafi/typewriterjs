@@ -13,62 +13,62 @@ declare module "typewriter-effect" {
      * 
      * @default Pipe character
      */
-    cursor: string
+    cursor?: string
     /**
      * The delay between each key when typing.
      * 
      * @default "natural"
      */
-    delay: Speed
+    delay?: Speed
     /**
      * The delay between deleting each character.
      * 
      * @default "natural"
      */
-    deleteSpeed: Speed
+    deleteSpeed?: Speed
     /**
      * Whether to keep looping or not.
      * 
      * @default false
      */
-    loop: boolean
+    loop?: boolean
     /**
      * Whether to autostart typing strings or not. You are required to provide
      * strings option.
      * 
      * @default false
      */
-    autoStart: boolean
+    autoStart?: boolean
     /**
      * Whether or not to display console logs.
      *
      * @default false
      */
-    devMode: boolean
+    devMode?: boolean
     /**
      * Skip adding default typewriter css styles.
      *
      * @default false
      */
-    skipAddStyles: boolean
+    skipAddStyles?: boolean
     /**
      * Class name for the wrapper element.
      * 
      * @default "Typewriter__wrapper"
      */
-    wrapperClassName: string
+    wrapperClassName?: string
     /**
      * Class name for the cursor element.
      * 
      * @default "Typewriter__cursor"
      */
-    cursorClassName: string
+    cursorClassName?: string
     /**
      * String splitter function, can be used to split emoji's
      * 
      * @default null
      */
-    stringSplitter: (text: string) => string
+    stringSplitter?: (text: string) => string
   }
 
   export interface TypewriterState {
@@ -165,7 +165,7 @@ declare module "typewriter-effect" {
 
   const TypewriterComponent: React.FunctionComponent<{
     onInit(typewriter: TypewriterClass): void
-    options?: Options
+    options?: Partial<Options>
   }>
 
   export default TypewriterComponent
