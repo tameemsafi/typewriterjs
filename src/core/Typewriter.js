@@ -31,6 +31,7 @@ class Typewriter {
   }
 
   options = {
+    initialText: '',
     strings: null,
     cursor: '|',
     delay: 'natural',
@@ -85,8 +86,16 @@ class Typewriter {
     }
     
     if(this.options.autoStart === true && this.options.strings) {
-      this.typeOutAllStrings().start();
-		}
+
+      const txt = this.options.initialText;
+      const startTyping = () => {
+        this.typeOutAllStrings(this.options.strings).start();
+      }
+
+      if (txt) window.setTimeout(startTyping, 1500);
+      else startTyping();
+
+    }
   }
 
   /**
@@ -101,6 +110,18 @@ class Typewriter {
 
     this.state.elements.cursor.innerHTML = this.options.cursor;
     this.state.elements.container.innerHTML = '';
+
+    // initial text
+    let txt = this.options.initialText;
+    if(txt)
+      txt.split('').forEach(s => {
+        const textNode = document.createTextNode(s);
+        this.state.elements.wrapper.appendChild(textNode);
+        this.state.visibleNodes.push({
+          type: VISIBLE_NODE_TYPES.TEXT_NODE,
+          node: textNode,
+        });
+      });
 
     this.state.elements.container.appendChild(this.state.elements.wrapper);
     this.state.elements.container.appendChild(this.state.elements.cursor);
@@ -139,6 +160,17 @@ class Typewriter {
     }
 
     return this;
+  }
+
+  /**
+   * Add pause event to queue for ms provided
+   *
+   * @return {Typewriter}
+   *
+   * @author Telework Inc. <hello@trytelework.com>
+   */
+  clear = () => {
+    return this.addEventToQueue(EVENT_NAMES.CLEAR_WRAPPER);
   }
 
   /**
@@ -385,6 +417,19 @@ class Typewriter {
       this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
     });
 
+    return this;
+  }
+
+  /**
+   * Clear wrapper content immediately.
+   *
+   * @return {Typewriter}
+   *
+   * @author Telework Inc. <hello@trytelework.com>
+   */
+  clearWrapper = () => {
+    this.state.visibleNodes = [];
+    this.state.elements.wrapper.textContent = "";
     return this;
   }
 
@@ -691,6 +736,10 @@ class Typewriter {
         this.state.elements.cursor.innerHTML = currentEvent.eventArgs.cursor;
         break;
       }
+
+      case EVENT_NAMES.CLEAR_WRAPPER:
+        this.clearWrapper();
+        break;
 
       default: {
         break;

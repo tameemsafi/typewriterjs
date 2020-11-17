@@ -35,6 +35,7 @@ new Typewriter('#typewriter', {
 
 | Name | Type | Default value | Description |
 | --- | --- | --- | --- |
+| initialText | String | empty string | Prefill the wrapper with a string. |
 | strings | String or Array | null | Strings to type out when using ``autoStart`` option |
 | cursor | String | Pipe character | String value to use as the cursor. |
 | delay | 'natural' or Number | 'natural' | The delay between each key when typing. |
@@ -55,6 +56,7 @@ All methods can be chained together.
 | --- | --- | --- |
 | start | - | Start the typewriter effect. |
 | stop | - | Stop the typewriter effect. |
+| clear | - | Clear the text wrapper. |
 | pauseFor | ``ms`` Time to pause for in milliseconds | Pause for milliseconds |
 | typeString | ``string`` String to type out, it can contain HTML tags | Type out a string using the typewriter effect. |
 | pasteString | ``string`` String to paste out, it can contain HTML tags | Paste out a string. |
@@ -63,6 +65,7 @@ All methods can be chained together.
 | callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
 | changeDeleteSpeed | ``speed`` Number or 'natural' | The speed at which to delete the characters, lower number is faster. |
 | changeDelay | ``delay`` Number or 'natural' | Change the delay when typing out each character |
+| clearWrapper | - | Clear the text wrapper immediately, from outside the event loop (not affected by `loop`). |
 
 
 # React
