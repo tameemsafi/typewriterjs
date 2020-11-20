@@ -73,7 +73,7 @@ All methods can be chained together.
 
 ### Basic example
 
-```
+```js
 var app = document.getElementById('app');
 
 var typewriter = new Typewriter(app, {
@@ -94,7 +94,7 @@ typewriter
 
 ### Custom text node creator using callback
 
-```
+```js
 var app = document.getElementById('app');
 
 var customNodeCreator = function(character) {
@@ -115,7 +115,7 @@ typewriter
 
 ### Custom handling text insert using input placeholder
 
-```
+```js
 var input = document.getElementById('input')
 
 var customNodeCreator = function(character) {
