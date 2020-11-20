@@ -37,7 +37,8 @@ class Typewriter extends Component {
   }
 
   render() {
-    const {component: Component} = this.props; 
+    const { component: Component } = this.props; 
+    
     return (
       <Component
         ref={(ref) => this.typewriter = ref}
