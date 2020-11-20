@@ -78,16 +78,12 @@ describe('Typewriter', () => {
       pauseFor: 1500,
       onStringTyped: jest.fn(),
       onStringType: jest.fn(),
+      onCreateTextNode: jest.fn(),
+      onRemoveNode: jest.fn(),
     };
 
     const instance = new Typewriter('#test', options);
     expect(instance.options).toEqual(options);
-  });
-
-  it('should throw error if no container selector or element is provided', () => {
-    expect(() => {
-      new Typewriter();
-    }).toThrowError('No container element was provided');
   });
 
   it('should throw error if container wih selector is not found', () => {
@@ -590,7 +586,7 @@ describe('Typewriter', () => {
             ];
           });
 
-          it('should append child to wrapper if nod element is not provided', () => {
+          it('should append child to wrapper if node element is not provided', () => {
             instance.state.elements.wrapper.appendChild = jest.fn();
             instance.runEventLoop();
             expect(instance.state.elements.wrapper.appendChild).toHaveBeenCalledTimes(1);
@@ -599,6 +595,7 @@ describe('Typewriter', () => {
               {
                 type: VISIBLE_NODE_TYPES.TEXT_NODE,
                 node: instance.state.elements.wrapper.appendChild.mock.calls[0][0],
+                character: 't',
               }
             ]);
           });
@@ -613,6 +610,7 @@ describe('Typewriter', () => {
               {
                 type: VISIBLE_NODE_TYPES.TEXT_NODE,
                 node: node.appendChild.mock.calls[0][0],
+                character: 't',
               }
             ]);
           });
