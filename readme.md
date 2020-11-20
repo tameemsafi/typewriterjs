@@ -41,6 +41,7 @@ new Typewriter('#typewriter', {
 | deleteSpeed | 'natural' or Number | 'natural' | The delay between deleting each character. |
 | loop | Boolean | false | Whether to keep looping or not. |
 | autoStart | Boolean | false | Whether to autostart typing strings or not. You are required to provide ``strings`` option. |
+| pauseFor | Number | 1500 | The pause duration after a string is typed when using autostart mode |
 | devMode | Boolean | false | Whether or not to display console logs. |
 | skipAddStyles | Boolean | Skip adding default typewriter css styles. |
 | wrapperClassName | String | 'Typewriter__wrapper' | Class name for the wrapper element. |
