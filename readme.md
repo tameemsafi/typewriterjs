@@ -48,7 +48,8 @@ new Typewriter('#typewriter', {
 | cursorClassName | String | 'Typewriter__cursor' | Class name for the cursor element. |
 | stringSplitter | Function | String splitter function, can be used to [split emoji's](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e) |
 | onStringTyped | Function | null | Callback function, is run after each string is passed to the internal event loop for typing. |
-| onCreateTextNode | Function | null | Callback function to replace the internal method which creates a text node for the character before adding it to the DOM. *Must return a HTML Node element or default will be used* |
+| onCreateTextNode | Function | null | Callback function to replace the internal method which creates a text node for the character before adding it to the DOM. If you return null, then it will not add anything to the DOM and so it is up to you to handle it. |
+| onRemoveNode | Function | null | Callback function when a node is about to be removed. First param will be an object `{ node: HTMLNode, charater: string }` |
 
 ## Methods
 
@@ -104,6 +105,39 @@ var typewriter = new Typewriter(app, {
   loop: true,
   delay: 75,
   onCreateTextNode: customNodeCreator,
+});
+
+typewriter
+  .typeString('A simple yet powerful native javascript')
+  .pauseFor(300)
+  .start();
+```
+
+### Custom handling text insert using input placeholder
+
+```
+var input = document.getElementById('input')
+
+var customNodeCreator = function(character) {
+  // Add character to input placeholder
+  input.placeholder = input.placeholder + character;
+
+  // Return null to skip internal adding of dom node
+  return null;
+}
+
+var onRemoveNode = function({ character }) {
+  if(input.placeholder) {
+    // Remove last character from input placeholder
+    input.placeholder = input.placeholder.slice(0, -1)
+  }
+}
+
+var typewriter = new Typewriter(null, {
+  loop: true,
+  delay: 75,
+  onCreateTextNode: customNodeCreator,
+  onRemoveNode: onRemoveNode,
 });
 
 typewriter

@@ -45,23 +45,23 @@ class Typewriter {
     stringSplitter: null,
     onStringTyped: null,
     onStringType: null,
+    onCreateTextNode: null,
+    onRemoveNode: null,
   }
 
   constructor(container, options) {
-    if(!container) {
-      throw new Error('No container element was provided');
-    }
-
-    if(typeof container === 'string') {
-      const containerElement = document.querySelector(container);
-
-      if(!containerElement) {
-        throw new Error('Could not find container element');
+    if(container) {
+      if(typeof container === 'string') {
+        const containerElement = document.querySelector(container);
+  
+        if(!containerElement) {
+          throw new Error('Could not find container element');
+        }
+  
+        this.state.elements.container = containerElement;
+      } else {
+        this.state.elements.container = container;
       }
-
-      this.state.elements.container = containerElement;
-    } else {
-      this.state.elements.container = container;
     }
 
     if(options) {
@@ -99,6 +99,10 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   setupWrapperElement = () => {
+    if(!this.state.elements.container) {
+      return
+    }
+
     this.state.elements.wrapper.className = this.options.wrapperClassName;
     this.state.elements.cursor.className = this.options.cursorClassName;
 
@@ -585,19 +589,17 @@ class Typewriter {
         const { character, node } = eventArgs;
         const textNode = document.createTextNode(character);
 
-        if(node) {
-          node.appendChild(textNode);
-        } else {
-          this.state.elements.wrapper.appendChild(textNode);
+        let textNodeToUse = textNode
+
+        if(this.options.onCreateTextNode && typeof this.options.onCreateTextNode === 'function') {
+          textNodeToUse = this.options.onCreateTextNode(character, textNode)
         }
 
-        let nodeToUse = textNode
-
-        if(typeof this.options.onCreateTextNode === 'function') {
-          const newNode = this.options.onCreateTextNode(character, textNode)
-
-          if(newNode) {
-            nodeToUse = newNode
+        if(textNodeToUse) {
+          if(node) {
+            node.appendChild(textNodeToUse);
+          } else {
+            this.state.elements.wrapper.appendChild(textNodeToUse);
           }
         }
 
@@ -605,7 +607,8 @@ class Typewriter {
           ...this.state.visibleNodes,
           {
             type: VISIBLE_NODE_TYPES.TEXT_NODE,
-            node: nodeToUse,
+            character,
+            node: textNodeToUse,
           },
         ];
 
@@ -693,9 +696,19 @@ class Typewriter {
         const { removingCharacterNode } = currentEvent.eventArgs;
 
         if(this.state.visibleNodes.length) {
-          const { type, node } = this.state.visibleNodes.pop();
-          node.parentNode.removeChild(node);
+          const { type, node, character } = this.state.visibleNodes.pop();
 
+          if(this.options.onRemoveNode && typeof this.options.onRemoveNode === 'function') {
+            this.options.onRemoveNode({
+              node,
+              character,
+            })
+          }
+
+          if(node) {
+            node.parentNode.removeChild(node);
+          }
+          
           // Remove extra node as current deleted one is just an empty wrapper node
           if(type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode) {
             eventQueue.unshift({
