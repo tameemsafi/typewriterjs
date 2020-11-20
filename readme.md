@@ -47,6 +47,7 @@ new Typewriter('#typewriter', {
 | wrapperClassName | String | 'Typewriter__wrapper' | Class name for the wrapper element. |
 | cursorClassName | String | 'Typewriter__cursor' | Class name for the cursor element. |
 | stringSplitter | Function | String splitter function, can be used to [split emoji's](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e) |
+| onStringTyped | Function | null | Callback function, is run after each string is passed to the internal event loop for typing. |
 
 ## Methods
 
