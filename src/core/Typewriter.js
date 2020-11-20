@@ -44,6 +44,7 @@ class Typewriter {
     cursorClassName: 'Typewriter__cursor',
     stringSplitter: null,
     onStringTyped: null,
+    onStringType: null,
   }
 
   constructor(container, options) {
@@ -192,7 +193,7 @@ class Typewriter {
     this.options.strings.forEach(string => {
       this.typeString(string)
         .afterTypeCallback(this.options.onStringTyped)
-        .pauseFor(this.options.pauseFor);
+        .pauseFor(this.options.pauseFor)
         .deleteAll(this.options.deleteSpeed);
     });
 
@@ -590,11 +591,21 @@ class Typewriter {
           this.state.elements.wrapper.appendChild(textNode);
         }
 
+        let nodeToUse = textNode
+
+        if(typeof this.options.onCreateTextNode === 'function') {
+          const newNode = this.options.onCreateTextNode(character, textNode)
+
+          if(newNode) {
+            nodeToUse = newNode
+          }
+        }
+
         this.state.visibleNodes = [
           ...this.state.visibleNodes,
           {
             type: VISIBLE_NODE_TYPES.TEXT_NODE,
-            node: textNode,
+            node: nodeToUse,
           },
         ];
 

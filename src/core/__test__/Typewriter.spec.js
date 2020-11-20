@@ -75,6 +75,9 @@ describe('Typewriter', () => {
       wrapperClassName: 'wrapper-class',
       cursorClassName: 'cursor-class',
       stringSplitter: null,
+      pauseFor: 1500,
+      onStringTyped: jest.fn(),
+      onStringType: jest.fn(),
     };
 
     const instance = new Typewriter('#test', options);

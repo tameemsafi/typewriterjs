@@ -48,6 +48,7 @@ new Typewriter('#typewriter', {
 | cursorClassName | String | 'Typewriter__cursor' | Class name for the cursor element. |
 | stringSplitter | Function | String splitter function, can be used to [split emoji's](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e) |
 | onStringTyped | Function | null | Callback function, is run after each string is passed to the internal event loop for typing. |
+| onCreateTextNode | Function | null | Callback function to replace the internal method which creates a text node for the character before adding it to the DOM. *Must return a HTML Node element or default will be used* |
 
 ## Methods
 
@@ -65,6 +66,51 @@ All methods can be chained together.
 | callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
 | changeDeleteSpeed | ``speed`` Number or 'natural' | The speed at which to delete the characters, lower number is faster. |
 | changeDelay | ``delay`` Number or 'natural' | Change the delay when typing out each character |
+
+
+## Examples
+
+### Basic example
+
+```
+var app = document.getElementById('app');
+
+var typewriter = new Typewriter(app, {
+  loop: true,
+  delay: 75,
+});
+
+typewriter
+  .pauseFor(2500)
+  .typeString('A simple yet powerful native javascript')
+  .pauseFor(300)
+  .deleteChars(10)
+  .typeString('<strong>JS</strong> plugin for a cool typewriter effect and ')
+  .typeString('<strong>only <span style="color: #27ae60;">5kb</span> Gzipped!</strong>')
+  .pauseFor(1000)
+  .start();
+```
+
+### Custom text node creator using callback
+
+```
+var app = document.getElementById('app');
+
+var customNodeCreator = function(character) {
+  return document.createTextNode(character);
+}
+
+var typewriter = new Typewriter(app, {
+  loop: true,
+  delay: 75,
+  onCreateTextNode: customNodeCreator,
+});
+
+typewriter
+  .typeString('A simple yet powerful native javascript')
+  .pauseFor(300)
+  .start();
+```
 
 
 # React
