@@ -42,6 +42,7 @@ class Typewriter {
     wrapperClassName: 'Typewriter__wrapper',
     cursorClassName: 'Typewriter__cursor',
     stringSplitter: null,
+    onStringTyped: null,
   }
 
   constructor(container, options) {
@@ -156,6 +157,22 @@ class Typewriter {
   }
 
   /**
+   * Run a callback after string is
+   * typed out
+   *
+   * @return {Typewriter}
+   *
+   * @author Asad Akbar <asad@asadakbar.com>
+   */
+  afterTypeCallback = cb => {
+    if (cb !== null && typeof cb === 'function') {
+      this.callFunction(cb);
+    }
+
+    return this;
+  }
+
+  /**
    * Start typewriter effect by typing
    * out all strings provided
    *
@@ -166,14 +183,16 @@ class Typewriter {
   typeOutAllStrings = () => {
     if(typeof this.options.strings === 'string') {
       this.typeString(this.options.strings)
-        .pauseFor(1500);
+          .afterTypeCallback(this.options.onStringTyped)
+          .pauseFor(1500);
       return this;
     }
 
     this.options.strings.forEach(string => {
       this.typeString(string)
-        .pauseFor(1500)
-        .deleteAll(this.options.deleteSpeed);
+          .afterTypeCallback(this.options.onStringTyped)
+          .pauseFor(1500)
+          .deleteAll(this.options.deleteSpeed);
     });
 
     return this;
