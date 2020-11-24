@@ -34,6 +34,7 @@ class Typewriter {
     strings: null,
     cursor: '|',
     delay: 'natural',
+    pauseFor: 1500,
     deleteSpeed: 'natural',
     loop: false,
     autoStart: false,
@@ -42,23 +43,25 @@ class Typewriter {
     wrapperClassName: 'Typewriter__wrapper',
     cursorClassName: 'Typewriter__cursor',
     stringSplitter: null,
+    onStringTyped: null,
+    onStringType: null,
+    onCreateTextNode: null,
+    onRemoveNode: null,
   }
 
   constructor(container, options) {
-    if(!container) {
-      throw new Error('No container element was provided');
-    }
-
-    if(typeof container === 'string') {
-      const containerElement = document.querySelector(container);
-
-      if(!containerElement) {
-        throw new Error('Could not find container element');
+    if(container) {
+      if(typeof container === 'string') {
+        const containerElement = document.querySelector(container);
+  
+        if(!containerElement) {
+          throw new Error('Could not find container element');
+        }
+  
+        this.state.elements.container = containerElement;
+      } else {
+        this.state.elements.container = container;
       }
-
-      this.state.elements.container = containerElement;
-    } else {
-      this.state.elements.container = container;
     }
 
     if(options) {
@@ -83,7 +86,7 @@ class Typewriter {
       addStyles(STYLES);
       window.___TYPEWRITER_JS_STYLES_ADDED___ = true;
     }
-    
+
     if(this.options.autoStart === true && this.options.strings) {
       this.typeOutAllStrings().start();
 		}
@@ -96,6 +99,10 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   setupWrapperElement = () => {
+    if(!this.state.elements.container) {
+      return
+    }
+
     this.state.elements.wrapper.className = this.options.wrapperClassName;
     this.state.elements.cursor.className = this.options.cursorClassName;
 
@@ -156,6 +163,22 @@ class Typewriter {
   }
 
   /**
+   * Run a callback after string is
+   * typed out
+   *
+   * @return {Typewriter}
+   *
+   * @author Asad Akbar <asad@asadakbar.com>
+   */
+  afterTypeCallback = cb => {
+    if (cb !== null && typeof cb === 'function') {
+      this.callFunction(cb);
+    }
+
+    return this;
+  }
+
+  /**
    * Start typewriter effect by typing
    * out all strings provided
    *
@@ -166,13 +189,15 @@ class Typewriter {
   typeOutAllStrings = () => {
     if(typeof this.options.strings === 'string') {
       this.typeString(this.options.strings)
-        .pauseFor(1500);
+        .afterTypeCallback(this.options.onStringTyped)
+        .pauseFor(this.options.pauseFor);
       return this;
     }
 
     this.options.strings.forEach(string => {
       this.typeString(string)
-        .pauseFor(1500)
+        .afterTypeCallback(this.options.onStringTyped)
+        .pauseFor(this.options.pauseFor)
         .deleteAll(this.options.deleteSpeed);
     });
 
@@ -198,7 +223,7 @@ class Typewriter {
       const characters = typeof stringSplitter === 'function' ? stringSplitter(string) : string.split('');
       this.typeCharacters(characters, node);
     }
-  
+
     return this;
   }
 
@@ -219,7 +244,7 @@ class Typewriter {
     if(string) {
       this.addEventToQueue(EVENT_NAMES.PASTE_STRING, { character: string, node });
     }
-  
+
     return this;
   }
 
@@ -258,7 +283,7 @@ class Typewriter {
         }
       }
     }
-    
+
     return this;
   }
 
@@ -361,7 +386,7 @@ class Typewriter {
     if(!cb || typeof cb !== 'function') {
       throw new Error('Callbak must be a function');
     }
-    
+
     this.addEventToQueue(EVENT_NAMES.CALL_FUNCTION, { cb, thisArg });
 
     return this;
@@ -380,7 +405,7 @@ class Typewriter {
     if(!characters || !Array.isArray(characters)) {
       throw new Error('Characters must be an array');
     }
-    
+
     characters.forEach(character => {
       this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
     });
@@ -564,17 +589,26 @@ class Typewriter {
         const { character, node } = eventArgs;
         const textNode = document.createTextNode(character);
 
-        if(node) {
-          node.appendChild(textNode);
-        } else {
-          this.state.elements.wrapper.appendChild(textNode);
+        let textNodeToUse = textNode
+
+        if(this.options.onCreateTextNode && typeof this.options.onCreateTextNode === 'function') {
+          textNodeToUse = this.options.onCreateTextNode(character, textNode)
+        }
+
+        if(textNodeToUse) {
+          if(node) {
+            node.appendChild(textNodeToUse);
+          } else {
+            this.state.elements.wrapper.appendChild(textNodeToUse);
+          }
         }
 
         this.state.visibleNodes = [
           ...this.state.visibleNodes,
           {
             type: VISIBLE_NODE_TYPES.TEXT_NODE,
-            node: textNode,
+            character,
+            node: textNodeToUse,
           },
         ];
 
@@ -613,7 +647,7 @@ class Typewriter {
         } else {
           parentNode.appendChild(node);
         }
-        
+
         this.state.visibleNodes = [
           ...this.state.visibleNodes,
           {
@@ -662,9 +696,19 @@ class Typewriter {
         const { removingCharacterNode } = currentEvent.eventArgs;
 
         if(this.state.visibleNodes.length) {
-          const { type, node } = this.state.visibleNodes.pop();
-          node.parentNode.removeChild(node);
+          const { type, node, character } = this.state.visibleNodes.pop();
 
+          if(this.options.onRemoveNode && typeof this.options.onRemoveNode === 'function') {
+            this.options.onRemoveNode({
+              node,
+              character,
+            })
+          }
+
+          if(node) {
+            node.parentNode.removeChild(node);
+          }
+          
           // Remove extra node as current deleted one is just an empty wrapper node
           if(type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode) {
             eventQueue.unshift({

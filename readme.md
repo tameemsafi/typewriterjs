@@ -41,11 +41,15 @@ new Typewriter('#typewriter', {
 | deleteSpeed | 'natural' or Number | 'natural' | The delay between deleting each character. |
 | loop | Boolean | false | Whether to keep looping or not. |
 | autoStart | Boolean | false | Whether to autostart typing strings or not. You are required to provide ``strings`` option. |
+| pauseFor | Number | 1500 | The pause duration after a string is typed when using autostart mode |
 | devMode | Boolean | false | Whether or not to display console logs. |
 | skipAddStyles | Boolean | Skip adding default typewriter css styles. |
 | wrapperClassName | String | 'Typewriter__wrapper' | Class name for the wrapper element. |
 | cursorClassName | String | 'Typewriter__cursor' | Class name for the cursor element. |
 | stringSplitter | Function | String splitter function, can be used to [split emoji's](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e) |
+| onStringTyped | Function | null | Callback function, is run after each string is passed to the internal event loop for typing. |
+| onCreateTextNode | Function | null | Callback function to replace the internal method which creates a text node for the character before adding it to the DOM. If you return null, then it will not add anything to the DOM and so it is up to you to handle it. |
+| onRemoveNode | Function | null | Callback function when a node is about to be removed. First param will be an object `{ node: HTMLNode, charater: string }` |
 
 ## Methods
 
@@ -63,6 +67,83 @@ All methods can be chained together.
 | callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
 | changeDeleteSpeed | ``speed`` Number or 'natural' | The speed at which to delete the characters, lower number is faster. |
 | changeDelay | ``delay`` Number or 'natural' | Change the delay when typing out each character |
+
+## Examples
+
+### Basic example
+
+```js
+var app = document.getElementById('app');
+
+var typewriter = new Typewriter(app, {
+  loop: true,
+  delay: 75,
+});
+
+typewriter
+  .pauseFor(2500)
+  .typeString('A simple yet powerful native javascript')
+  .pauseFor(300)
+  .deleteChars(10)
+  .typeString('<strong>JS</strong> plugin for a cool typewriter effect and ')
+  .typeString('<strong>only <span style="color: #27ae60;">5kb</span> Gzipped!</strong>')
+  .pauseFor(1000)
+  .start();
+```
+
+### Custom text node creator using callback
+
+```js
+var app = document.getElementById('app');
+
+var customNodeCreator = function(character) {
+  return document.createTextNode(character);
+}
+
+var typewriter = new Typewriter(app, {
+  loop: true,
+  delay: 75,
+  onCreateTextNode: customNodeCreator,
+});
+
+typewriter
+  .typeString('A simple yet powerful native javascript')
+  .pauseFor(300)
+  .start();
+```
+
+### Custom handling text insert using input placeholder
+
+```js
+var input = document.getElementById('input')
+
+var customNodeCreator = function(character) {
+  // Add character to input placeholder
+  input.placeholder = input.placeholder + character;
+
+  // Return null to skip internal adding of dom node
+  return null;
+}
+
+var onRemoveNode = function({ character }) {
+  if(input.placeholder) {
+    // Remove last character from input placeholder
+    input.placeholder = input.placeholder.slice(0, -1)
+  }
+}
+
+var typewriter = new Typewriter(null, {
+  loop: true,
+  delay: 75,
+  onCreateTextNode: customNodeCreator,
+  onRemoveNode: onRemoveNode,
+});
+
+typewriter
+  .typeString('A simple yet powerful native javascript')
+  .pauseFor(300)
+  .start();
+```
 
 ## React
 

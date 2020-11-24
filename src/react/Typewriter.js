@@ -37,17 +37,20 @@ class Typewriter extends Component {
   }
 
   render() {
+    const { component: Component } = this.props; 
+    
     return (
-      <div
+      <Component
         ref={(ref) => this.typewriter = ref}
         className='Typewriter'
         data-testid='typewriter-wrapper'
-      ></div>
+      />
     );
   }
 }
 
 Typewriter.propTypes = {
+  component: PropTypes.element,
   onInit: PropTypes.func,
   options: PropTypes.objectOf(PropTypes.shape({
     strings: PropTypes.arrayOf(PropTypes.string),
@@ -60,5 +63,9 @@ Typewriter.propTypes = {
     cursorClassName: PropTypes.string,
   })),
 };
+
+Typewriter.defaultProps = {
+  component: 'div'
+}
 
 export default Typewriter;
