@@ -69,6 +69,22 @@ declare module "typewriter-effect" {
      * @default null
      */
     stringSplitter?: (text: string) => string
+    /**
+     * Callback function to replace the internal method which
+     * creates a text node for the character before adding
+     * it to the DOM. If you return null, then it will
+     * not add anything to the DOM and so it
+     * is up to you to handle it
+     * 
+     * @default null
+     */
+    onCreateTextNode?: (character: string, textNode: Text) => Text | null
+    /**
+     * Callback function when a node is about to be removed
+     * 
+     * @default null
+     */
+    onRemoveNode?: (param: { node: Node?, charater: string }) => void
   }
 
   export interface TypewriterState {
