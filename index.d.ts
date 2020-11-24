@@ -84,7 +84,7 @@ declare module "typewriter-effect" {
      * 
      * @default null
      */
-    onRemoveNode?: (param: { node: Node?, charater: string }) => void
+    onRemoveNode?: (param: { node: Node | void, charater: string }) => void
   }
 
   export interface TypewriterState {

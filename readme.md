@@ -47,7 +47,6 @@ new Typewriter('#typewriter', {
 | wrapperClassName | String | 'Typewriter__wrapper' | Class name for the wrapper element. |
 | cursorClassName | String | 'Typewriter__cursor' | Class name for the cursor element. |
 | stringSplitter | Function | String splitter function, can be used to [split emoji's](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e) |
-| onStringTyped | Function | null | Callback function, is run after each string is passed to the internal event loop for typing. |
 | onCreateTextNode | Function | null | Callback function to replace the internal method which creates a text node for the character before adding it to the DOM. If you return null, then it will not add anything to the DOM and so it is up to you to handle it. |
 | onRemoveNode | Function | null | Callback function when a node is about to be removed. First param will be an object `{ node: HTMLNode, charater: string }` |
 

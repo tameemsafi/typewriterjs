@@ -76,8 +76,6 @@ describe('Typewriter', () => {
       cursorClassName: 'cursor-class',
       stringSplitter: null,
       pauseFor: 1500,
-      onStringTyped: jest.fn(),
-      onStringType: jest.fn(),
       onCreateTextNode: jest.fn(),
       onRemoveNode: jest.fn(),
     };
