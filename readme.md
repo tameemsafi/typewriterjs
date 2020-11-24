@@ -8,7 +8,7 @@
 [JSFiddle Example](https://jsfiddle.net/hzfxp2L9/)
 [Emoji Example](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e)
 
-# CDN
+## CDN
 
 You can use the CDN version of this plugin for fast and easy setup.
 
@@ -16,7 +16,7 @@ You can use the CDN version of this plugin for fast and easy setup.
 <script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
 ```
 
-# Core
+## Core
 
 This include the core typewriter library, which can be used directly through the API.
 
@@ -67,7 +67,6 @@ All methods can be chained together.
 | callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
 | changeDeleteSpeed | ``speed`` Number or 'natural' | The speed at which to delete the characters, lower number is faster. |
 | changeDelay | ``delay`` Number or 'natural' | Change the delay when typing out each character |
-
 
 ## Examples
 
@@ -146,8 +145,7 @@ typewriter
   .start();
 ```
 
-
-# React
+## React
 
 This includes a React component which can be used within your project. You can pass in a onInit function which will be called with the instance of the typewriter so you can use the typewriter core API.
 
