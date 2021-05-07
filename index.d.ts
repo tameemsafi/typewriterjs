@@ -182,6 +182,10 @@ declare module "typewriter-effect" {
   const TypewriterComponent: React.FunctionComponent<{
     onInit?: (typewriter: TypewriterClass) => void
     options?: Partial<Options>
+    /**
+     * The component to use as a container. Defaults to "div".
+     */
+    component?: React.Component | string
   }>
 
   export default TypewriterComponent
