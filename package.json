@@ -26,8 +26,8 @@
     "test": "jest --env=jsdom"
   },
   "peerDependencies": {
-    "react": "16.x",
-    "react-dom": "16.x"
+    "react": "^16 || ^17",
+    "react-dom": "^16 || ^17"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",
