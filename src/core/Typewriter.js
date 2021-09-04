@@ -34,6 +34,8 @@ class Typewriter {
     strings: null,
     cursor: '|',
     delay: 'natural',
+    naturalDelayLow: 120,
+    naturalDelayHigh: 160,
     pauseFor: 1500,
     deleteSpeed: 'natural',
     loop: false,
@@ -550,7 +552,7 @@ class Typewriter {
     ) {
       delay = this.options.deleteSpeed === 'natural' ? getRandomInteger(40, 80) : this.options.deleteSpeed;
     } else {
-      delay = this.options.delay === 'natural' ? getRandomInteger(120, 160) : this.options.delay;
+      delay = this.options.delay === 'natural' ? getRandomInteger(this.options.naturalDelayLow, this.options.naturalDelayHigh) : this.options.delay;
     }
 
     if(delta <= delay) {
