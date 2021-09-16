@@ -16,6 +16,18 @@ You can use the CDN version of this plugin for fast and easy setup.
 <script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
 ```
 
+## Installation
+You can install Typewriterjs with just one command and you're good to go
+```shell
+
+# with npm
+npm i typewriter-effect
+
+# with yarn
+yarn add typewriter-effect
+
+```
+
 ## Core
 
 This include the core typewriter library, which can be used directly through the API.
