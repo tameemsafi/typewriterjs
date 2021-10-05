@@ -43,6 +43,7 @@ class Typewriter extends Component {
       <Component
         ref={(ref) => this.typewriter = ref}
         className='Typewriter'
+        translate='no'
         data-testid='typewriter-wrapper'
       />
     );
