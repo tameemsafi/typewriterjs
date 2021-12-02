@@ -1,4 +1,4 @@
-import lolex from 'lolex';
+import FakeTimers from '@sinonjs/fake-timers';
 import raf, { cancel as cancelRaf } from 'raf';
 import Typewriter from '../Typewriter';
 import {
@@ -24,7 +24,7 @@ describe('Typewriter', () => {
     wrapperElement.id = 'test';
     document.body.appendChild(wrapperElement);
     document.head.appendChild = jest.fn(node => styleNode = node);
-    clock = lolex.install();
+    clock = FakeTimers.install();
   });
   
   afterEach(() => {

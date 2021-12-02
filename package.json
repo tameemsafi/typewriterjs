@@ -26,33 +26,34 @@
     "test": "jest --env=jsdom"
   },
   "peerDependencies": {
-    "react": "17.x",
-    "react-dom": "17.x"
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.15.4",
-    "@babel/core": "^7.15.5",
-    "@babel/plugin-proposal-class-properties": "^7.14.5",
-    "@babel/preset-env": "^7.15.6",
-    "@babel/preset-react": "^7.14.5",
-    "@babel/register": "^7.15.3",
-    "@babel/runtime": "^7.15.4",
-    "@testing-library/react": "^11.2.7",
-    "babel-loader": "^8.2.2",
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/plugin-proposal-class-properties": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-react": "^7.16.0",
+    "@babel/register": "^7.16.0",
+    "@babel/runtime": "^7.16.3",
+    "@sinonjs/fake-timers": "^8.1.0",
+    "@testing-library/react": "^12.1.2",
+    "babel-loader": "^8.2.3",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
-    "core-js": "^3.14.0",
-    "jest": "^27.0.4",
-    "lolex": "^6.0.0",
+    "core-js": "^3.19.2",
+    "jest": "^27.4.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "regenerator-runtime": "^0.13.3",
-    "webpack": "^5.38.1",
-    "webpack-bundle-analyzer": "^4.4.2",
-    "webpack-cli": "^4.7.2",
+    "regenerator-runtime": "^0.13.9",
+    "webpack": "^5.64.4",
+    "webpack-bundle-analyzer": "^4.5.0",
+    "webpack-cli": "^4.9.1",
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "prop-types": "^15.6.2",
-    "raf": "^3.4.0"
+    "@types/sinonjs__fake-timers": "^8.1.1",
+    "prop-types": "^15.7.2",
+    "raf": "^3.4.1"
   }
 }
