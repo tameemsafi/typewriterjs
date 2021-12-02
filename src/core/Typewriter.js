@@ -45,6 +45,7 @@ class Typewriter {
     stringSplitter: null,
     onCreateTextNode: null,
     onRemoveNode: null,
+    initialText: null,
   }
 
   constructor(container, options) {
@@ -364,7 +365,7 @@ class Typewriter {
    */
   callFunction = (cb, thisArg) => {
     if(!cb || typeof cb !== 'function') {
-      throw new Error('Callbak must be a function');
+      throw new Error('Callback must be a function');
     }
 
     this.addEventToQueue(EVENT_NAMES.CALL_FUNCTION, { cb, thisArg });
@@ -418,7 +419,7 @@ class Typewriter {
    *
    * @param {String}  eventName Name of the event
    * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param {Boolean} prepend   Prepend to beginning of event queue
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
@@ -437,7 +438,7 @@ class Typewriter {
    *
    * @param {String}  eventName Name of the event
    * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param {Boolean} prepend   Prepend to beginning of event queue
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
@@ -462,7 +463,7 @@ class Typewriter {
    *
    * @param {String}  eventName Name of the event
    * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param {Boolean} prepend   Prepend to beginning of event queue
    * @param {String}  property  Property name of state object
    * @return {Typewriter}
    *
@@ -644,7 +645,7 @@ class Typewriter {
         const { speed } = eventArgs;
         const removeAllEventItems = [];
 
-        // Change speed before deleteing
+        // Change speed before deleting
         if(speed) {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
@@ -659,7 +660,7 @@ class Typewriter {
           });
         }
 
-        // Change speed back to normal after deleteing
+        // Change speed back to normal after deleting
         if(speed) {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
