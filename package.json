@@ -1,6 +1,6 @@
 {
   "name": "typewriter-effect",
-  "version": "2.18.2",
+  "version": "2.19.0",
   "main": "dist/react.js",
   "types": "index.d.ts",
   "keywords": [
@@ -19,6 +19,12 @@
   ],
   "repository": "git@github.com:tameemsafi/typewriterjs.git",
   "author": "Tameem Safi <tameem@safi.me.uk>",
+  "contributors": [
+    {
+      "name": "Kilian Brachtendorf",
+      "email": "kilian@brachtendorf.dev"
+    }
+  ],
   "license": "MIT",
   "scripts": {
     "build:prod": "webpack --config ./webpack/production.config.babel.js",
