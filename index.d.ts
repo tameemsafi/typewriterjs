@@ -153,6 +153,16 @@ declare module "typewriter-effect" {
     deleteChars(amount: number): TypewriterClass
 
     /**
+     * Delete and amount of characters, starting at the end of the visible.
+     * Opposed to calling the deleteAll or deleteChars option this function clears the number of 
+     * characters in a single operation without noticeable delay. 
+     * 
+     * @param amount Number of characters to delete. A value of 0 or negative removes everything
+     * @param boolean whether to call the onRemoveNode callback be called for each node. False by default
+     */
+    clear(amount?: number, callOnRemove? : boolean): TypewriterClass
+
+    /**
      * Call a callback function. The first parameter to the callback elements
      * which contains all DOM nodes used in the typewriter effect.
      * 
@@ -182,6 +192,7 @@ declare module "typewriter-effect" {
   const TypewriterComponent: React.FunctionComponent<{
     onInit?: (typewriter: TypewriterClass) => void
     options?: Partial<Options>
+    component?: React.Component | string
   }>
 
   export default TypewriterComponent

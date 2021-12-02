@@ -243,6 +243,13 @@ describe('Typewriter', () => {
       });
     });
 
+    describe('clear', () => {
+      it('should add clear event item with natural speed by default', () => {
+        instance.clear();
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CLEAR);
+      });
+    });
+
     describe('changeDeleteSpeed', () => {
       it('should add event item with new speed', () => {
         instance.changeDeleteSpeed(500);
