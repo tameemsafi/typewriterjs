@@ -45,7 +45,6 @@ class Typewriter {
     stringSplitter: null,
     onCreateTextNode: null,
     onRemoveNode: null,
-    initialText: null,
   }
 
   constructor(container, options) {
