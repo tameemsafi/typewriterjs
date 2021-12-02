@@ -646,7 +646,7 @@ class Typewriter {
         const removeAllEventItems = [];
 
         // Change speed before deleting
-        if(speed) {
+        if(typeof speed === "number") {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
             eventArgs: { speed, temp: true },
@@ -661,7 +661,7 @@ class Typewriter {
         }
 
         // Change speed back to normal after deleting
-        if(speed) {
+        if(typeof speed === "number") {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
             eventArgs: { speed: this.options.deleteSpeed, temp: true },

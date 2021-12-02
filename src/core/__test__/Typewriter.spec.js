@@ -230,10 +230,16 @@ describe('Typewriter', () => {
         expect(instance.state.eventQueue[2].eventArgs.speed).toEqual('natural');
       });
   
-      it('should add remove all event item with natural speed by default', () => {
+      it('should add remove all event item with specified speed', () => {
         instance.deleteAll(500);
         expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
         expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(500);
+      });
+
+      it('should add allow remove all events with 0 or negative delete speeds', () => {
+        instance.deleteAll(0);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(0);
       });
     });
 
