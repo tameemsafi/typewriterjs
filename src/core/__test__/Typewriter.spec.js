@@ -1,4 +1,4 @@
-import lolex from 'lolex';
+import FakeTimers from '@sinonjs/fake-timers';
 import raf, { cancel as cancelRaf } from 'raf';
 import Typewriter from '../Typewriter';
 import {
@@ -24,7 +24,7 @@ describe('Typewriter', () => {
     wrapperElement.id = 'test';
     document.body.appendChild(wrapperElement);
     document.head.appendChild = jest.fn(node => styleNode = node);
-    clock = lolex.install();
+    clock = FakeTimers.install();
   });
   
   afterEach(() => {
@@ -56,13 +56,13 @@ describe('Typewriter', () => {
     expect(window.___TYPEWRITER_JS_STYLES_ADDED___).toEqual(false);
   });
 
-  it('shoud setup correctly with default settings', () => {
+  it('should setup correctly with default settings', () => {
     const instance = new Typewriter('#test');
     expect(instance.state).toMatchSnapshot();
     expect(instance.options).toMatchSnapshot();
   });
 
-  it('shoud setup correctly with custom options', () => {
+  it('should setup correctly with custom options', () => {
     const options = {
       strings: ['hello', 'world'],
       cursor: '+',
@@ -230,10 +230,23 @@ describe('Typewriter', () => {
         expect(instance.state.eventQueue[2].eventArgs.speed).toEqual('natural');
       });
   
-      it('should add remove all event item with natural speed by default', () => {
+      it('should add remove all event item with specified speed', () => {
         instance.deleteAll(500);
         expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
         expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(500);
+      });
+
+      it('should add allow remove all events with 0 or negative delete speeds', () => {
+        instance.deleteAll(0);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(0);
+      });
+    });
+
+    describe('clear', () => {
+      it('should add clear event item with natural speed by default', () => {
+        instance.clear();
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CLEAR);
       });
     });
 
@@ -313,13 +326,13 @@ describe('Typewriter', () => {
       it('should throw error if callback function is not provided', () => {
         expect(() => {
           instance.callFunction();
-        }).toThrowError('Callbak must be a function');
+        }).toThrowError('Callback must be a function');
       });
 
       it('should throw error if callback is not a function', () => {
         expect(() => {
           instance.callFunction(false);
-        }).toThrowError('Callbak must be a function');
+        }).toThrowError('Callback must be a function');
       });
     });
 
@@ -563,7 +576,7 @@ describe('Typewriter', () => {
           expect(instance.state.calledEvents).toEqual([]);
         });
 
-        it('should set last fame time correcly', () => {
+        it('should set last fame time correctly', () => {
           const currentTime = Date.now();
           instance.state.lastFrameTime = currentTime;
           clock.tick(2000);
@@ -665,7 +678,7 @@ describe('Typewriter', () => {
         });
 
         describe(`${EVENT_NAMES.ADD_HTML_TAG_ELEMENT}`, () => {
-          it('should append node to the wrapepr element', () => {
+          it('should append node to the wrapper element', () => {
             const node = document.createElement('div');
             instance.state.elements.wrapper.appendChild = jest.fn();
             instance.state.eventQueue = [

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Example - clear entire text</title>
+</head>
+<body>
+
+  <div id="typewriter"></div>
+
+  <script src='../../dist/core.js'></script>
+  <script type="text/javascript">
+    const instance = new Typewriter('#typewriter', {
+      loop: true,
+      devMode: true,
+      onRemoveNode: (e) =>{console.log("remove node: " + e)}
+    });
+
+    instance.typeString('Hello <b>w</b>orld!')
+      .clear(-1,true)
+      .typeString('Hello <b>w</b>orld!')
+      .clear(8)
+      .pauseFor(2000)
+      .start();
+  </script>
+
+</body>
+</html>

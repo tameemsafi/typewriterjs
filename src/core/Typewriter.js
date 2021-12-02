@@ -268,6 +268,22 @@ class Typewriter {
   }
 
   /**
+   * Delete the last X characters.
+   * Opposed to using the deleteAll event still having a small delay depending on the event loop ticker,
+   * using clear removes the items immediately.
+   *
+   * @param {Number} amount the number of characters to delete. A value of 0 or smaller will remove all written characters
+   * @param {Boolean} callOnRemove whether to call the onRemove callback for each node or not. Defaults to false
+   * @return {Typewriter}
+   *
+   * @author Kilian Brachtendorf <kilian@brachtendorf.dev>
+   */
+  clear = (amount = 0, callOnRemove = false) => {
+    this.addEventToQueue(EVENT_NAMES.CLEAR, { amount, callOnRemove });
+    return this;
+  };
+
+  /**
    * Add delete all characters to event queue
    *
    * @return {Typewriter}
@@ -364,7 +380,7 @@ class Typewriter {
    */
   callFunction = (cb, thisArg) => {
     if(!cb || typeof cb !== 'function') {
-      throw new Error('Callbak must be a function');
+      throw new Error('Callback must be a function');
     }
 
     this.addEventToQueue(EVENT_NAMES.CALL_FUNCTION, { cb, thisArg });
@@ -418,7 +434,7 @@ class Typewriter {
    *
    * @param {String}  eventName Name of the event
    * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param {Boolean} prepend   Prepend to beginning of event queue
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
@@ -437,7 +453,7 @@ class Typewriter {
    *
    * @param {String}  eventName Name of the event
    * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param {Boolean} prepend   Prepend to beginning of event queue
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
@@ -462,7 +478,7 @@ class Typewriter {
    *
    * @param {String}  eventName Name of the event
    * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param {Boolean} prepend   Prepend to beginning of event queue
    * @param {String}  property  Property name of state object
    * @return {Typewriter}
    *
@@ -644,8 +660,12 @@ class Typewriter {
         const { speed } = eventArgs;
         const removeAllEventItems = [];
 
-        // Change speed before deleteing
-        if(speed) {
+        // Change speed before deleting
+        if(typeof speed === "number") {
+
+          if(speed <= 0){
+            this.logInDevMode("If you intend to delete the entire text without noticeable delay take a look at the clear() function");
+          }
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
             eventArgs: { speed, temp: true },
@@ -659,8 +679,8 @@ class Typewriter {
           });
         }
 
-        // Change speed back to normal after deleteing
-        if(speed) {
+        // Change speed back to normal after deleting
+        if(typeof speed === "number") {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
             eventArgs: { speed: this.options.deleteSpeed, temp: true },
@@ -688,7 +708,7 @@ class Typewriter {
           if(node) {
             node.parentNode.removeChild(node);
           }
-          
+
           // Remove extra node as current deleted one is just an empty wrapper node
           if(type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode) {
             eventQueue.unshift({
@@ -696,6 +716,40 @@ class Typewriter {
               eventArgs: {},
             });
           }
+        }
+        break;
+      }
+
+      case EVENT_NAMES.CLEAR: {
+        //Clear all nodes without delay.
+        //Instead of creating a new event for each operation we perform it immediately as the event loop has it's own delay.
+
+        const { visibleNodes } = this.state;
+        const copiedNodes = [...visibleNodes];
+
+        //How many elements do we want to delete?
+        const { amount, callOnRemove } = eventArgs;
+        if (copiedNodes.length > 0) {
+
+          const numOfNodesToDelete = amount && amount > 0 && amount < copiedNodes.length ? amount : copiedNodes.length;
+
+          for (let i = 0; i < numOfNodesToDelete;) {
+            if(copiedNodes.length > 0){
+              const { type, node, character } = copiedNodes.pop();
+
+              if(callOnRemove && this.options.onRemoveNode && typeof this.options.onRemoveNode === 'function'){
+                this.options.onRemoveNode(node, character);
+              }
+
+              node.parentNode.removeChild(node);
+              if(type === VISIBLE_NODE_TYPES.TEXT_NODE){
+                i++;
+              }
+            }else{
+              break;
+            }
+          }
+          this.state.visibleNodes = copiedNodes;
         }
         break;
       }

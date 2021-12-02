@@ -74,7 +74,8 @@ All methods can be chained together.
 | typeString | ``string`` String to type out, it can contain HTML tags | Type out a string using the typewriter effect. |
 | pasteString | ``string`` String to paste out, it can contain HTML tags | Paste out a string. |
 | deleteAll | ``speed`` Speed to delete all visibles nodes, can be number or 'natural' | Delete everything that is visible inside of the typewriter wrapper element. |
-| deleteChars | ``amount`` Number of characters | Delete and amount of characters, starting at the end of the visible string. |
+| deleteChars | ``amount`` Number of characters | Delete amount of characters, starting at the end of the visible string. |
+| clear | ``amount`` Number of characters to clear, ``callOnRemove`` Should the onRemoveNode callback be called for each node? | Delete amount of characters without delay. |
 | callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
 | changeDeleteSpeed | ``speed`` Number or 'natural' | The speed at which to delete the characters, lower number is faster. |
 | changeDelay | ``delay`` Number or 'natural' | Change the delay when typing out each character |
