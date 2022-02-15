@@ -34,6 +34,7 @@ class Typewriter {
     strings: null,
     cursor: '|',
     delay: 'natural',
+    performant: false,
     pauseFor: 1500,
     deleteSpeed: 'natural',
     loop: false,
@@ -567,6 +568,24 @@ class Typewriter {
       case EVENT_NAMES.PASTE_STRING:
       case EVENT_NAMES.TYPE_CHARACTER: {
         const { character, node } = eventArgs;
+
+        let lastChild;
+
+        if(node) {
+          lastChild = node.lastChild;
+        } else {
+          lastChild = this.state.elements.wrapper.lastChild;
+        }
+
+        if(this.options.performant && lastChild &&  lastChild.nodeType === 3) {
+          // Performance mode active and last child node was a text node.
+          // Just append the text to prevent too many text nodes
+          // which causes lag.
+          lastChild.textContent += character;
+          break;
+        }
+
+        // Default
         const textNode = document.createTextNode(character);
 
         let textNodeToUse = textNode

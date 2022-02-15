@@ -21,6 +21,17 @@ declare module "typewriter-effect" {
      */
     delay?: Speed
     /**
+     * Whether it should append each character to existing text node
+     * instead of creating a new text node for each character
+     * which causes performance issues.
+     * 
+     * NOTE: If eanbled, on delete will remove text nodes 
+     *        containing multiple characters.
+     * 
+     * @default false
+     */
+     performant?: boolean
+     /**
      * The delay between deleting each character.
      * 
      * @default "natural"
