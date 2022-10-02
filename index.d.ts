@@ -180,6 +180,7 @@ declare module "typewriter-effect" {
   }
 
   const TypewriterComponent: React.FunctionComponent<{
+    component?: React.ElementType
     onInit?: (typewriter: TypewriterClass) => void
     options?: Partial<Options>
   }>
