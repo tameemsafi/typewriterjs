@@ -68,7 +68,7 @@ declare module "typewriter-effect" {
      * 
      * @default null
      */
-    stringSplitter?: (text: string) => string
+    stringSplitter?: (text: string) => string[]
     /**
      * Callback function to replace the internal method which
      * creates a text node for the character before adding
