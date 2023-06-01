@@ -28,9 +28,13 @@ yarn add typewriter-effect
 
 ```
 
+## Building
+
+You will need to bundle the javascript before it can be used, this can be done using `npm run build:dev` for development or `npm run build:prod` for production.
+
 ## Core
 
-This include the core typewriter library, which can be used directly through the API.
+This is the base version of the typewriter effect. It will need a the bundled version of the javascript to work correctly.
 
 See examples in the 'examples' folder.
 
