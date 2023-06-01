@@ -2,7 +2,7 @@ name: Publish to NPM
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -21,7 +21,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://npm.pkg.github.com'
       - run: npm ci
-      - run: npm build:prod
+      - run: npm run build:prod
       - run: npm test
       - run: npm publish
         env:
