@@ -313,13 +313,13 @@ describe('Typewriter', () => {
       it('should throw error if callback function is not provided', () => {
         expect(() => {
           instance.callFunction();
-        }).toThrowError('Callbak must be a function');
+        }).toThrowError('Callback must be a function');
       });
 
       it('should throw error if callback is not a function', () => {
         expect(() => {
           instance.callFunction(false);
-        }).toThrowError('Callbak must be a function');
+        }).toThrowError('Callback must be a function');
       });
     });
 
