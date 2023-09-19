@@ -65,7 +65,7 @@ Typewriter.propTypes = {
 };
 
 Typewriter.defaultProps = {
-  component: 'div'
+  component: 'span'
 }
 
 export default Typewriter;
