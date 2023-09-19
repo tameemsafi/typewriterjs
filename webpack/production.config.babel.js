@@ -4,6 +4,7 @@ import commonConfig from './common.config.babel';
 
 const config = merge(commonConfig, {
   mode: 'production',
+  devtool: 'source-map',
 
   plugins: [
     new webpack.ProvidePlugin({

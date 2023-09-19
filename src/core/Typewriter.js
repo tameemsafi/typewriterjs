@@ -364,7 +364,7 @@ class Typewriter {
    */
   callFunction = (cb, thisArg) => {
     if(!cb || typeof cb !== 'function') {
-      throw new Error('Callbak must be a function');
+      throw new Error('Callback must be a function');
     }
 
     this.addEventToQueue(EVENT_NAMES.CALL_FUNCTION, { cb, thisArg });
