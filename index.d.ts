@@ -40,6 +40,12 @@ declare module "typewriter-effect" {
      */
     autoStart?: boolean
     /**
+     * The pause duration after a string is typed when using autostart mode
+     *
+     * @default 1500
+     */
+    pauseFor?: number
+    /**
      * Whether or not to display console logs.
      *
      * @default false
