@@ -97,7 +97,7 @@ declare module "typewriter-effect" {
 
 
   export class TypewriterClass {
-    constructor(container: string | HTMLElement, options: Options)
+    constructor(container: string | HTMLElement | null, options: Options)
 
     /**
      * Start the typewriter effect.
