@@ -53,7 +53,6 @@
     "webpack-merge": "^5.9.0"
   },
   "dependencies": {
-    "buffer": "^6.0.3",
     "is-utf8": "^0.2.1",
     "prop-types": "^15.8.1",
     "raf": "^3.4.1"
