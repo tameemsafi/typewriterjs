@@ -10,6 +10,7 @@ import {
   VISIBLE_NODE_TYPES,
   STYLES,
 } from './constants';
+import {isUtf8} from "node:buffer";
 
 class Typewriter {
   state = {
@@ -45,6 +46,7 @@ class Typewriter {
     stringSplitter: null,
     onCreateTextNode: null,
     onRemoveNode: null,
+    useUTF8ByteSequence: true,
   }
 
   constructor(container, options) {
@@ -386,9 +388,21 @@ class Typewriter {
       throw new Error('Characters must be an array');
     }
 
-    characters.forEach(character => {
-      this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
-    });
+    if(this.options.useUTF8ByteSequence){
+      let character='';
+      for(let Utf16Character of characters){
+        character+=Utf16Character
+        if(isUtf8(Buffer.from(character))){
+          this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
+          character='';
+        }
+      };
+    }
+    else{
+      characters.forEach(character => {
+        this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
+      });
+    }
 
     return this;
   }

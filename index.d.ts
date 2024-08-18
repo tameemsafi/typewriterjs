@@ -85,6 +85,13 @@ declare module "typewriter-effect" {
      * @default null
      */
     onRemoveNode?: (param: { node: Node | void, charater: string }) => void
+
+    /**
+     * Option to type character that is valid UTF-8 byte sequence
+     * 
+     * @default true
+     */
+    useUTF8ByteSequence?: boolean
   }
 
   export interface TypewriterState {

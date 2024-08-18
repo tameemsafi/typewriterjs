@@ -1106,6 +1106,7 @@ Object {
     "skipAddStyles": false,
     "stringSplitter": null,
     "strings": null,
+    "useUTF8ByteSequence": true,
     "wrapperClassName": "Typewriter__wrapper",
   },
   "lastFrameTime": null,
@@ -1130,6 +1131,7 @@ Object {
   "skipAddStyles": false,
   "stringSplitter": null,
   "strings": null,
+  "useUTF8ByteSequence": true,
   "wrapperClassName": "Typewriter__wrapper",
 }
 `;
