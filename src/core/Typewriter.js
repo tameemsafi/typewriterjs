@@ -10,7 +10,7 @@ import {
   VISIBLE_NODE_TYPES,
   STYLES,
 } from './constants';
-import {isUtf8} from "node:buffer";
+import isUtf8 from "is-utf8";
 
 class Typewriter {
   state = {
