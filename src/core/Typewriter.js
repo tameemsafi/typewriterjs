@@ -10,7 +10,6 @@ import {
   VISIBLE_NODE_TYPES,
   STYLES,
 } from './constants';
-import isUtf8 from "is-utf8";
 
 class Typewriter {
   state = {
@@ -389,14 +388,9 @@ class Typewriter {
     }
 
     if(this.options.useUTF8ByteSequence){
-      let character='';
-      for(let Utf16Character of characters){
-        character+=Utf16Character
-        if(isUtf8(Buffer.from(character))){
-          this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
-          character='';
-        }
-      };
+      Array.from(characters).forEach(character => {
+        this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
+      });
     }
     else{
       characters.forEach(character => {
