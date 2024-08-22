@@ -26,7 +26,7 @@ describe('Typewriter', () => {
     document.head.appendChild = jest.fn(node => styleNode = node);
     clock = lolex.install();
   });
-
+  
   afterEach(() => {
     styleNode = undefined;
     clock = clock.uninstall();
@@ -78,7 +78,6 @@ describe('Typewriter', () => {
       pauseFor: 1500,
       onCreateTextNode: jest.fn(),
       onRemoveNode: jest.fn(),
-      useUTF8ByteSequence: true,
     };
 
     const instance = new Typewriter('#test', options);
@@ -132,7 +131,7 @@ describe('Typewriter', () => {
     });
 
     it('stop should correctly cancel event loop animation frame', () => {
-      const test = window.requestAnimationFrame(() => { });
+      const test = window.requestAnimationFrame(() => {});
       instance.state.eventLoop = test;
       instance.stop();
       expect(instance.state.eventLoop).toEqual(null);
@@ -151,7 +150,7 @@ describe('Typewriter', () => {
         instance.typeOutAllStrings();
         expect(instance.state.eventQueue).toMatchSnapshot();
       });
-
+  
       it('should correctly add multiple event items to queue when options.strings is an array', () => {
         instance.options.strings = [
           'Hello',
@@ -230,7 +229,7 @@ describe('Typewriter', () => {
         expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
         expect(instance.state.eventQueue[2].eventArgs.speed).toEqual('natural');
       });
-
+  
       it('should add remove all event item with natural speed by default', () => {
         instance.deleteAll(500);
         expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
@@ -267,17 +266,17 @@ describe('Typewriter', () => {
     });
 
     describe('changeCursor', () => {
-      it('should add event item with new cursor', () => {
-        instance.changeCursor('$');
-        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
-        expect(instance.state.eventQueue[2].eventArgs.cursor).toEqual('$');
-      });
+        it('should add event item with new cursor', () => {
+            instance.changeCursor('$');
+            expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
+            expect(instance.state.eventQueue[2].eventArgs.cursor).toEqual('$');
+        });
 
-      it('should throw error if no new cursor is provided', () => {
-        expect(() => {
-          instance.changeCursor();
-        }).toThrowError('Must provide new cursor');
-      });
+        it('should throw error if no new cursor is provided', () => {
+            expect(() => {
+                instance.changeCursor();
+            }).toThrowError('Must provide new cursor');
+        });
     });
 
     describe('deleteChars', () => {
@@ -295,7 +294,7 @@ describe('Typewriter', () => {
 
     describe('callFunction', () => {
       it('should add event items to call callback function', () => {
-        const cb = () => { };
+        const cb = () => {};
         instance.callFunction(cb);
         expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CALL_FUNCTION);
         expect(instance.state.eventQueue[2].eventArgs.cb).toEqual(cb);
@@ -303,7 +302,7 @@ describe('Typewriter', () => {
       });
 
       it('should add event items to call callback function with thisArg', () => {
-        const cb = () => { };
+        const cb = () => {};
         const thisArg = { hello: 1 };
         instance.callFunction(cb, thisArg);
         expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CALL_FUNCTION);
@@ -520,8 +519,8 @@ describe('Typewriter', () => {
           instance.runEventLoop();
           expect(instance.logInDevMode).toHaveBeenCalledTimes(1);
           expect(instance.logInDevMode).toHaveBeenCalledWith({
-            currentEvent: { ...events[0] },
-            state: { ...instance.state },
+            currentEvent: {...events[0]},
+            state: {...instance.state },
             delay: 0,
           });
         });
@@ -572,6 +571,34 @@ describe('Typewriter', () => {
           expect(instance.state.lastFrameTime).toEqual(currentTime + 2000);
         });
 
+        describe("test utf8", () => {
+          beforeEach(()=>{
+            instance.state.eventQueue = [
+              {
+                eventName: EVENT_NAMES.TYPE_CHARACTER,
+                eventArgs: {
+                  character: '😋',
+                  node: null,
+                }
+              },
+            ];
+          })
+          it('should skip if invalid UTF-8 byte sequence is found', () => {
+            const node = { appendChild: jest.fn() };
+            instance.state.eventQueue[0].eventArgs.node = node;
+            instance.runEventLoop();
+            expect(node.appendChild).toHaveBeenCalledTimes(1);
+            expect(node.appendChild.mock.calls[0][0].textContent).toEqual('😋');
+            expect(instance.state.visibleNodes).toEqual([
+              {
+                type: VISIBLE_NODE_TYPES.TEXT_NODE,
+                node: node.appendChild.mock.calls[0][0],
+                character: '😋',
+              }
+            ]);
+          });
+        })
+
         describe(`${EVENT_NAMES.TYPE_CHARACTER}`, () => {
           beforeEach(() => {
             instance.state.eventQueue = [
@@ -613,34 +640,6 @@ describe('Typewriter', () => {
               }
             ]);
           });
-
-          describe("", () => {
-            beforeEach(()=>{
-              instance.state.eventQueue = [
-                {
-                  eventName: EVENT_NAMES.TYPE_CHARACTER,
-                  eventArgs: {
-                    character: '😋',
-                    node: null,
-                  }
-                },
-              ];
-            })
-            it('should skip if invalid UTF-8 byte sequence is found', () => {
-              const node = { appendChild: jest.fn() };
-              instance.state.eventQueue[0].eventArgs.node = node;
-              instance.runEventLoop();
-              expect(node.appendChild).toHaveBeenCalledTimes(1);
-              expect(node.appendChild.mock.calls[0][0].textContent).toEqual('😋');
-              expect(instance.state.visibleNodes).toEqual([
-                {
-                  type: VISIBLE_NODE_TYPES.TEXT_NODE,
-                  node: node.appendChild.mock.calls[0][0],
-                  character: '😋',
-                }
-              ]);
-            });
-          })
         });
 
         describe(`${EVENT_NAMES.REMOVE_CHARACTER}`, () => {
@@ -854,7 +853,7 @@ describe('Typewriter', () => {
 
     describe('logInDevMode', () => {
       it('should log message to console when option devMode is true', () => {
-        const spy = jest.spyOn(global.console, 'log').mockImplementation(() => { });
+        const spy = jest.spyOn(global.console, 'log').mockImplementation(() => {});
         instance.options.devMode = true;
         instance.logInDevMode('test');
         expect(spy).toHaveBeenCalledTimes(1);
@@ -862,7 +861,7 @@ describe('Typewriter', () => {
       });
 
       it('should not log message to console when option devMode is false', () => {
-        const spy = jest.spyOn(global.console, 'log').mockImplementation(() => { });
+        const spy = jest.spyOn(global.console, 'log').mockImplementation(() => {});
         instance.options.devMode = false;
         instance.logInDevMode('test');
         expect(spy).toHaveBeenCalledTimes(0);
