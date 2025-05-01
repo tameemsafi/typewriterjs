@@ -571,6 +571,34 @@ describe('Typewriter', () => {
           expect(instance.state.lastFrameTime).toEqual(currentTime + 2000);
         });
 
+        describe("test utf8", () => {
+          beforeEach(()=>{
+            instance.state.eventQueue = [
+              {
+                eventName: EVENT_NAMES.TYPE_CHARACTER,
+                eventArgs: {
+                  character: '😋',
+                  node: null,
+                }
+              },
+            ];
+          })
+          it('should skip if invalid UTF-8 byte sequence is found', () => {
+            const node = { appendChild: jest.fn() };
+            instance.state.eventQueue[0].eventArgs.node = node;
+            instance.runEventLoop();
+            expect(node.appendChild).toHaveBeenCalledTimes(1);
+            expect(node.appendChild.mock.calls[0][0].textContent).toEqual('😋');
+            expect(instance.state.visibleNodes).toEqual([
+              {
+                type: VISIBLE_NODE_TYPES.TEXT_NODE,
+                node: node.appendChild.mock.calls[0][0],
+                character: '😋',
+              }
+            ]);
+          });
+        })
+
         describe(`${EVENT_NAMES.TYPE_CHARACTER}`, () => {
           beforeEach(() => {
             instance.state.eventQueue = [

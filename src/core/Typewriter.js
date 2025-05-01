@@ -45,6 +45,7 @@ class Typewriter {
     stringSplitter: null,
     onCreateTextNode: null,
     onRemoveNode: null,
+    useUTF8ByteSequence: true,
   }
 
   constructor(container, options) {
@@ -386,9 +387,16 @@ class Typewriter {
       throw new Error('Characters must be an array');
     }
 
-    characters.forEach(character => {
-      this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
-    });
+    if(this.options.useUTF8ByteSequence){
+      Array.from(characters).forEach(character => {
+        this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
+      });
+    }
+    else{
+      characters.forEach(character => {
+        this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
+      });
+    }
 
     return this;
   }
