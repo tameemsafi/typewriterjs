@@ -183,6 +183,7 @@ declare module "typewriter-effect" {
     component?: React.ElementType
     onInit?: (typewriter: TypewriterClass) => void
     options?: Partial<Options>
+    component?: 'div' | 'span'
   }>
 
   export default TypewriterComponent
