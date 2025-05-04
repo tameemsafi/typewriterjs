@@ -177,6 +177,13 @@ declare module "typewriter-effect" {
      * @param delay delay Number or 'natural'
      */
     changeDelay(delay?: Speed): TypewriterClass
+    
+    /**
+     * Change the cursor character
+     *
+     * @param cursor Cursor string
+     */
+    changeCursor(cursor: string): TypewriterClass
   }
 
   const TypewriterComponent: React.FunctionComponent<{
