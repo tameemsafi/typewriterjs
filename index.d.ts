@@ -187,3 +187,8 @@ declare module "typewriter-effect" {
 
   export default TypewriterComponent
 }
+
+declare module "typewriter-effect/dist/core" {
+    const Typewriter: typeof TypewriterClass;
+    export default Typewriter;
+}
