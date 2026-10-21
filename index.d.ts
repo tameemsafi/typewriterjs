@@ -85,6 +85,7 @@ declare module "typewriter-effect" {
      * @default null
      */
     onRemoveNode?: (param: { node: Node | void, charater: string }) => void
+    maxCatchUpDelta?: number | null
   }
 
   export interface TypewriterState {

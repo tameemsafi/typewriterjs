@@ -65,6 +65,7 @@ new Typewriter('#typewriter', {
 | stringSplitter | Function | String splitter function, can be used to [split emoji's](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e) |
 | onCreateTextNode | Function | null | Callback function to replace the internal method which creates a text node for the character before adding it to the DOM. If you return null, then it will not add anything to the DOM and so it is up to you to handle it. |
 | onRemoveNode | Function | null | Callback function when a node is about to be removed. First param will be an object `{ node: HTMLNode, charater: string }` |
+| maxCatchUpDelta | Number | null | Max milliseconds of elapsed time to catch up on in a single frame. When set, several events can run per frame so typing keeps its pace after the tab was inactive. Disabled by default (one event per frame). |
 
 ## Methods
 
