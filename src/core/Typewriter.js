@@ -45,6 +45,7 @@ class Typewriter {
     stringSplitter: null,
     onCreateTextNode: null,
     onRemoveNode: null,
+    maxCatchUpDelta: null,
   }
 
   constructor(container, options) {
@@ -501,7 +502,14 @@ class Typewriter {
 
     // Setup variables to calculate if this frame should run
     const nowTime = Date.now();
-    const delta = nowTime - this.state.lastFrameTime;
+    const { maxCatchUpDelta } = this.options;
+    const canCatchUp = typeof maxCatchUpDelta === 'number' && maxCatchUpDelta > 0;
+    let delta = nowTime - this.state.lastFrameTime;
+
+    // Cap the elapsed time so returning to an inactive tab does not freeze the page
+    if(canCatchUp) {
+      delta = Math.min(delta, maxCatchUpDelta);
+    }
 
     if(!this.state.eventQueue.length) {
       if(!this.options.loop) {
@@ -531,32 +539,71 @@ class Typewriter {
 
       // Reset pause time
       this.state.pauseUntil = null;
+
+      // Time spent paused must not be replayed as a burst of events
+      if(canCatchUp) {
+        this.state.lastFrameTime = nowTime;
+        delta = 0;
+      }
     }
 
     // Make a clone of event queue
     const eventQueue = [...this.state.eventQueue];
+    let processedAny = false;
 
-    // Get first event from queue
-    const currentEvent = eventQueue.shift();
+    // Without catch up only a single event runs per frame
+    while(eventQueue.length && (canCatchUp || !processedAny)) {
+      // Get first event from queue
+      const currentEvent = eventQueue.shift();
 
-    // Setup delay variable
-    let delay = 0;
+      // Setup delay variable
+      let delay = 0;
 
-    // Check if frame should run or be
-    // skipped based on fps interval
-    if(
-      currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE ||
-      currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
-    ) {
-      delay = this.options.deleteSpeed === 'natural' ? getRandomInteger(40, 80) : this.options.deleteSpeed;
-    } else {
-      delay = this.options.delay === 'natural' ? getRandomInteger(120, 160) : this.options.delay;
+      // Check if frame should run or be
+      // skipped based on fps interval
+      if(
+        currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE ||
+        currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
+      ) {
+        delay = this.options.deleteSpeed === 'natural' ? getRandomInteger(40, 80) : this.options.deleteSpeed;
+      } else {
+        delay = this.options.delay === 'natural' ? getRandomInteger(120, 160) : this.options.delay;
+      }
+
+      if(delta <= delay) {
+        eventQueue.unshift(currentEvent);
+        break;
+      }
+
+      this.processEvent(currentEvent, eventQueue, delay);
+
+      delta -= delay;
+      processedAny = true;
+
+      // A pause event stops processing until pauseUntil has passed
+      if(this.state.pauseUntil) {
+        break;
+      }
     }
 
-    if(delta <= delay) {
-      return;
-    }
+    if(processedAny) {
+      // Replace state event queue with cloned queue
+      this.state.eventQueue = eventQueue;
 
+      // Set last frame time so it can be used to calculate next frame,
+      // keeping leftover time when catching up
+      this.state.lastFrameTime = canCatchUp ? nowTime - delta : nowTime;
+    }
+  }
+
+  /**
+   * Run a single event from the queue
+   *
+   * @param {Object} currentEvent Event to run
+   * @param {Array} eventQueue Working copy of the queue, may be modified
+   * @param {Number} delay Delay used for this event
+   */
+  processEvent = (currentEvent, eventQueue, delay) => {
     // Get current event args
     const { eventName, eventArgs } = currentEvent;
 
@@ -733,12 +780,6 @@ class Typewriter {
         ];
       }
     }
-
-    // Replace state event queue with cloned queue
-    this.state.eventQueue = eventQueue;
-
-    // Set last frame time so it can be used to calculate next frame
-    this.state.lastFrameTime = nowTime;
   }
 
   /**

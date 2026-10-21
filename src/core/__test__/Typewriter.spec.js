@@ -78,6 +78,7 @@ describe('Typewriter', () => {
       pauseFor: 1500,
       onCreateTextNode: jest.fn(),
       onRemoveNode: jest.fn(),
+      maxCatchUpDelta: 1000,
     };
 
     const instance = new Typewriter('#test', options);
@@ -472,6 +473,59 @@ describe('Typewriter', () => {
         instance.state.eventLoopPaused = false;
         instance.runEventLoop();
         expect(instance.state.eventQueue).toEqual(events);
+      });
+
+      describe('maxCatchUpDelta', () => {
+        beforeEach(() => {
+          instance.options.delay = 100;
+          instance.state.eventLoopPaused = false;
+          instance.state.pauseUntil = null;
+          instance.state.visibleNodes = [];
+          // Fake clock starts at 0 which is treated as an unset lastFrameTime
+          clock.tick(1);
+          instance.state.lastFrameTime = Date.now();
+          instance.state.eventQueue = [
+            { eventName: EVENT_NAMES.TYPE_CHARACTER, eventArgs: { character: 'a' } },
+            { eventName: EVENT_NAMES.TYPE_CHARACTER, eventArgs: { character: 'b' } },
+            { eventName: EVENT_NAMES.TYPE_CHARACTER, eventArgs: { character: 'c' } },
+            { eventName: EVENT_NAMES.TYPE_CHARACTER, eventArgs: { character: 'd' } },
+          ];
+        });
+
+        it('should run a single event per frame when not set', () => {
+          instance.options.maxCatchUpDelta = null;
+          clock.tick(1000);
+          instance.runEventLoop();
+          expect(instance.state.visibleNodes).toHaveLength(1);
+          expect(instance.state.eventQueue).toHaveLength(3);
+        });
+
+        it('should run several events for the elapsed time when set', () => {
+          instance.options.maxCatchUpDelta = 10000;
+          clock.tick(250);
+          instance.runEventLoop();
+          expect(instance.state.visibleNodes).toHaveLength(2);
+          expect(instance.state.eventQueue).toHaveLength(2);
+          expect(instance.state.lastFrameTime).toEqual(Date.now() - 50);
+        });
+
+        it('should cap the elapsed time', () => {
+          instance.options.maxCatchUpDelta = 250;
+          clock.tick(100000);
+          instance.runEventLoop();
+          expect(instance.state.visibleNodes).toHaveLength(2);
+          expect(instance.state.eventQueue).toHaveLength(2);
+        });
+
+        it('should stop processing after a pause event', () => {
+          instance.options.maxCatchUpDelta = 10000;
+          instance.state.eventQueue.splice(1, 0, { eventName: EVENT_NAMES.PAUSE_FOR, eventArgs: { ms: 1000 } });
+          clock.tick(1000);
+          instance.runEventLoop();
+          expect(instance.state.visibleNodes).toHaveLength(1);
+          expect(instance.state.pauseUntil).toEqual(Date.now() + 1000);
+          expect(instance.state.eventQueue).toHaveLength(3);
+        });
       });
 
       describe('valid delta', () => {

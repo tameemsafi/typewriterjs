@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Example - Continue when tab is inactive</title>
+</head>
+<body>
+
+  <p>Start typing, switch to another tab for a few seconds, then come back.</p>
+  <div id="typewriter"></div>
+
+  <script src='../../dist/core.js'></script>
+  <script type="text/javascript">
+    const instance = new Typewriter('#typewriter', {
+      strings: ['This text keeps its pace after the tab was inactive. '.repeat(5)],
+      autoStart: true,
+      delay: 50,
+      maxCatchUpDelta: 5000,
+    });
+  </script>
+
+</body>
+</html>
