@@ -1,74 +1,74 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Typewriter methods deleteChars should add event items for amount of characters 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
 ]
 `;
 
 exports[`Typewriter methods pasteString should correctly add event items to queue if string does not contain html 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "Hello world!",
       "node": null,
     },
@@ -78,44 +78,44 @@ Array [
 `;
 
 exports[`Typewriter methods removeCharacters should add event items for amount of characters 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {},
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_CHARACTER",
   },
 ]
 `;
 
 exports[`Typewriter methods runEventLoop should reset queue correctly if event queue is empty and loop option is true 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {
+[
+  {
+    "eventArgs": {
       "delay": 5000,
     },
     "eventName": "CHANGE_DELAY",
@@ -124,22 +124,22 @@ Array [
 `;
 
 exports[`Typewriter methods runEventLoop valid delta REMOVE_ALL should correctly push remove last node events with speed change when provided 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {
+[
+  {
+    "eventArgs": {
       "speed": 100,
       "temp": true,
     },
     "eventName": "CHANGE_DELETE_SPEED",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "removingCharacterNode": false,
     },
     "eventName": "REMOVE_LAST_VISIBLE_NODE",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "speed": 10,
       "temp": true,
     },
@@ -149,9 +149,9 @@ Array [
 `;
 
 exports[`Typewriter methods runEventLoop valid delta REMOVE_ALL should correctly push remove last node events without speed change 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {
+[
+  {
+    "eventArgs": {
       "removingCharacterNode": false,
     },
     "eventName": "REMOVE_LAST_VISIBLE_NODE",
@@ -160,47 +160,47 @@ Array [
 `;
 
 exports[`Typewriter methods typeCharacters should add event items for amount of characters 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "h",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "0",
       "node": null,
     },
@@ -210,103 +210,103 @@ Array [
 `;
 
 exports[`Typewriter methods typeOutAllStrings should correctly add event item to queue when options.strings is a string 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "H",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": " ",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "w",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "r",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "d",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "ms": 1500,
     },
     "eventName": "PAUSE_FOR",
@@ -315,234 +315,234 @@ Array [
 `;
 
 exports[`Typewriter methods typeOutAllStrings should correctly add multiple event items to queue when options.strings is an array 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "H",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "ms": 1500,
     },
     "eventName": "PAUSE_FOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "speed": "natural",
     },
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "w",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "r",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "d",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": ",",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": " ",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "ms": 1500,
     },
     "eventName": "PAUSE_FOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "speed": "natural",
     },
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "H",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "w",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "ms": 1500,
     },
     "eventName": "PAUSE_FOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "speed": "natural",
     },
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "a",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "r",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "ms": 1500,
     },
     "eventName": "PAUSE_FOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "speed": "natural",
     },
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "y",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "u",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "?",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "ms": 1500,
     },
     "eventName": "PAUSE_FOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "speed": "natural",
     },
     "eventName": "REMOVE_ALL",
@@ -551,40 +551,40 @@ Array [
 `;
 
 exports[`Typewriter methods typeOutHTMLString should correctly add event item when string contains only string 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "t",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "s",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "t",
       "node": null,
     },
@@ -594,278 +594,278 @@ Array [
 `;
 
 exports[`Typewriter methods typeOutHTMLString should correctly add event items for html wrapper and all string characters 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "node": <strong />,
       "parentNode": null,
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "h",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": " ",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "w",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "r",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "d",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": " ",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "node": <div />,
       "parentNode": null,
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "h",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "w",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": " ",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "a",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "r",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": " ",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "y",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "u",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "?",
       "node": <div />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": " ",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "node": <p />,
       "parentNode": null,
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "G",
       "node": <p />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": <p />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": <p />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "g",
       "node": <p />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": <p />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": <p />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": null,
     },
@@ -875,19 +875,19 @@ Array [
 `;
 
 exports[`Typewriter methods typeOutHTMLString should correctly add event items for nested html and parent node 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "node": <div
         class="wrapper"
       />,
@@ -897,8 +897,8 @@ Array [
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "node": <p />,
       "parentNode": <div
         class="wrapper"
@@ -906,43 +906,43 @@ Array [
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "node": <strong />,
       "parentNode": <p />,
     },
     "eventName": "ADD_HTML_TAG_ELEMENT",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "t",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "s",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "t",
       "node": <strong />,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": <div
         class="wrapper"
@@ -954,96 +954,96 @@ Array [
 `;
 
 exports[`Typewriter methods typeString should correctly add event items to queue if string does not contain html 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "H",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": " ",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "w",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "r",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "d",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": null,
     },
@@ -1053,10 +1053,9 @@ Array [
 `;
 
 exports[`Typewriter shoud setup correctly with default settings 1`] = `
-Object {
-  "calledEvents": Array [],
-  "cursorAnimation": null,
-  "elements": Object {
+{
+  "calledEvents": [],
+  "elements": {
     "container": <div
       id="test"
     >
@@ -1080,19 +1079,19 @@ Object {
   },
   "eventLoop": null,
   "eventLoopPaused": false,
-  "eventQueue": Array [
-    Object {
-      "eventArgs": Object {},
+  "eventQueue": [
+    {
+      "eventArgs": {},
       "eventName": "REMOVE_ALL",
     },
-    Object {
-      "eventArgs": Object {
+    {
+      "eventArgs": {
         "cursor": "|",
       },
       "eventName": "CHANGE_CURSOR",
     },
   ],
-  "initialOptions": Object {
+  "initialOptions": {
     "autoStart": false,
     "cursor": "|",
     "cursorClassName": "Typewriter__cursor",
@@ -1103,6 +1102,7 @@ Object {
     "maxCatchUpDelta": null,
     "onCreateTextNode": null,
     "onRemoveNode": null,
+    "parseHTML": true,
     "pauseFor": 1500,
     "skipAddStyles": false,
     "stringSplitter": null,
@@ -1111,13 +1111,12 @@ Object {
   },
   "lastFrameTime": null,
   "pauseUntil": null,
-  "reverseCalledEvents": Array [],
-  "visibleNodes": Array [],
+  "visibleNodes": [],
 }
 `;
 
 exports[`Typewriter shoud setup correctly with default settings 2`] = `
-Object {
+{
   "autoStart": false,
   "cursor": "|",
   "cursorClassName": "Typewriter__cursor",
@@ -1128,6 +1127,7 @@ Object {
   "maxCatchUpDelta": null,
   "onCreateTextNode": null,
   "onRemoveNode": null,
+  "parseHTML": true,
   "pauseFor": 1500,
   "skipAddStyles": false,
   "stringSplitter": null,
@@ -1167,114 +1167,114 @@ exports[`Typewriter should correctly setup container element with selector 1`] =
 `;
 
 exports[`Typewriter should correctly setup queue if autostart is set to true 1`] = `
-Array [
-  Object {
-    "eventArgs": Object {},
+[
+  {
+    "eventArgs": {},
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "cursor": "|",
     },
     "eventName": "CHANGE_CURSOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "H",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "e",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "ms": 1500,
     },
     "eventName": "PAUSE_FOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "speed": "natural",
     },
     "eventName": "REMOVE_ALL",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "w",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "o",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "r",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "l",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "d",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "character": "!",
       "node": null,
     },
     "eventName": "TYPE_CHARACTER",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "ms": 1500,
     },
     "eventName": "PAUSE_FOR",
   },
-  Object {
-    "eventArgs": Object {
+  {
+    "eventArgs": {
       "speed": "natural",
     },
     "eventName": "REMOVE_ALL",

@@ -1,5 +1,4 @@
 import { resolve } from 'path';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 const config = {
   entry: {
@@ -34,31 +33,16 @@ const config = {
               [
                 '@babel/preset-env',
                 {
-                  useBuiltIns: 'entry',
-                  corejs: 3,
-                  targets: {
-                    browsers: [
-                      'last 2 versions',
-                      'ie >= 11',
-                    ],
-                  },
+                  include: ['transform-class-properties'],
                 },
             ],
-              '@babel/preset-react',
+              ['@babel/preset-react', { runtime: 'classic' }],
             ],
-            plugins: [
-              '@babel/plugin-proposal-class-properties',
-              'babel-plugin-transform-react-remove-prop-types',
-            ]
           }
         }
       },
     ]
   },
-
-  plugins: [
-    // new BundleAnalyzerPlugin()
-  ]
 };
 
 export default config;

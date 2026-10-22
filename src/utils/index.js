@@ -2,3 +2,8 @@ export { default as doesStringContainHTMLTag } from './does-string-contain-html-
 export { default as getDOMElementFromString } from './get-dom-element-from-string';
 export { default as getRandomInteger } from './get-random-integer';
 export { default as addStyles } from './add-styles';
+export { default as isValueMissing } from './is-value-missing';
+export { default as areOptionsEqual } from './are-options-equal';
+export { default as isVoidElement } from './is-void-element';
+export { default as requestFrame } from './request-frame';
+export { default as cancelFrame } from './cancel-frame';
