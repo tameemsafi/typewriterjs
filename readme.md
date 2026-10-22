@@ -350,6 +350,16 @@ new Typewriter('#app', {
 });
 ```
 
+### How do I type word by word?
+
+Use the ``stringSplitter`` option to split strings into words. ``deleteChars`` will then delete one word at a time.
+
+```js
+new Typewriter('#app', {
+  stringSplitter: (text) => text.match(/\S+\s*/g) || [],
+});
+```
+
 ### How do I type a new line?
 
 Add a ``<br>`` tag, for example ``typeString('Hello<br>World')``.
