@@ -46,9 +46,9 @@ Supported browsers follow [Baseline Widely available](https://web.dev/baseline),
 
 You will need to bundle the javascript before it can be used, this can be done using `npm run build:dev` for development or `npm run build:prod` for production.
 
-Building and running the tests requires Node.js 26 or newer. If you use [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to switch to the version in `.nvmrc`.
+Building and running the tests requires Node.js 24 or newer. If you use [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to switch to the version in `.nvmrc`.
 
-This only applies to working on this project. Websites and apps that install `typewriter-effect` can use any Node.js version.
+This only applies to working on this project and the command line tool. Websites and apps that install `typewriter-effect` can use any Node.js version.
 
 ## Core
 
@@ -284,7 +284,7 @@ const typewriter = new TypewriterClass('#app', { delay: 75 });
 
 ## Command line
 
-The package includes a command line tool that plays a typewriter effect in your terminal, or saves it as a GIF for a README, docs or social media.
+The package includes a command line tool that plays a typewriter effect in your terminal, or saves it as a GIF for a README, docs or social media. It needs Node.js 24 or newer.
 
 ```shell
 # Type strings in the terminal

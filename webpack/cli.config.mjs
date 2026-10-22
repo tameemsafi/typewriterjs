@@ -2,7 +2,7 @@ import { resolve } from 'path';
 import webpack from 'webpack';
 
 const config = {
-  target: 'node18',
+  target: 'node24',
 
   entry: {
     cli: resolve('src', 'cli', 'bin.js'),
@@ -41,7 +41,7 @@ const config = {
           loader: 'babel-loader',
           options: {
             presets: [
-              ['@babel/preset-env', { targets: { node: '18' } }],
+              ['@babel/preset-env', { targets: { node: '24' } }],
             ],
           },
         },

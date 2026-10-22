@@ -8,6 +8,11 @@
 - GIFs are recorded with the real typewriter in a headless browser. This needs the optional ``puppeteer`` peer dependency and ffmpeg. The library itself still has no runtime dependencies.
 - New readme GIF, made with ``npm run demo:gif``.
 
+### Changed
+
+- The command line tool, building and running the tests need Node.js 24 or newer (was 26). Tests run on Node.js 24 and 26.
+- Renamed ``readme.md`` to ``README.md``.
+
 ## 3.2.0
 
 All new behaviour is opt-in, so existing code keeps working the same way.
