@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/tameemsafi/typewriterjs/actions/workflows/tests.yaml/badge.svg)](https://github.com/tameemsafi/typewriterjs/actions/workflows/tests.yaml)
 
-![](preview.gif)
+<img src="preview.gif" alt="typewriter-effect demo" width="800">
 
 [NPM Repository](https://npmjs.org/typewriter-effect)
 [JSFiddle Example](https://jsfiddle.net/hzfxp2L9/)
@@ -46,9 +46,9 @@ Supported browsers follow [Baseline Widely available](https://web.dev/baseline),
 
 You will need to bundle the javascript before it can be used, this can be done using `npm run build:dev` for development or `npm run build:prod` for production.
 
-Building and running the tests requires Node.js 26 or newer. If you use [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to switch to the version in `.nvmrc`.
+Building and running the tests requires Node.js 24 or newer. If you use [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to switch to the version in `.nvmrc`.
 
-This only applies to working on this project. Websites and apps that install `typewriter-effect` can use any Node.js version.
+This only applies to working on this project and the command line tool. Websites and apps that install `typewriter-effect` can use any Node.js version.
 
 ## Core
 
@@ -281,6 +281,95 @@ import { TypewriterClass } from 'typewriter-effect';
 
 const typewriter = new TypewriterClass('#app', { delay: 75 });
 ```
+
+## Command line
+
+The package includes a command line tool that plays a typewriter effect in your terminal, or saves it as a GIF for a README, docs or social media. It needs Node.js 24 or newer.
+
+```shell
+# Type strings in the terminal
+npx typewriter-effect "Hello" "World"
+
+# Watch a tour of the features
+npx typewriter-effect --demo
+
+# Save a GIF
+npx typewriter-effect "Hello <strong>World</strong>" --gif hello.gif
+```
+
+### Creating GIFs
+
+GIFs are recorded in a headless browser with the real typewriter, so HTML, colors and every option work the same way as on a website. Creating a GIF needs [puppeteer](https://pptr.dev) and [ffmpeg](https://ffmpeg.org).
+
+```shell
+npm install --save-dev puppeteer
+brew install ffmpeg # or sudo apt install ffmpeg
+
+npx typewriter-effect --config typewriter.json --gif demo.gif
+```
+
+If you already have Chrome installed, you can use ``puppeteer-core`` instead and pass ``--chrome <path>`` when Chrome is not found.
+
+The GIF in this readme is made with ``npm run demo:gif``.
+
+### Config file
+
+Use a JSON or JavaScript file to describe each step. Each step has one key, which is the name of a method, and its value is the argument. Use ``true`` for methods without an argument.
+
+```json
+{
+  "options": {
+    "delay": { "min": 50, "max": 90 },
+    "deleteSpeed": 30
+  },
+  "gif": {
+    "title": "my-app",
+    "theme": "dark",
+    "width": 800,
+    "fontSize": 40
+  },
+  "steps": [
+    { "label": "Welcome" },
+    { "typeString": "Hello <span class=\"green\">World</span>" },
+    { "pauseFor": 1000 },
+    { "deleteChars": 5 },
+    { "typeString": "<strong>everyone</strong> 👋" },
+    { "moveCursorToEnd": true },
+    { "pauseFor": 1500 }
+  ]
+}
+```
+
+- ``steps`` can use ``typeString``, ``pasteString``, ``deleteChars``, ``deleteAll``, ``deleteAllWithDeleteSpeed``, ``clear``, ``pauseFor``, ``changeDelay``, ``changeDeleteSpeed``, ``changeCursor``, ``moveCursor``, ``moveCursorToStart`` and ``moveCursorToEnd``.
+- A ``label`` step shows a small label above the text, which is useful to explain each part of a demo.
+- Instead of ``steps``, you can pass ``strings``, which works like the ``strings`` option.
+- ``options`` can use any of the typewriter options. The command line turns on ``useGraphemeSplitter``, ``mergeTextNodes`` and ``onlyDelayVisibleChanges`` by default.
+- Colors can be added with the classes ``green``, ``blue``, ``pink``, ``amber``, ``red``, ``purple`` and ``dim``, or with ``style="color: #34d399"``. In the terminal, ``b``, ``strong``, ``i``, ``em``, ``u``, ``code`` and ``br`` tags are supported too.
+
+### Command line options
+
+| Option | Description |
+| --- | --- |
+| ``-c, --config <file>`` | JSON or JavaScript file with options and steps. |
+| ``--demo`` | Play the built-in tour of the features. |
+| ``-g, --gif <file>`` | Save a GIF instead of playing in the terminal. |
+| ``--delay <speed>`` | Delay between typed characters: ``natural``, a number or a range like ``50-90``. |
+| ``--delete-speed <speed>`` | Delay between deleted characters: ``natural``, a number or a range like ``20-40``. |
+| ``--pause <ms>`` | Pause after each string. Defaults to ``1500``. |
+| ``--cursor <text>`` | Cursor text. Defaults to ``\|``. |
+| ``--loop`` | Keep looping. In a GIF, the text is deleted at the end so the GIF loops smoothly. |
+| ``--width <px>`` | Width of the GIF. Defaults to ``800``. |
+| ``--height <px>`` | Height of the GIF. Defaults to the height of the largest text. |
+| ``--font-size <px>`` | Font size of the text. Defaults to ``40``. |
+| ``--fps <number>`` | Frames per second. Defaults to ``25``. |
+| ``--scale <number>`` | Pixel scale. ``2`` looks sharp on high resolution screens. Defaults to ``2``. |
+| ``--theme <name>`` | ``dark`` or ``light``. Defaults to ``dark``. |
+| ``--title <text>`` | Title in the window bar. |
+| ``--plain`` | Hide the window bar. |
+| ``--chrome <path>`` | Path to Chrome, when ``puppeteer-core`` is used. |
+| ``--ffmpeg <path>`` | Path to ffmpeg. |
+
+When the output is not a terminal, for example when it is piped to a file, the final text is printed without the effect.
 
 ## FAQ
 
