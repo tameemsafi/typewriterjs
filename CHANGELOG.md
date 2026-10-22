@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.3.0
+
+### Added
+
+- Command line tool. Run ``npx typewriter-effect "Hello" "World"`` to play a typewriter effect in the terminal, or add ``--gif out.gif`` to save it as a GIF. Steps can be described in a JSON or JavaScript config file, and ``--demo`` plays a tour of the features.
+- GIFs are recorded with the real typewriter in a headless browser. This needs the optional ``puppeteer`` peer dependency and ffmpeg. The library itself still has no runtime dependencies.
+- New readme GIF, made with ``npm run demo:gif``.
+
 ## 3.2.0
 
 All new behaviour is opt-in, so existing code keeps working the same way.

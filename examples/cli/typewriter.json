@@ -1,0 +1,20 @@
+{
+  "options": {
+    "delay": { "min": 50, "max": 90 },
+    "deleteSpeed": 30
+  },
+  "gif": {
+    "title": "my-app",
+    "theme": "dark",
+    "width": 800,
+    "fontSize": 40
+  },
+  "steps": [
+    { "label": "Welcome" },
+    { "typeString": "Hello <span class=\"green\">World</span>" },
+    { "pauseFor": 1000 },
+    { "deleteChars": 5 },
+    { "typeString": "<strong>everyone</strong> 👋" },
+    { "pauseFor": 1500 }
+  ]
+}

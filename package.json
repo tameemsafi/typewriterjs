@@ -1,8 +1,11 @@
 {
   "name": "typewriter-effect",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "main": "dist/react.js",
   "types": "index.d.ts",
+  "bin": {
+    "typewriter-effect": "dist/cli.js"
+  },
   "keywords": [
     "typewriter",
     "typewriter effect",
@@ -24,11 +27,18 @@
   "scripts": {
     "build:prod": "webpack --config ./webpack/production.config.mjs",
     "build:dev": "webpack --config ./webpack/development.config.mjs",
-    "test": "jest --env=jsdom"
+    "test": "jest --env=jsdom",
+    "demo:gif": "npm run build:prod && node dist/cli.js --demo --gif preview.gif"
   },
   "peerDependencies": {
     "react": ">=17.0.0",
-    "react-dom": ">=17.0.0"
+    "react-dom": ">=17.0.0",
+    "puppeteer": ">=22.0.0"
+  },
+  "peerDependenciesMeta": {
+    "puppeteer": {
+      "optional": true
+    }
   },
   "browserslist": [
     "baseline widely available with downstream"
