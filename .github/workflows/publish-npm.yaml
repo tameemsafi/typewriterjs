@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [24.x]
 
     steps:
       - uses: actions/checkout@v3
@@ -23,6 +23,6 @@ jobs:
       - run: npm ci
       - run: npm run build:prod
       - run: npm test
-      - run: npm publish
+      - run: npm stage publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
