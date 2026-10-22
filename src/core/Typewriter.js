@@ -16,7 +16,13 @@ import {
   STYLES,
   NATURAL_TYPING_DELAY,
   NATURAL_DELETE_DELAY,
+  CURSOR_POSITIONS,
 } from './constants';
+import {
+  createReservedSpaceElements,
+  renderReservedSpace,
+  getReservedSpaceSnapshots,
+} from './reserved-space';
 
 class Typewriter {
   state = {
@@ -27,6 +33,8 @@ class Typewriter {
     eventLoopPaused: false,
     calledEvents: [],
     visibleNodes: [],
+    cursorIndex: null,
+    reservedSpace: null,
     initialOptions: null,
     elements: {
       container: null,
@@ -60,6 +68,7 @@ class Typewriter {
     mergeTextNodes: false,
     pasteAsCharacters: false,
     onlyDelayVisibleChanges: false,
+    reserveSpace: false,
   }
 
   constructor(container, options) {
@@ -155,8 +164,37 @@ class Typewriter {
     this.state.elements.cursor.innerHTML = this.options.cursor;
     this.state.elements.container.innerHTML = '';
 
-    this.state.elements.container.appendChild(this.state.elements.wrapper);
-    this.state.elements.container.appendChild(this.state.elements.cursor);
+    const parentElement = this.getWrapperParentElement();
+    parentElement.appendChild(this.state.elements.wrapper);
+    parentElement.appendChild(this.state.elements.cursor);
+  }
+
+  /**
+   * Get the element to add the wrapper and cursor to. When the reserveSpace
+   * option is set, extra elements are added to reserve space for the text.
+   *
+   * @return {HTMLElement}
+   */
+  getWrapperParentElement = () => {
+    if(!this.options.reserveSpace) {
+      return this.state.elements.container;
+    }
+
+    const { content, sizer } = createReservedSpaceElements(this.state.elements.container);
+    this.state.reservedSpace = sizer;
+
+    return content;
+  }
+
+  /**
+   * Reserve space for the largest text that the queued events will type
+   */
+  updateReservedSpace = () => {
+    if(!this.state.reservedSpace) {
+      return;
+    }
+
+    renderReservedSpace(this.state.reservedSpace, getReservedSpaceSnapshots(this));
   }
 
   /**
@@ -177,6 +215,7 @@ class Typewriter {
   start = () => {
     this.stop();
     this.state.eventLoopPaused = false;
+    this.updateReservedSpace();
     this.runEventLoop();
 
     return this;
@@ -472,6 +511,47 @@ class Typewriter {
   }
 
   /**
+   * Add events to move the cursor by an amount of characters.
+   * A negative amount moves the cursor to the left.
+   *
+   * @param {Number} amount Number of characters to move the cursor by
+   * @return {Typewriter}
+   */
+  moveCursor = (amount) => {
+    if(!amount) {
+      throw new Error('Must provide amount of characters to move the cursor by');
+    }
+
+    const direction = amount < 0 ? -1 : 1;
+
+    for(let i = 0; i < Math.abs(amount); i++) {
+      this.addEventToQueue(EVENT_NAMES.MOVE_CURSOR, { direction });
+    }
+
+    return this;
+  }
+
+  /**
+   * Add event to move the cursor before all of the text
+   *
+   * @return {Typewriter}
+   */
+  moveCursorToStart = () => {
+    this.addEventToQueue(EVENT_NAMES.MOVE_CURSOR_TO, { position: CURSOR_POSITIONS.START });
+    return this;
+  }
+
+  /**
+   * Add event to move the cursor after all of the text
+   *
+   * @return {Typewriter}
+   */
+  moveCursorToEnd = () => {
+    this.addEventToQueue(EVENT_NAMES.MOVE_CURSOR_TO, { position: CURSOR_POSITIONS.END });
+    return this;
+  }
+
+  /**
    * Add event to remove everything that is visible straight away
    *
    * @return {Typewriter}
@@ -762,6 +842,7 @@ class Typewriter {
     this.state.eventQueue = [...this.state.calledEvents];
     this.state.calledEvents = [];
     this.options = {...this.state.initialOptions};
+    this.setCursorIndex(null);
   }
 
   /**
@@ -843,7 +924,11 @@ class Typewriter {
         return isVoidElement(eventArgs.node);
 
       case EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE:
-        return this.isLastVisibleNodeACharacter();
+        return this.willRemoveACharacter(eventArgs);
+
+      case EVENT_NAMES.MOVE_CURSOR:
+      case EVENT_NAMES.MOVE_CURSOR_TO:
+        return true;
 
       default:
         return false;
@@ -857,17 +942,39 @@ class Typewriter {
    */
   isLastVisibleNodeACharacter = () => {
     const { visibleNodes } = this.state;
-    const lastVisibleNode = visibleNodes[visibleNodes.length - 1];
+    return this.isCharacterNode(visibleNodes[visibleNodes.length - 1]);
+  }
 
-    if(!lastVisibleNode) {
+  /**
+   * Check if a remove event will remove a character instead of an empty HTML tag
+   *
+   * @param {Object} eventArgs Event args of the remove event
+   * @return {Boolean}
+   */
+  willRemoveACharacter = (eventArgs = {}) => {
+    if(this.isCursorAtEnd() || !eventArgs.removingCharacterNode) {
+      return this.isLastVisibleNodeACharacter();
+    }
+
+    return this.findCharacterIndexBefore(this.state.cursorIndex) !== -1;
+  }
+
+  /**
+   * Check if a visible node is a character, which includes void elements such as <br>
+   *
+   * @param {Object} visibleNode Visible node to check
+   * @return {Boolean}
+   */
+  isCharacterNode = (visibleNode) => {
+    if(!visibleNode) {
       return false;
     }
 
-    if(lastVisibleNode.type === VISIBLE_NODE_TYPES.TEXT_NODE) {
+    if(visibleNode.type === VISIBLE_NODE_TYPES.TEXT_NODE) {
       return true;
     }
 
-    return isVoidElement(lastVisibleNode.node);
+    return isVoidElement(visibleNode.node);
   }
 
   /**
@@ -955,13 +1062,9 @@ class Typewriter {
       case EVENT_NAMES.ADD_HTML_TAG_ELEMENT: {
         const { node, parentNode } = currentEvent.eventArgs;
 
-        if(!parentNode) {
-          this.state.elements.wrapper.appendChild(node);
-        } else {
-          parentNode.appendChild(node);
-        }
+        this.insertNodeOnPage(node, parentNode);
 
-        this.state.visibleNodes.push({
+        this.addVisibleNode({
           type: VISIBLE_NODE_TYPES.HTML_TAG,
           node,
           parentNode: parentNode || this.state.elements.wrapper,
@@ -976,6 +1079,11 @@ class Typewriter {
 
       case EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE: {
         const { removingCharacterNode } = currentEvent.eventArgs;
+
+        if(removingCharacterNode && !this.isCursorAtEnd()) {
+          this.removeCharacterBeforeCursor();
+          break;
+        }
 
         if(this.state.visibleNodes.length) {
           const { type, node } = this.removeLastVisibleNode();
@@ -992,7 +1100,18 @@ class Typewriter {
       }
 
       case EVENT_NAMES.CLEAR: {
+        this.setCursorIndex(null);
         this.removeAllVisibleNodes();
+        break;
+      }
+
+      case EVENT_NAMES.MOVE_CURSOR: {
+        this.moveCursorOneCharacter(eventArgs.direction);
+        break;
+      }
+
+      case EVENT_NAMES.MOVE_CURSOR_TO: {
+        this.moveCursorToPosition(eventArgs.position);
         break;
       }
 
@@ -1081,10 +1200,10 @@ class Typewriter {
     const textNode = this.createTextNode(character);
 
     if(textNode) {
-      this.getParentNode(node).appendChild(textNode);
+      this.insertNodeOnPage(textNode, node);
     }
 
-    this.state.visibleNodes.push({
+    this.addVisibleNode({
       type: VISIBLE_NODE_TYPES.TEXT_NODE,
       character,
       node: textNode,
@@ -1115,13 +1234,13 @@ class Typewriter {
    * @param {Object} eventArgs Event args with the character and node
    */
   addSharedText = (eventName, { character, node }) => {
-    const textNode = this.getTextNodeToAddTo(this.getParentNode(node));
+    const textNode = this.getTextNodeToAddTo(node);
     const characters = this.getCharactersToTrack(eventName, character);
 
     textNode.appendData(character);
 
     characters.forEach(trackedCharacter => {
-      this.state.visibleNodes.push({
+      this.addVisibleNode({
         type: VISIBLE_NODE_TYPES.TEXT_NODE,
         character: trackedCharacter,
         node: textNode,
@@ -1133,41 +1252,89 @@ class Typewriter {
   /**
    * Get the text node to add text to, creating a new one when needed
    *
-   * @param {HTMLElement} parentNode Node the text is added inside of
+   * @param {HTMLElement} node Node passed to typeString or pasteString
    * @return {Text}
    */
-  getTextNodeToAddTo = (parentNode) => {
-    const lastTextNode = this.getLastSharedTextNode(parentNode);
+  getTextNodeToAddTo = (node) => {
+    const previousTextNode = this.getSharedTextNodeBeforeInsertPoint(node);
 
-    if(this.options.mergeTextNodes && lastTextNode) {
-      return lastTextNode;
+    if(this.options.mergeTextNodes && previousTextNode) {
+      return previousTextNode;
     }
 
     const textNode = document.createTextNode('');
-    parentNode.appendChild(textNode);
+    this.insertNodeOnPage(textNode, node);
 
     return textNode;
   }
 
   /**
-   * Get the last shared text node when it is still the last child of the parent node
+   * Get the shared text node that is right before the place where text is added
    *
-   * @param {HTMLElement} parentNode Node the text is added inside of
+   * @param {HTMLElement} node Node passed to typeString or pasteString
    * @return {Text|null}
    */
-  getLastSharedTextNode = (parentNode) => {
-    const { visibleNodes } = this.state;
-    const lastVisibleNode = visibleNodes[visibleNodes.length - 1];
+  getSharedTextNodeBeforeInsertPoint = (node) => {
+    const previousVisibleNode = this.state.visibleNodes[this.getCursorIndex() - 1];
 
-    if(!lastVisibleNode || !lastVisibleNode.isSharedTextNode) {
+    if(!previousVisibleNode || !previousVisibleNode.isSharedTextNode) {
       return null;
     }
 
-    if(parentNode.lastChild !== lastVisibleNode.node) {
+    if(!this.isRightBeforeInsertPoint(previousVisibleNode.node, node)) {
       return null;
     }
 
-    return lastVisibleNode.node;
+    return previousVisibleNode.node;
+  }
+
+  /**
+   * Check if a text node is right before the place where text is added
+   *
+   * @param {Text} textNode Text node to check
+   * @param {HTMLElement} node Node passed to typeString or pasteString
+   * @return {Boolean}
+   */
+  isRightBeforeInsertPoint = (textNode, node) => {
+    if(node || this.isCursorAtEnd()) {
+      return this.getParentNode(node).lastChild === textNode;
+    }
+
+    return textNode.nextSibling === this.state.elements.cursor;
+  }
+
+  /**
+   * Add a node to the page. When the cursor has been moved, the node is
+   * added right before the cursor instead of at the end.
+   *
+   * @param {Node} newNode Node to add
+   * @param {HTMLElement} node Node passed to typeString or pasteString
+   */
+  insertNodeOnPage = (newNode, node) => {
+    const { cursor } = this.state.elements;
+    const canInsertBeforeCursor = !node && !this.isCursorAtEnd() && cursor.parentNode;
+
+    if(canInsertBeforeCursor) {
+      cursor.parentNode.insertBefore(newNode, cursor);
+      return;
+    }
+
+    this.getParentNode(node).appendChild(newNode);
+  }
+
+  /**
+   * Save a visible node at the cursor position
+   *
+   * @param {Object} visibleNode Visible node to save
+   */
+  addVisibleNode = (visibleNode) => {
+    if(this.isCursorAtEnd()) {
+      this.state.visibleNodes.push(visibleNode);
+      return;
+    }
+
+    this.state.visibleNodes.splice(this.state.cursorIndex, 0, visibleNode);
+    this.state.cursorIndex += 1;
   }
 
   /**
@@ -1206,6 +1373,8 @@ class Typewriter {
     if(isLoopStart && this.options.deleteOnLoop === false) {
       return;
     }
+
+    this.setCursorIndex(null);
 
     const removeEvents = this.createRemoveEvents(this.state.visibleNodes.length);
 
@@ -1262,8 +1431,18 @@ class Typewriter {
    * @return {Object} Visible node that was removed
    */
   removeLastVisibleNode = () => {
-    const lastVisibleNode = this.state.visibleNodes.pop();
-    const { node, character } = lastVisibleNode;
+    return this.removeVisibleNodeAt(this.state.visibleNodes.length - 1);
+  }
+
+  /**
+   * Remove a visible node from the page and call the onRemoveNode option
+   *
+   * @param {Number} index Index of the visible node to remove
+   * @return {Object} Visible node that was removed
+   */
+  removeVisibleNodeAt = (index) => {
+    const [visibleNode] = this.state.visibleNodes.splice(index, 1);
+    const { node, character } = visibleNode;
 
     if(typeof this.options.onRemoveNode === 'function') {
       this.options.onRemoveNode({
@@ -1272,9 +1451,23 @@ class Typewriter {
       });
     }
 
-    this.removeVisibleNodeFromPage(lastVisibleNode);
+    this.removeVisibleNodeFromPage(visibleNode);
 
-    return lastVisibleNode;
+    return visibleNode;
+  }
+
+  /**
+   * Remove the character right before the cursor
+   */
+  removeCharacterBeforeCursor = () => {
+    const characterIndex = this.findCharacterIndexBefore(this.state.cursorIndex);
+
+    if(characterIndex === -1) {
+      return;
+    }
+
+    this.removeVisibleNodeAt(characterIndex);
+    this.state.cursorIndex -= 1;
   }
 
   /**
@@ -1284,7 +1477,7 @@ class Typewriter {
    * @param {Object} visibleNode Visible node to remove
    */
   removeVisibleNodeFromPage = ({ node, character, isSharedTextNode }) => {
-    const hasOtherCharacters = isSharedTextNode && node.data.length > character.length;
+    const hasOtherCharacters = isSharedTextNode && node && node.data.length > character.length;
 
     if(hasOtherCharacters) {
       node.deleteData(node.data.length - character.length, character.length);
@@ -1294,6 +1487,233 @@ class Typewriter {
     if(node && node.parentNode) {
       node.parentNode.removeChild(node);
     }
+  }
+
+  /**
+   * Check if the cursor is after all of the text
+   *
+   * @return {Boolean}
+   */
+  isCursorAtEnd = () => {
+    return this.state.cursorIndex === null;
+  }
+
+  /**
+   * Get the index in the visible nodes where new text is added
+   *
+   * @return {Number}
+   */
+  getCursorIndex = () => {
+    if(this.isCursorAtEnd()) {
+      return this.state.visibleNodes.length;
+    }
+
+    return this.state.cursorIndex;
+  }
+
+  /**
+   * Change the cursor index and move the cursor element to match it.
+   * Use null to move the cursor after all of the text.
+   *
+   * @param {Number|null} index New cursor index
+   */
+  setCursorIndex = (index) => {
+    const isAtEnd = index === null || index >= this.state.visibleNodes.length;
+
+    this.state.cursorIndex = isAtEnd ? null : index;
+    this.placeCursorElement();
+  }
+
+  /**
+   * Move the cursor one character to the left or to the right
+   *
+   * @param {Number} direction -1 to move left, 1 to move right
+   */
+  moveCursorOneCharacter = (direction) => {
+    if(direction < 0) {
+      this.setCursorIndex(this.getIndexBeforePreviousCharacter());
+      return;
+    }
+
+    this.setCursorIndex(this.getIndexAfterNextCharacter());
+  }
+
+  /**
+   * Move the cursor before or after all of the text
+   *
+   * @param {String} position 'start' or 'end'
+   */
+  moveCursorToPosition = (position) => {
+    if(position === CURSOR_POSITIONS.START) {
+      this.setCursorIndex(0);
+      return;
+    }
+
+    this.setCursorIndex(null);
+  }
+
+  /**
+   * Get the cursor index after moving one character to the left
+   *
+   * @return {Number}
+   */
+  getIndexBeforePreviousCharacter = () => {
+    const characterIndex = this.findCharacterIndexBefore(this.getCursorIndex());
+
+    if(characterIndex === -1) {
+      return 0;
+    }
+
+    return characterIndex;
+  }
+
+  /**
+   * Get the cursor index after moving one character to the right
+   *
+   * @return {Number|null}
+   */
+  getIndexAfterNextCharacter = () => {
+    const characterIndex = this.findCharacterIndexFrom(this.getCursorIndex());
+
+    if(characterIndex === -1) {
+      return null;
+    }
+
+    return characterIndex + 1;
+  }
+
+  /**
+   * Find the index of the last character before an index
+   *
+   * @param {Number} index Index to search before
+   * @return {Number} Index of the character or -1
+   */
+  findCharacterIndexBefore = (index) => {
+    const visibleNodesBefore = this.state.visibleNodes.slice(0, index);
+    return visibleNodesBefore.findLastIndex(this.isCharacterNode);
+  }
+
+  /**
+   * Find the index of the first character from an index
+   *
+   * @param {Number} index Index to search from
+   * @return {Number} Index of the character or -1
+   */
+  findCharacterIndexFrom = (index) => {
+    const visibleNodesAfter = this.state.visibleNodes.slice(index);
+    const characterIndex = visibleNodesAfter.findIndex(this.isCharacterNode);
+
+    if(characterIndex === -1) {
+      return -1;
+    }
+
+    return characterIndex + index;
+  }
+
+  /**
+   * Move the cursor element to the place that matches the cursor index
+   */
+  placeCursorElement = () => {
+    if(!this.state.elements.container) {
+      return;
+    }
+
+    if(this.isCursorAtEnd()) {
+      this.moveCursorElementToEnd();
+      return;
+    }
+
+    const previousVisibleNode = this.state.visibleNodes[this.state.cursorIndex - 1];
+
+    if(!previousVisibleNode) {
+      this.insertCursorElement(this.state.elements.wrapper, this.state.elements.wrapper.firstChild);
+      return;
+    }
+
+    if(!this.isCharacterNode(previousVisibleNode)) {
+      this.insertCursorElement(previousVisibleNode.node, previousVisibleNode.node.firstChild);
+      return;
+    }
+
+    this.placeCursorElementAfter(previousVisibleNode);
+  }
+
+  /**
+   * Move the cursor element right after a character
+   *
+   * @param {Object} visibleNode Visible node of the character
+   */
+  placeCursorElementAfter = (visibleNode) => {
+    this.splitSharedTextNodeAfter(visibleNode);
+
+    const { node } = visibleNode;
+
+    if(!node || !node.parentNode) {
+      return;
+    }
+
+    this.insertCursorElement(node.parentNode, node.nextSibling);
+  }
+
+  /**
+   * Add the cursor element inside of a parent node
+   *
+   * @param {Node} parentNode Node to add the cursor inside of
+   * @param {Node|null} nextSibling Node to add the cursor before
+   */
+  insertCursorElement = (parentNode, nextSibling) => {
+    parentNode.insertBefore(this.state.elements.cursor, nextSibling);
+  }
+
+  /**
+   * Move the cursor element back to its place right after the wrapper
+   */
+  moveCursorElementToEnd = () => {
+    const { wrapper, cursor } = this.state.elements;
+
+    if(!wrapper.parentNode) {
+      return;
+    }
+
+    wrapper.parentNode.insertBefore(cursor, wrapper.nextSibling);
+  }
+
+  /**
+   * Split a shared text node so the character is the last one in its text node.
+   * This lets the cursor element be placed right after the character.
+   *
+   * @param {Object} visibleNode Visible node of the character
+   */
+  splitSharedTextNodeAfter = (visibleNode) => {
+    if(!visibleNode.isSharedTextNode) {
+      return;
+    }
+
+    const laterVisibleNodes = this.getLaterVisibleNodesInTextNode(visibleNode);
+
+    if(!laterVisibleNodes.length) {
+      return;
+    }
+
+    const laterTextLength = laterVisibleNodes.reduce((total, item) => total + item.character.length, 0);
+    const newTextNode = visibleNode.node.splitText(visibleNode.node.data.length - laterTextLength);
+
+    laterVisibleNodes.forEach(item => {
+      item.node = newTextNode;
+    });
+  }
+
+  /**
+   * Get the visible nodes after a character that share the same text node
+   *
+   * @param {Object} visibleNode Visible node of the character
+   * @return {Array}
+   */
+  getLaterVisibleNodesInTextNode = (visibleNode) => {
+    const index = this.state.visibleNodes.indexOf(visibleNode);
+    const laterVisibleNodes = this.state.visibleNodes.slice(index + 1);
+
+    return laterVisibleNodes.filter(item => item.node === visibleNode.node);
   }
 
   /**

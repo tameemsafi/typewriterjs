@@ -184,6 +184,15 @@ declare module "typewriter-effect" {
      * @default false
      */
     onlyDelayVisibleChanges?: boolean
+    /**
+     * Reserve the space that the typed text will need, so the page does not
+     * move while typing. The space is worked out from the queued events each
+     * time `start()` is called, and is as big as the largest text that will
+     * be shown.
+     *
+     * @default false
+     */
+    reserveSpace?: boolean
   }
 
   export interface TypewriterState {
@@ -225,6 +234,25 @@ declare module "typewriter-effect" {
      * adding new events.
      */
     clearQueue(): TypewriterClass
+
+    /**
+     * Move the cursor by an amount of characters. A negative amount moves the
+     * cursor to the left. Typed, pasted and deleted text then happens at the
+     * cursor.
+     *
+     * @param amount Number of characters to move the cursor by
+     */
+    moveCursor(amount: number): TypewriterClass
+
+    /**
+     * Move the cursor before all of the text.
+     */
+    moveCursorToStart(): TypewriterClass
+
+    /**
+     * Move the cursor after all of the text.
+     */
+    moveCursorToEnd(): TypewriterClass
 
     /**
      * Pause for milliseconds

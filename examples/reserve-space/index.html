@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Example - Reserve space</title>
+  <style>
+    body {
+      max-width: 420px;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 id="typewriter"></h1>
+  <p id="below">This paragraph does not move while the heading is typed.</p>
+
+  <script src='../../dist/core.js'></script>
+  <script type="text/javascript">
+    new Typewriter('#typewriter', {
+      strings: ['Short title', 'A much longer title that wraps onto more than one line'],
+      autoStart: true,
+      loop: true,
+      reserveSpace: true,
+    });
+  </script>
+
+</body>
+</html>

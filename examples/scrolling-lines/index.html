@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Example - Scrolling lines</title>
+</head>
+<body>
+
+  <div id="lines"></div>
+
+  <script src='../../dist/core.js'></script>
+  <script type="text/javascript">
+    const lines = ['Line A', 'Line B', 'Line C', 'Line D', 'Line E'];
+    const maxLines = 3;
+    const container = document.getElementById('lines');
+    let lineIndex = 0;
+
+    const removeOldestLine = () => {
+      if(container.children.length > maxLines) {
+        container.firstElementChild.remove();
+      }
+    };
+
+    const typeNextLine = () => {
+      const line = document.createElement('div');
+      container.appendChild(line);
+      removeOldestLine();
+
+      new Typewriter(line, { delay: 75 })
+        .typeString(lines[lineIndex % lines.length])
+        .changeCursor('')
+        .pauseFor(500)
+        .callFunction(typeNextLine)
+        .start();
+
+      lineIndex += 1;
+    };
+
+    typeNextLine();
+  </script>
+
+</body>
+</html>
