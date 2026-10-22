@@ -1,44 +1,45 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import TypewriterCore from './../core';
-import isEqual from 'lodash/isEqual';
+import { areOptionsEqual } from './../utils';
 
 class Typewriter extends Component {
-  state = {
-    instance: null,
-  };
+  instance = null;
 
   componentDidMount() {
-    const instance = new TypewriterCore(this.typewriter, this.props.options);
-
-    this.setState({
-      instance,
-    }, () => {
-      const { onInit } = this.props;
-      
-      if(onInit) {
-        onInit(instance);
-      }
-    });
+    this.createInstance();
   }
 
   componentDidUpdate(prevProps) {
-    if(!isEqual(this.props.options, prevProps.options)) {
-      this.setState({
-        instance: new TypewriterCore(this.typewriter, this.props.options)
-      });
+    if(!areOptionsEqual(this.props.options, prevProps.options)) {
+      this.stopInstance();
+      this.createInstance();
     }
   }
 
   componentWillUnmount() {
-    if(this.state.instance) {
-      this.state.instance.stop();
+    this.stopInstance();
+  }
+
+  createInstance() {
+    this.instance = new TypewriterCore(this.typewriter, this.props.options);
+
+    const { onInit } = this.props;
+
+    if(onInit) {
+      onInit(this.instance);
+    }
+  }
+
+  stopInstance() {
+    if(this.instance) {
+      this.instance.stop();
+      this.instance = null;
     }
   }
 
   render() {
-    const { component: Component } = this.props; 
-    
+    const { component: Component } = this.props;
+
     return (
       <Component
         ref={(ref) => this.typewriter = ref}
@@ -48,21 +49,6 @@ class Typewriter extends Component {
     );
   }
 }
-
-Typewriter.propTypes = {
-  component: PropTypes.element,
-  onInit: PropTypes.func,
-  options: PropTypes.objectOf(PropTypes.shape({
-    strings: PropTypes.arrayOf(PropTypes.string),
-    cursor: PropTypes.string,
-    delay: PropTypes.number,
-    loop: PropTypes.bool,
-    autoStart: PropTypes.bool,
-    devMode: PropTypes.bool,
-    wrapperClassName: PropTypes.string,
-    cursorClassName: PropTypes.string,
-  })),
-};
 
 Typewriter.defaultProps = {
   component: 'div'

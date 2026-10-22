@@ -1,5 +1,6 @@
-import lolex from 'lolex';
-import raf, { cancel as cancelRaf } from 'raf';
+import FakeTimers from '@sinonjs/fake-timers';
+import requestFrame from '../../utils/request-frame';
+import cancelFrame from '../../utils/cancel-frame';
 import Typewriter from '../Typewriter';
 import {
   EVENT_NAMES,
@@ -7,10 +8,14 @@ import {
   STYLES,
 } from '../constants';
 
-jest.mock('raf', () => ({
+jest.mock('../../utils/request-frame', () => ({
   __esModule: true,
   default: jest.fn(),
-  cancel: jest.fn(),
+}));
+
+jest.mock('../../utils/cancel-frame', () => ({
+  __esModule: true,
+  default: jest.fn(),
 }));
 
 describe('Typewriter', () => {
@@ -24,7 +29,7 @@ describe('Typewriter', () => {
     wrapperElement.id = 'test';
     document.body.appendChild(wrapperElement);
     document.head.appendChild = jest.fn(node => styleNode = node);
-    clock = lolex.install();
+    clock = FakeTimers.install();
   });
   
   afterEach(() => {
@@ -79,6 +84,7 @@ describe('Typewriter', () => {
       onCreateTextNode: jest.fn(),
       onRemoveNode: jest.fn(),
       maxCatchUpDelta: 1000,
+      parseHTML: false,
     };
 
     const instance = new Typewriter('#test', options);
@@ -88,7 +94,7 @@ describe('Typewriter', () => {
   it('should throw error if container wih selector is not found', () => {
     expect(() => {
       new Typewriter('.hello');
-    }).toThrowError('Could not find container element');
+    }).toThrow('Could not find container element');
   });
 
   it('should correctly setup container element with selector', () => {
@@ -126,6 +132,14 @@ describe('Typewriter', () => {
       expect(instance.runEventLoop).toHaveBeenCalledTimes(1);
     });
 
+    it('start should cancel the current event loop before running a new one', () => {
+      instance.runEventLoop = jest.fn();
+      instance.state.eventLoop = 123;
+      instance.start();
+      expect(cancelFrame).toHaveBeenCalledTimes(1);
+      expect(cancelFrame).toHaveBeenCalledWith(123);
+    });
+
     it('pause should correctly set event loop paused state', () => {
       instance.pause();
       expect(instance.state.eventLoopPaused).toEqual(true);
@@ -136,7 +150,7 @@ describe('Typewriter', () => {
       instance.state.eventLoop = test;
       instance.stop();
       expect(instance.state.eventLoop).toEqual(null);
-      expect(cancelRaf).toHaveBeenCalledTimes(1);
+      expect(cancelFrame).toHaveBeenCalledTimes(1);
     });
 
     it('pauseFor should correctly add event item to queue', () => {
@@ -238,6 +252,34 @@ describe('Typewriter', () => {
       });
     });
 
+    describe('deleteAllWithDeleteSpeed', () => {
+      it('should add remove all event item without a speed so the delete speed option is used', () => {
+        instance.deleteAllWithDeleteSpeed();
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+        expect(instance.state.eventQueue[2].eventArgs).toEqual({});
+      });
+    });
+
+    describe('parseHTML option', () => {
+      it('should type html like text as normal characters when parseHTML is false', () => {
+        instance.options.parseHTML = false;
+        instance.typeOutHTMLString = jest.fn();
+        instance.typeString('<b>hi</b>');
+        expect(instance.typeOutHTMLString).toHaveBeenCalledTimes(0);
+        expect(instance.state.eventQueue.length).toEqual(11);
+        expect(instance.state.eventQueue[2].eventArgs.character).toEqual('<');
+      });
+
+      it('should paste html like text as a normal string when parseHTML is false', () => {
+        instance.options.parseHTML = false;
+        instance.typeOutHTMLString = jest.fn();
+        instance.pasteString('<b>hi</b>');
+        expect(instance.typeOutHTMLString).toHaveBeenCalledTimes(0);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.PASTE_STRING);
+        expect(instance.state.eventQueue[2].eventArgs.character).toEqual('<b>hi</b>');
+      });
+    });
+
     describe('changeDeleteSpeed', () => {
       it('should add event item with new speed', () => {
         instance.changeDeleteSpeed(500);
@@ -248,7 +290,13 @@ describe('Typewriter', () => {
       it('should throw error if no new speed is provided', () => {
         expect(() => {
           instance.changeDeleteSpeed();
-        }).toThrowError('Must provide new delete speed');
+        }).toThrow('Must provide new delete speed');
+      });
+
+      it('should add event item when new speed is zero', () => {
+        instance.changeDeleteSpeed(0);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CHANGE_DELETE_SPEED);
+        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(0);
       });
     });
 
@@ -262,7 +310,13 @@ describe('Typewriter', () => {
       it('should throw error if no new speed is provided', () => {
         expect(() => {
           instance.changeDelay();
-        }).toThrowError('Must provide new delay');
+        }).toThrow('Must provide new delay');
+      });
+
+      it('should add event item when new delay is zero', () => {
+        instance.changeDelay(0);
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CHANGE_DELAY);
+        expect(instance.state.eventQueue[2].eventArgs.delay).toEqual(0);
       });
     });
 
@@ -276,7 +330,7 @@ describe('Typewriter', () => {
         it('should throw error if no new cursor is provided', () => {
             expect(() => {
                 instance.changeCursor();
-            }).toThrowError('Must provide new cursor');
+            }).toThrow('Must provide new cursor');
         });
     });
 
@@ -289,7 +343,7 @@ describe('Typewriter', () => {
       it('should throw error if amount is not provided', () => {
         expect(() => {
           instance.deleteChars();
-        }).toThrowError('Must provide amount of characters to delete');
+        }).toThrow('Must provide amount of characters to delete');
       });
     });
 
@@ -314,13 +368,13 @@ describe('Typewriter', () => {
       it('should throw error if callback function is not provided', () => {
         expect(() => {
           instance.callFunction();
-        }).toThrowError('Callback must be a function');
+        }).toThrow('Callback must be a function');
       });
 
       it('should throw error if callback is not a function', () => {
         expect(() => {
           instance.callFunction(false);
-        }).toThrowError('Callback must be a function');
+        }).toThrow('Callback must be a function');
       });
     });
 
@@ -333,13 +387,13 @@ describe('Typewriter', () => {
       it('should throw error if characters param is not provided', () => {
         expect(() => {
           instance.typeCharacters();
-        }).toThrowError('Characters must be an array');
+        }).toThrow('Characters must be an array');
       });
 
       it('should throw error if characters param is not array', () => {
         expect(() => {
           instance.typeCharacters('test');
-        }).toThrowError('Characters must be an array');
+        }).toThrow('Characters must be an array');
       });
     });
 
@@ -352,13 +406,13 @@ describe('Typewriter', () => {
       it('should throw error if characters param is not provided', () => {
         expect(() => {
           instance.removeCharacters();
-        }).toThrowError('Characters must be an array');
+        }).toThrow('Characters must be an array');
       });
 
       it('should throw error if characters param is not array', () => {
         expect(() => {
           instance.removeCharacters('test');
-        }).toThrowError('Characters must be an array');
+        }).toThrow('Characters must be an array');
       });
     });
 
@@ -368,23 +422,6 @@ describe('Typewriter', () => {
         instance.addEventToQueue('test', { hello: 1 }, false);
         expect(instance.addEventToStateProperty).toHaveBeenCalledTimes(1);
         expect(instance.addEventToStateProperty).toHaveBeenCalledWith('test', { hello: 1 }, false, 'eventQueue');
-      });
-    });
-
-    describe('addReverseCalledEvent', () => {
-      it('should call addEventToStateProperty correctly when loop options is true', () => {
-        instance.options.loop = true;
-        instance.addEventToStateProperty = jest.fn();
-        instance.addReverseCalledEvent('test', { hello: 1 }, false);
-        expect(instance.addEventToStateProperty).toHaveBeenCalledTimes(1);
-        expect(instance.addEventToStateProperty).toHaveBeenCalledWith('test', { hello: 1 }, false, 'reverseCalledEvents');
-      });
-
-      it('should not call addEventToStateProperty correctly when loop options is false', () => {
-        instance.options.loop = false;
-        instance.addEventToStateProperty = jest.fn();
-        instance.addReverseCalledEvent('test', { hello: 1 }, false);
-        expect(instance.addEventToStateProperty).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -415,18 +452,18 @@ describe('Typewriter', () => {
     describe('runEventLoop', () => {
       const events = [{ eventName: EVENT_NAMES.CHANGE_DELAY, eventArgs: { delay: 5000 } }];
 
-      it('should call raf method correctly', () => {
-        raf.mockReset();
+      it('should call requestFrame method correctly', () => {
+        requestFrame.mockReset();
         instance.typeString('test').runEventLoop();
-        expect(raf).toHaveBeenCalledTimes(1);
+        expect(requestFrame).toHaveBeenCalledTimes(1);
       });
 
       it('should not run if event queue is empty and loop option is false', () => {
         instance.options.loop = false;
         instance.state.eventQueue = [];
-        raf.mockReset();
+        requestFrame.mockReset();
         instance.runEventLoop();
-        expect(raf).toHaveBeenCalledTimes(0);
+        expect(requestFrame).toHaveBeenCalledTimes(0);
       });
 
       it('should reset queue correctly if event queue is empty and loop option is true', () => {
@@ -825,6 +862,14 @@ describe('Typewriter', () => {
             expect(node.parentNode.removeChild).toHaveBeenCalledWith(node);
             expect(instance.state.visibleNodes).toEqual([]);
             expect(instance.state.eventQueue[0].eventName).toEqual(EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE);
+            expect(instance.state.eventQueue[0].eventArgs).toEqual({ removingCharacterNode: true });
+          });
+
+          it('should not throw if visible node was already removed from the page', () => {
+            const detachedNode = document.createElement('span');
+            instance.state.visibleNodes = [{ type: VISIBLE_NODE_TYPES.TEXT_NODE, node: detachedNode, }];
+            expect(() => instance.runEventLoop()).not.toThrow();
+            expect(instance.state.visibleNodes).toEqual([]);
           });
         });
 
@@ -892,6 +937,82 @@ describe('Typewriter', () => {
         instance.logInDevMode('test');
         expect(spy).toHaveBeenCalledTimes(0);
       });
+    });
+  });
+
+  describe('with a running event loop', () => {
+    const FRAME_TIME = 16;
+
+    beforeEach(() => {
+      requestFrame.mockImplementation(callback => setTimeout(callback, FRAME_TIME));
+      cancelFrame.mockImplementation(id => clearTimeout(id));
+    });
+
+    afterEach(() => {
+      requestFrame.mockReset();
+      cancelFrame.mockReset();
+    });
+
+    it('should not leave an event loop running after pause, start and stop', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 50 });
+      instance.typeString('abcdefghij').start();
+      clock.tick(100);
+      instance.pause();
+      clock.tick(100);
+      instance.start();
+      instance.stop();
+      expect(clock.countTimers()).toEqual(0);
+    });
+
+    it('should delete characters across nested empty html tags', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1 });
+      instance.typeString('a<b><i>x</i></b>').deleteChars(2).start();
+      clock.tick(5000);
+      expect(instance.state.elements.wrapper.textContent).toEqual('');
+    });
+
+    it('should use the delete speed option when calling deleteAllWithDeleteSpeed', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 30 });
+      instance.logInDevMode = jest.fn();
+      instance.typeString('ab').deleteAllWithDeleteSpeed().start();
+      clock.tick(5000);
+
+      const removeDelays = instance.logInDevMode.mock.calls
+        .filter(([log]) => log.currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE)
+        .map(([log]) => log.delay);
+
+      expect(removeDelays).toEqual([30, 30]);
+      expect(instance.state.elements.wrapper.textContent).toEqual('');
+    });
+
+    it('should type html like text exactly as written when parseHTML is false', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1, parseHTML: false });
+      instance.typeString('if x<y and y>z').start();
+      clock.tick(5000);
+      expect(instance.state.elements.wrapper.textContent).toEqual('if x<y and y>z');
+    });
+
+    it('should type html entities as plain characters inside html strings', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1 });
+      instance.typeString('<b>Tom &amp; Jerry</b> x &lt;y and y&gt; z').start();
+      clock.tick(5000);
+      expect(instance.state.elements.wrapper.textContent).toEqual('Tom & Jerry x <y and y> z');
+      expect(instance.state.elements.wrapper.querySelectorAll('y').length).toEqual(0);
+    });
+
+    it('should delete a void element as a single character', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1 });
+      instance.typeString('ab<br>').deleteChars(1).start();
+      clock.tick(5000);
+      expect(instance.state.elements.wrapper.innerHTML).toEqual('ab');
+    });
+
+    it('should not add html comments to the page or count them as characters', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1 });
+      instance.typeString('ab<!-- note --><b>c</b>').start();
+      clock.tick(5000);
+      expect(instance.state.elements.wrapper.innerHTML).toEqual('ab<b>c</b>');
+      expect(instance.state.visibleNodes.length).toEqual(4);
     });
   });
 });

@@ -1,9 +1,12 @@
-import raf, { cancel as cancelRaf } from 'raf';
 import {
   doesStringContainHTMLTag,
   getDOMElementFromString,
   getRandomInteger,
   addStyles,
+  isValueMissing,
+  isVoidElement,
+  requestFrame,
+  cancelFrame,
 } from './../utils';
 import {
   EVENT_NAMES,
@@ -13,13 +16,11 @@ import {
 
 class Typewriter {
   state = {
-    cursorAnimation: null,
     lastFrameTime: null,
     pauseUntil: null,
     eventQueue: [],
     eventLoop: null,
     eventLoopPaused: false,
-    reverseCalledEvents: [],
     calledEvents: [],
     visibleNodes: [],
     initialOptions: null,
@@ -46,6 +47,7 @@ class Typewriter {
     onCreateTextNode: null,
     onRemoveNode: null,
     maxCatchUpDelta: null,
+    parseHTML: true,
   }
 
   constructor(container, options) {
@@ -116,6 +118,7 @@ class Typewriter {
    * Start typewriter effect
    */
   start = () => {
+    this.stop();
     this.state.eventLoopPaused = false;
     this.runEventLoop();
 
@@ -140,7 +143,7 @@ class Typewriter {
    */
   stop = () => {
     if(this.state.eventLoop) {
-      cancelRaf(this.state.eventLoop);
+      cancelFrame(this.state.eventLoop);
       this.state.eventLoop = null;
     }
 
@@ -195,10 +198,14 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeString = (string, node = null) => {
-    if(doesStringContainHTMLTag(string)) {
+    if(this.shouldParseAsHTML(string)) {
       return this.typeOutHTMLString(string, node);
     }
 
+    return this.typeText(string, node);
+  }
+
+  typeText = (string, node = null) => {
     if(string) {
       const { stringSplitter } = this.options || {};
       const characters = typeof stringSplitter === 'function' ? stringSplitter(string) : string.split('');
@@ -218,15 +225,23 @@ class Typewriter {
    * @author Luiz Felicio <unifelicio@gmail.com>
    */
   pasteString = (string, node = null) => {
-    if(doesStringContainHTMLTag(string)) {
+    if(this.shouldParseAsHTML(string)) {
       return this.typeOutHTMLString(string, node, true);
     }
 
+    return this.pasteText(string, node);
+  }
+
+  pasteText = (string, node = null) => {
     if(string) {
       this.addEventToQueue(EVENT_NAMES.PASTE_STRING, { character: string, node });
     }
 
     return this;
+  }
+
+  shouldParseAsHTML = (string) => {
+    return this.options.parseHTML !== false && doesStringContainHTMLTag(string);
   }
 
   /**
@@ -239,33 +254,47 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeOutHTMLString = (string, parentNode = null, pasteEffect) => {
-    const childNodes = getDOMElementFromString(string);
-
-    if(childNodes.length > 0 ) {
-      for(let i = 0; i < childNodes.length; i++) {
-        const node = childNodes[i];
-        const nodeHTML = node.innerHTML;
-
-        if(node && node.nodeType !== 3) {
-          // Reset innerText of HTML element
-          node.innerHTML = '';
-
-          // Add event queue item to insert HTML tag before typing characters
-          this.addEventToQueue(EVENT_NAMES.ADD_HTML_TAG_ELEMENT, {
-            node,
-            parentNode,
-          });
-
-            pasteEffect ? this.pasteString(nodeHTML, node) :  this.typeString(nodeHTML, node);
-        } else {
-          if(node.textContent) {
-            pasteEffect ? this.pasteString(node.textContent, parentNode) :  this.typeString(node.textContent, parentNode);
-          }
-        }
-      }
-    }
+    const childNodes = Array.from(getDOMElementFromString(string));
+    this.addChildNodesToQueue(childNodes, parentNode, pasteEffect);
 
     return this;
+  }
+
+  addChildNodesToQueue = (childNodes, parentNode, pasteEffect) => {
+    childNodes.forEach(childNode => {
+      this.addChildNodeToQueue(childNode, parentNode, pasteEffect);
+    });
+  }
+
+  addChildNodeToQueue = (node, parentNode, pasteEffect) => {
+    if(node.nodeType === Node.ELEMENT_NODE) {
+      this.addElementNodeToQueue(node, parentNode, pasteEffect);
+      return;
+    }
+
+    if(node.nodeType === Node.TEXT_NODE) {
+      this.addTextToQueue(node.textContent, parentNode, pasteEffect);
+    }
+  }
+
+  addElementNodeToQueue = (node, parentNode, pasteEffect) => {
+    const childNodes = Array.from(node.childNodes);
+    node.innerHTML = '';
+
+    this.addEventToQueue(EVENT_NAMES.ADD_HTML_TAG_ELEMENT, {
+      node,
+      parentNode,
+    });
+
+    this.addChildNodesToQueue(childNodes, node, pasteEffect);
+  }
+
+  addTextToQueue = (text, node, pasteEffect) => {
+    if(pasteEffect) {
+      this.pasteText(text, node);
+    } else {
+      this.typeText(text, node);
+    }
   }
 
   /**
@@ -280,6 +309,11 @@ class Typewriter {
     return this;
   }
 
+  deleteAllWithDeleteSpeed = () => {
+    this.addEventToQueue(EVENT_NAMES.REMOVE_ALL);
+    return this;
+  }
+
   /**
    * Change delete speed
    *
@@ -289,7 +323,7 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   changeDeleteSpeed = (speed) => {
-    if(!speed) {
+    if(isValueMissing(speed)) {
       throw new Error('Must provide new delete speed');
     }
 
@@ -307,7 +341,7 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   changeDelay = (delay) => {
-    if(!delay) {
+    if(isValueMissing(delay)) {
       throw new Error('Must provide new delay');
     }
 
@@ -434,31 +468,6 @@ class Typewriter {
   }
 
   /**
-   * Add an event to reverse called events used for looping
-   *
-   * @param {String}  eventName Name of the event
-   * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
-   * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
-   */
-  addReverseCalledEvent = (eventName, eventArgs, prepend = false) => {
-    const { loop } = this.options;
-
-    if(!loop) {
-      return this;
-    }
-
-    return this.addEventToStateProperty(
-      eventName,
-      eventArgs,
-      prepend,
-      'reverseCalledEvents'
-    );
-  }
-
-  /**
    * Add an event to correct state property
    *
    * @param {String}  eventName Name of the event
@@ -476,15 +485,9 @@ class Typewriter {
     };
 
     if(prepend) {
-      this.state[property] = [
-        eventItem,
-        ...this.state[property],
-      ];
+      this.state[property].unshift(eventItem);
     } else {
-      this.state[property] = [
-        ...this.state[property],
-        eventItem,
-      ];
+      this.state[property].push(eventItem);
     }
 
     return this;
@@ -523,7 +526,7 @@ class Typewriter {
     }
 
     // Request next frame
-    this.state.eventLoop = raf(this.runEventLoop);
+    this.state.eventLoop = requestFrame(this.runEventLoop);
 
     // Check if event loop is paused
     if(this.state.eventLoopPaused) {
@@ -630,14 +633,11 @@ class Typewriter {
           }
         }
 
-        this.state.visibleNodes = [
-          ...this.state.visibleNodes,
-          {
-            type: VISIBLE_NODE_TYPES.TEXT_NODE,
-            character,
-            node: textNodeToUse,
-          },
-        ];
+        this.state.visibleNodes.push({
+          type: VISIBLE_NODE_TYPES.TEXT_NODE,
+          character,
+          node: textNodeToUse,
+        });
 
         break;
       }
@@ -675,14 +675,11 @@ class Typewriter {
           parentNode.appendChild(node);
         }
 
-        this.state.visibleNodes = [
-          ...this.state.visibleNodes,
-          {
-            type: VISIBLE_NODE_TYPES.HTML_TAG,
-            node,
-            parentNode: parentNode || this.state.elements.wrapper,
-          },
-        ];
+        this.state.visibleNodes.push({
+          type: VISIBLE_NODE_TYPES.HTML_TAG,
+          node,
+          parentNode: parentNode || this.state.elements.wrapper,
+        });
         break;
       }
 
@@ -732,15 +729,15 @@ class Typewriter {
             })
           }
 
-          if(node) {
+          if(node && node.parentNode) {
             node.parentNode.removeChild(node);
           }
-          
+
           // Remove extra node as current deleted one is just an empty wrapper node
-          if(type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode) {
+          if(type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode && !isVoidElement(node)) {
             eventQueue.unshift({
               eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
-              eventArgs: {},
+              eventArgs: { removingCharacterNode: true },
             });
           }
         }
@@ -774,10 +771,7 @@ class Typewriter {
         currentEvent.eventName !== EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE &&
         !(currentEvent.eventArgs && currentEvent.eventArgs.temp)
       ) {
-        this.state.calledEvents = [
-          ...this.state.calledEvents,
-          currentEvent
-        ];
+        this.state.calledEvents.push(currentEvent);
       }
     }
   }
