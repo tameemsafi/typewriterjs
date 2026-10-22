@@ -1075,6 +1075,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
 exports[`Typewriter shoud setup correctly with default settings 1`] = `
 {
   "calledEvents": [],
+  "cursorIndex": null,
   "elements": {
     "container": <div
       id="test"
@@ -1135,6 +1136,7 @@ exports[`Typewriter shoud setup correctly with default settings 1`] = `
     "parseHTML": true,
     "pasteAsCharacters": false,
     "pauseFor": 1500,
+    "reserveSpace": false,
     "skipAddStyles": false,
     "stringSplitter": null,
     "strings": null,
@@ -1143,6 +1145,7 @@ exports[`Typewriter shoud setup correctly with default settings 1`] = `
   },
   "lastFrameTime": null,
   "pauseUntil": null,
+  "reservedSpace": null,
   "visibleNodes": [],
 }
 `;
@@ -1168,6 +1171,7 @@ exports[`Typewriter shoud setup correctly with default settings 2`] = `
   "parseHTML": true,
   "pasteAsCharacters": false,
   "pauseFor": 1500,
+  "reserveSpace": false,
   "skipAddStyles": false,
   "stringSplitter": null,
   "strings": null,

@@ -11,6 +11,13 @@ export const EVENT_NAMES = {
   CHANGE_CURSOR: 'CHANGE_CURSOR',
   PASTE_STRING: 'PASTE_STRING',
   CLEAR: 'CLEAR',
+  MOVE_CURSOR: 'MOVE_CURSOR',
+  MOVE_CURSOR_TO: 'MOVE_CURSOR_TO',
+};
+
+export const CURSOR_POSITIONS = {
+  START: 'start',
+  END: 'end',
 };
 
 export const VISIBLE_NODE_TYPES = {

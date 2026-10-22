@@ -93,6 +93,7 @@ describe('Typewriter', () => {
       mergeTextNodes: true,
       pasteAsCharacters: true,
       onlyDelayVisibleChanges: true,
+      reserveSpace: false,
     };
 
     const instance = new Typewriter('#test', options);
@@ -1365,6 +1366,231 @@ describe('Typewriter', () => {
         instance.pasteString('<b>a</b><i>b</i>c').start();
         clock.tick(FRAME_TIME);
         expect(instance.state.elements.wrapper.innerHTML).toEqual('<b>a</b><i>b</i>c');
+      });
+
+      it('should use the typing delay when moving the cursor', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 20, onlyDelayVisibleChanges: true });
+        instance.logInDevMode = jest.fn();
+        instance.typeString('ab').moveCursor(-1).moveCursorToStart().start();
+        clock.tick(5000);
+        expect(getLoggedDelays(instance, EVENT_NAMES.MOVE_CURSOR)).toEqual([20]);
+        expect(getLoggedDelays(instance, EVENT_NAMES.MOVE_CURSOR_TO)).toEqual([20]);
+      });
+    });
+
+    describe('moving the cursor', () => {
+      const createTypewriter = (options = {}) => {
+        return new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1, ...options });
+      };
+
+      const getText = (instance) => instance.state.elements.container.textContent;
+
+      const isCursorAtEnd = (instance) => {
+        const { wrapper, cursor } = instance.state.elements;
+        return wrapper.nextSibling === cursor && instance.state.cursorIndex === null;
+      };
+
+      it('should type at the cursor after moving it to the left', () => {
+        const instance = createTypewriter();
+        instance.typeString('Helo').moveCursor(-1).typeString('l').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('Hell|o');
+      });
+
+      it('should move the cursor back after all of the text', () => {
+        const instance = createTypewriter();
+        instance.typeString('Helo').moveCursor(-1).typeString('l').moveCursorToEnd().typeString('!').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('Hello!|');
+        expect(isCursorAtEnd(instance)).toEqual(true);
+      });
+
+      it('should move the cursor to the right again', () => {
+        const instance = createTypewriter();
+        instance.typeString('abc').moveCursor(-3).moveCursor(1).typeString('X').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('aX|bc');
+      });
+
+      it('should move the cursor to the end when moving right past the last character', () => {
+        const instance = createTypewriter();
+        instance.typeString('ab').moveCursor(-1).moveCursor(5).start();
+        clock.tick(5000);
+        expect(isCursorAtEnd(instance)).toEqual(true);
+      });
+
+      it('should stop at the start when moving left past the first character', () => {
+        const instance = createTypewriter();
+        instance.typeString('ab').moveCursor(-5).typeString('X').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('X|ab');
+      });
+
+      it('should type at the start after moveCursorToStart', () => {
+        const instance = createTypewriter();
+        instance.typeString('world').moveCursorToStart().typeString('Hello ').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('Hello |world');
+      });
+
+      it('should delete the characters before the cursor', () => {
+        const instance = createTypewriter();
+        instance.typeString('Hello world').moveCursor(-6).deleteChars(5).typeString('Goodbye').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('Goodbye| world');
+      });
+
+      it('should type inside of html tags at the cursor', () => {
+        const instance = createTypewriter();
+        instance.typeString('a<b>bc</b>d').moveCursor(-2).typeString('X').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('abX|cd');
+        expect(instance.state.elements.wrapper.querySelector('b').textContent).toEqual('bX|c');
+      });
+
+      it('should add html at the cursor', () => {
+        const instance = createTypewriter();
+        instance.typeString('ad').moveCursor(-1).typeString('<i>bc</i>').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('abc|d');
+        expect(instance.state.elements.wrapper.querySelector('i').textContent).toEqual('bc');
+      });
+
+      it('should delete the character before a html tag when the cursor is at the start of the tag', () => {
+        const instance = createTypewriter();
+        instance.typeString('a<b>bc</b>').moveCursor(-2).deleteChars(1).start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('|bc');
+        expect(instance.state.elements.wrapper.querySelector('b').textContent).toEqual('|bc');
+      });
+
+      it('should not delete anything when there are no characters before the cursor', () => {
+        const instance = createTypewriter();
+        instance.typeString('ab').moveCursorToStart().deleteChars(2).start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('|ab');
+      });
+
+      it('should call onRemoveNode for characters deleted at the cursor', () => {
+        const onRemoveNode = jest.fn();
+        const instance = createTypewriter({ onRemoveNode });
+        instance.typeString('abc').moveCursor(-1).deleteChars(1).start();
+        clock.tick(5000);
+        expect(onRemoveNode).toHaveBeenCalledTimes(1);
+        expect(onRemoveNode.mock.calls[0][0].character).toEqual('b');
+      });
+
+      it('should move the cursor to the end before deleteAll and clear', () => {
+        const instance = createTypewriter();
+        instance.typeString('<b>ab</b>cd').moveCursor(-3).deleteAll().start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('');
+        expect(isCursorAtEnd(instance)).toEqual(true);
+
+        instance.typeString('xy').moveCursor(-1).clear().typeString('z').start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('z|');
+        expect(isCursorAtEnd(instance)).toEqual(true);
+      });
+
+      it('should split merged text nodes to move the cursor inside of them', () => {
+        const instance = createTypewriter({ mergeTextNodes: true });
+        instance.typeString('abcd').moveCursor(-2).typeString('X').deleteChars(2).start();
+        clock.tick(5000);
+        expect(getText(instance)).toEqual('a|cd');
+
+        instance.moveCursorToEnd().deleteAll().start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('');
+      });
+
+      it('should move the cursor back to the end when the loop starts again', () => {
+        const instance = createTypewriter({ loop: true });
+        instance.state.visibleNodes = [];
+        instance.setCursorIndex(0);
+        instance.restartLoop();
+        expect(isCursorAtEnd(instance)).toEqual(true);
+      });
+
+      it('should throw error if amount is not provided', () => {
+        const instance = createTypewriter();
+        expect(() => instance.moveCursor()).toThrow('Must provide amount of characters to move the cursor by');
+      });
+
+      it('should add a move event for each character', () => {
+        const instance = createTypewriter();
+        instance.moveCursor(-3);
+        const moveEvents = instance.state.eventQueue.filter(event => event.eventName === EVENT_NAMES.MOVE_CURSOR);
+        expect(moveEvents.map(event => event.eventArgs.direction)).toEqual([-1, -1, -1]);
+      });
+    });
+
+    describe('reserveSpace', () => {
+      const getSizer = (instance) => instance.state.reservedSpace;
+
+      it('should not add extra elements by default', () => {
+        const instance = new Typewriter(wrapperElement);
+        const { container, wrapper, cursor } = instance.state.elements;
+        expect(Array.from(container.childNodes)).toEqual([wrapper, cursor]);
+      });
+
+      it('should place the text and a hidden sizer in the same grid cell', () => {
+        const instance = new Typewriter(wrapperElement, { reserveSpace: true });
+        const { container, wrapper, cursor } = instance.state.elements;
+        const space = container.firstChild;
+        const content = wrapper.parentNode;
+
+        expect(space.getAttribute('style')).toContain('inline-grid');
+        expect(Array.from(content.childNodes)).toEqual([wrapper, cursor]);
+        expect(content.getAttribute('style')).toContain('grid-area: 1 / 1');
+        expect(getSizer(instance).getAttribute('style')).toContain('visibility: hidden');
+        expect(getSizer(instance).getAttribute('aria-hidden')).toEqual('true');
+      });
+
+      it('should reserve space for the full text when started', () => {
+        const instance = new Typewriter(wrapperElement, { reserveSpace: true });
+        instance.typeString('Hello <b>world</b>').start();
+        expect(instance.state.elements.wrapper.textContent).toEqual('');
+        expect(getSizer(instance).textContent).toEqual('Hello world|');
+      });
+
+      it('should reserve space for every string before it is deleted', () => {
+        const instance = new Typewriter(wrapperElement, {
+          reserveSpace: true,
+          strings: ['Short', 'A much longer string'],
+          autoStart: true,
+          loop: true,
+        });
+        const snapshots = Array.from(getSizer(instance).childNodes).map(snapshot => snapshot.textContent);
+        expect(snapshots).toEqual(['Short|', 'A much longer string|']);
+      });
+
+      it('should include the initial text and cursor movement', () => {
+        const instance = new Typewriter(wrapperElement, { reserveSpace: true, initialText: 'Hello ' });
+        instance.typeString('wrld').moveCursor(-3).typeString('o').start();
+        expect(getSizer(instance).textContent).toEqual('Hello wo|rld');
+      });
+
+      it('should not call callbacks or move the real html elements while working out the space', () => {
+        const cb = jest.fn();
+        const instance = new Typewriter(wrapperElement, { reserveSpace: true, delay: 1 });
+        instance.typeString('<b id="title">hi</b>').callFunction(cb).start();
+
+        expect(cb).not.toHaveBeenCalled();
+        expect(getSizer(instance).querySelectorAll('[id]')).toHaveLength(0);
+
+        clock.tick(5000);
+
+        expect(cb).toHaveBeenCalledTimes(1);
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('<b id="title">hi</b>');
+      });
+
+      it('should update the reserved space when started again', () => {
+        const instance = new Typewriter(wrapperElement, { reserveSpace: true, delay: 1 });
+        instance.typeString('one').start();
+        clock.tick(5000);
+        instance.typeString(' two').start();
+        expect(getSizer(instance).textContent).toEqual('one two|');
       });
     });
   });

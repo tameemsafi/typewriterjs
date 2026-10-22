@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.0
+
+All new behaviour is opt-in, so existing code keeps working the same way.
+
+### Added
+
+- `moveCursor(amount)`, `moveCursorToStart()` and `moveCursorToEnd()` methods. Typed, pasted and deleted text happens at the cursor, so you can fix typos or type in the middle of the text. `deleteAll` and `clear` move the cursor back to the end first.
+- `reserveSpace` option to keep the space of the largest text that will be typed, so the page does not move while typing.
+- FAQ entries and examples for moving the cursor, reserving space and scrolling lines.
+
 ## 3.1.0
 
 All new behaviour is opt-in, so existing code keeps working the same way.

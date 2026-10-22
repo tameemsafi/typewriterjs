@@ -92,6 +92,7 @@ new Typewriter('#typewriter', {
 | useGraphemeSplitter | Boolean | false | Split strings into graphemes, so emojis like 👨‍👩‍👧 and letters with accents or marks are typed and deleted as one character. Ignored when ``stringSplitter`` is set. |
 | mergeTextNodes | Boolean | false | Add typed characters to a single text node instead of one text node for each character. Fixes text shaping in Safari for scripts such as Arabic or Thai, and makes long text faster. Ignored when ``onCreateTextNode`` is set. |
 | pasteAsCharacters | Boolean | false | Let ``deleteChars`` delete pasted text one character at a time, instead of deleting the whole pasted string at once. Ignored when ``onCreateTextNode`` is set. |
+| reserveSpace | Boolean | false | Reserve the space that the typed text will need, so the page does not move while typing. The space is worked out from the queued events each time ``start`` is called, and is as big as the largest text that will be shown. |
 | onlyDelayVisibleChanges | Boolean | false | Only wait for ``delay`` or ``deleteSpeed`` when a character is typed, pasted or deleted. Other events such as ``callFunction``, ``pauseFor``, ``changeDelay`` and empty HTML tags run straight away, and ``pasteString`` with HTML is pasted in one step. |
 
 ## Methods
@@ -105,6 +106,9 @@ All methods can be chained together.
 | pause | - | Pause the typewriter effect. Call ``start`` to continue. |
 | skipToEnd | - | Run every event in the queue straight away, without any delay or pause. Useful for a skip button. When looping, call ``stop`` after it to keep the final text on the page. |
 | clearQueue | - | Remove every event that has not run yet. Call ``start`` again after adding new events. |
+| moveCursor | ``amount`` Number of characters, negative to move left | Move the cursor by an amount of characters. Typed, pasted and deleted text then happens at the cursor. |
+| moveCursorToStart | - | Move the cursor before all of the text. |
+| moveCursorToEnd | - | Move the cursor after all of the text. |
 | pauseFor | ``ms`` Time to pause for in milliseconds | Pause for milliseconds |
 | typeString | ``string`` String to type out, it can contain HTML tags | Type out a string using the typewriter effect. |
 | pasteString | ``string`` String to paste out, it can contain HTML tags | Paste out a string. |
@@ -358,6 +362,63 @@ Use the ``stringSplitter`` option to split strings into words. ``deleteChars`` w
 new Typewriter('#app', {
   stringSplitter: (text) => text.match(/\S+\s*/g) || [],
 });
+```
+
+### How do I fix a typo or type in the middle of the text?
+
+Move the cursor with ``moveCursor``, then type or delete as normal. A negative amount moves the cursor to the left. ``deleteChars`` deletes the characters before the cursor, and ``deleteAll`` and ``clear`` move the cursor back to the end first.
+
+```js
+typewriter
+  .typeString('Helo world')
+  .moveCursor(-7)
+  .typeString('l')
+  .moveCursorToEnd()
+  .typeString('!')
+  .start();
+```
+
+### How do I stop the page from moving while the text is typed?
+
+Set ``reserveSpace: true``. The typewriter works out how big the text will get and keeps that space from the start, so content below it does not jump. The space is worked out when ``start`` is called, so events added later are not included until ``start`` is called again.
+
+```js
+new Typewriter('#app', {
+  strings: ['Short title', 'A much longer title that wraps onto two lines'],
+  autoStart: true,
+  loop: true,
+  reserveSpace: true,
+});
+```
+
+### How do I keep adding lines with the oldest lines scrolling away?
+
+Type each line into its own element with a new typewriter, and remove the oldest line when there are too many.
+
+```js
+const lines = ['Line A', 'Line B', 'Line C', 'Line D'];
+const container = document.getElementById('lines');
+let lineIndex = 0;
+
+const typeNextLine = () => {
+  const line = document.createElement('div');
+  container.appendChild(line);
+
+  if(container.children.length > 3) {
+    container.firstElementChild.remove();
+  }
+
+  new Typewriter(line)
+    .typeString(lines[lineIndex % lines.length])
+    .changeCursor('')
+    .pauseFor(500)
+    .callFunction(typeNextLine)
+    .start();
+
+  lineIndex += 1;
+};
+
+typeNextLine();
 ```
 
 ### How do I type a new line?

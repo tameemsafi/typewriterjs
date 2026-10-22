@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Example - Move cursor</title>
+</head>
+<body>
+
+  <div id="typewriter"></div>
+
+  <script src='../../dist/core.js'></script>
+  <script type="text/javascript">
+    const typewriter = new Typewriter('#typewriter', {
+      loop: true,
+      delay: 90,
+    });
+
+    typewriter
+      .typeString('Helo <strong>wrld</strong>!')
+      .pauseFor(500)
+      .moveCursor(-4)
+      .typeString('o')
+      .pauseFor(300)
+      .moveCursor(-4)
+      .typeString('l')
+      .pauseFor(300)
+      .moveCursorToEnd()
+      .pauseFor(2000)
+      .start();
+  </script>
+
+</body>
+</html>
