@@ -37,14 +37,48 @@ class Typewriter extends Component {
     }
   }
 
+  /**
+   * Get the class name for the element, adding the className prop when it is set
+   *
+   * @return {String}
+   */
+  getClassName() {
+    const { className } = this.props;
+
+    if(className) {
+      return `Typewriter ${className}`;
+    }
+
+    return 'Typewriter';
+  }
+
+  /**
+   * Get the props to pass to the element, such as data attributes or aria labels
+   *
+   * @return {Object}
+   */
+  getElementProps() {
+    const {
+      component,
+      options,
+      onInit,
+      children,
+      className,
+      ...elementProps
+    } = this.props;
+
+    return elementProps;
+  }
+
   render() {
     const { component: Component } = this.props;
 
     return (
       <Component
-        ref={(ref) => this.typewriter = ref}
-        className='Typewriter'
         data-testid='typewriter-wrapper'
+        {...this.getElementProps()}
+        ref={(ref) => this.typewriter = ref}
+        className={this.getClassName()}
       />
     );
   }

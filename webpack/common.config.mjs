@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+import webpack from 'webpack';
 
 const config = {
   entry: {
@@ -15,6 +16,15 @@ const config = {
     globalObject: 'typeof self !== \'undefined\' ? self : this',
     umdNamedDefine: true,
   },
+
+  plugins: [
+    new webpack.BannerPlugin({
+      banner: '"use client";',
+      raw: true,
+      include: /react\.js$/,
+      stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT,
+    }),
+  ],
 
   externals: {
     react: 'react',

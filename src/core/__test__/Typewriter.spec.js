@@ -85,6 +85,14 @@ describe('Typewriter', () => {
       onRemoveNode: jest.fn(),
       maxCatchUpDelta: 1000,
       parseHTML: false,
+      initialText: null,
+      keepLastString: true,
+      deleteOnLoop: false,
+      cursorBlink: false,
+      useGraphemeSplitter: true,
+      mergeTextNodes: true,
+      pasteAsCharacters: true,
+      onlyDelayVisibleChanges: true,
     };
 
     const instance = new Typewriter('#test', options);
@@ -94,7 +102,28 @@ describe('Typewriter', () => {
   it('should throw error if container wih selector is not found', () => {
     expect(() => {
       new Typewriter('.hello');
-    }).toThrow('Could not find container element');
+    }).toThrow('Could not find container element: .hello');
+  });
+
+  it('should throw a clear error if the container is not an html element', () => {
+    expect(() => {
+      new Typewriter({ length: 1 });
+    }).toThrow('Container must be an HTML element or a CSS selector string');
+  });
+
+  it('should hide the cursor from screen readers', () => {
+    const instance = new Typewriter(wrapperElement);
+    expect(instance.state.elements.cursor.getAttribute('aria-hidden')).toEqual('true');
+  });
+
+  it('should keep the cursor blinking by default', () => {
+    const instance = new Typewriter(wrapperElement);
+    expect(instance.state.elements.cursor.style.animation).toEqual('');
+  });
+
+  it('should stop the cursor blinking when cursorBlink is false', () => {
+    const instance = new Typewriter(wrapperElement, { cursorBlink: false });
+    expect(instance.state.elements.cursor.style.animation).toEqual('none');
   });
 
   it('should correctly setup container element with selector', () => {
@@ -176,6 +205,51 @@ describe('Typewriter', () => {
         ];
         instance.typeOutAllStrings();
         expect(instance.state.eventQueue).toMatchSnapshot();
+      });
+
+      it('should delete the last string by default', () => {
+        instance.options.strings = ['Hello', 'world'];
+        instance.typeOutAllStrings();
+        const lastEvent = instance.state.eventQueue[instance.state.eventQueue.length - 1];
+        expect(lastEvent.eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+      });
+
+      it('should not delete the last string when keepLastString is true', () => {
+        instance.options.strings = ['Hello', 'world'];
+        instance.options.keepLastString = true;
+        instance.typeOutAllStrings();
+        const removeAllEvents = instance.state.eventQueue.filter(event => event.eventName === EVENT_NAMES.REMOVE_ALL);
+        const lastEvent = instance.state.eventQueue[instance.state.eventQueue.length - 1];
+        expect(removeAllEvents).toHaveLength(2);
+        expect(lastEvent.eventName).toEqual(EVENT_NAMES.PAUSE_FOR);
+      });
+
+      it('should still delete the last string when keepLastString and loop are true', () => {
+        instance.options.strings = ['Hello', 'world'];
+        instance.options.keepLastString = true;
+        instance.options.loop = true;
+        instance.typeOutAllStrings();
+        const lastEvent = instance.state.eventQueue[instance.state.eventQueue.length - 1];
+        expect(lastEvent.eventName).toEqual(EVENT_NAMES.REMOVE_ALL);
+      });
+    });
+
+    describe('clear', () => {
+      it('should add clear event item to queue', () => {
+        instance.clear();
+        expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CLEAR);
+      });
+    });
+
+    describe('clearQueue', () => {
+      it('should remove all events, called events and pause time', () => {
+        instance.typeString('hello');
+        instance.state.calledEvents = [{ eventName: EVENT_NAMES.PAUSE_FOR, eventArgs: { ms: 10 } }];
+        instance.state.pauseUntil = Date.now() + 1000;
+        instance.clearQueue();
+        expect(instance.state.eventQueue).toEqual([]);
+        expect(instance.state.calledEvents).toEqual([]);
+        expect(instance.state.pauseUntil).toEqual(null);
       });
     });
 
@@ -331,6 +405,12 @@ describe('Typewriter', () => {
             expect(() => {
                 instance.changeCursor();
             }).toThrow('Must provide new cursor');
+        });
+
+        it('should add event item when new cursor is an empty string', () => {
+            instance.changeCursor('');
+            expect(instance.state.eventQueue[2].eventName).toEqual(EVENT_NAMES.CHANGE_CURSOR);
+            expect(instance.state.eventQueue[2].eventArgs.cursor).toEqual('');
         });
     });
 
@@ -1013,6 +1093,279 @@ describe('Typewriter', () => {
       clock.tick(5000);
       expect(instance.state.elements.wrapper.innerHTML).toEqual('ab<b>c</b>');
       expect(instance.state.visibleNodes.length).toEqual(4);
+    });
+
+    const getLoggedDelays = (instance, eventName) => {
+      return instance.logInDevMode.mock.calls
+        .filter(([log]) => log.currentEvent.eventName === eventName)
+        .map(([log]) => log.delay);
+    };
+
+    it('should type events that are added inside callFunction', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1 });
+      instance.typeString('a')
+        .callFunction(() => instance.typeString('b'))
+        .typeString('c')
+        .start();
+      clock.tick(5000);
+      expect(instance.state.elements.wrapper.textContent).toEqual('acb');
+    });
+
+    it('should hide the cursor when changeCursor is called with an empty string', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1 });
+      instance.typeString('ab').changeCursor('').start();
+      clock.tick(5000);
+      expect(instance.state.elements.cursor.innerHTML).toEqual('');
+    });
+
+    it('should use a delete speed of zero when deleteAll is called with zero', () => {
+      const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 30 });
+      instance.logInDevMode = jest.fn();
+      instance.typeString('ab').deleteAll(0).start();
+      clock.tick(5000);
+      expect(getLoggedDelays(instance, EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE)).toEqual([0, 0]);
+    });
+
+    it('should use a random delay between min and max when delay is a range', () => {
+      const instance = new Typewriter(wrapperElement, {
+        delay: { min: 20, max: 30 },
+        deleteSpeed: { min: 5, max: 8 },
+      });
+      instance.logInDevMode = jest.fn();
+      instance.typeString('abcdef').deleteChars(3).start();
+      clock.tick(5000);
+
+      const typingDelays = getLoggedDelays(instance, EVENT_NAMES.TYPE_CHARACTER);
+      const deleteDelays = getLoggedDelays(instance, EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE);
+
+      expect(typingDelays.every(delay => delay >= 20 && delay <= 30)).toEqual(true);
+      expect(deleteDelays.every(delay => delay >= 5 && delay <= 8)).toEqual(true);
+      expect(instance.state.elements.wrapper.textContent).toEqual('abc');
+    });
+
+    describe('clear', () => {
+      it('should remove everything in a single frame and call onRemoveNode for each node', () => {
+        const onRemoveNode = jest.fn();
+        const instance = new Typewriter(wrapperElement, { delay: 1, onRemoveNode });
+        instance.typeString('a<b>bc</b>').clear().start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('');
+        expect(instance.state.visibleNodes).toEqual([]);
+        expect(onRemoveNode).toHaveBeenCalledTimes(4);
+      });
+
+      it('should run in the same frame as the event before it', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 50 });
+        const eventTimes = {};
+        instance.logInDevMode = ({ currentEvent }) => {
+          eventTimes[currentEvent.eventName] = Date.now();
+        };
+        instance.typeString('ab').clear().start();
+        clock.tick(5000);
+        expect(eventTimes[EVENT_NAMES.CLEAR]).toEqual(eventTimes[EVENT_NAMES.TYPE_CHARACTER]);
+        expect(instance.state.elements.wrapper.textContent).toEqual('');
+      });
+    });
+
+    describe('clearQueue', () => {
+      it('should let new events run straight away instead of the old ones', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1 });
+        instance.typeString('abcdefghij').start();
+        clock.tick(100);
+        instance.clearQueue().clear().typeString('xyz').start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.textContent).toEqual('xyz');
+      });
+    });
+
+    describe('skipToEnd', () => {
+      it('should run all queued events straight away including callbacks and pauses', () => {
+        const cb = jest.fn();
+        const instance = new Typewriter(wrapperElement, { delay: 100 });
+        instance.typeString('Hello')
+          .pauseFor(10000)
+          .deleteChars(2)
+          .typeString(' <b>world</b>')
+          .callFunction(cb)
+          .start();
+
+        instance.skipToEnd();
+
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('Hel <b>world</b>');
+        expect(instance.state.eventQueue).toEqual([]);
+        expect(instance.state.pauseUntil).toEqual(null);
+        expect(cb).toHaveBeenCalledTimes(1);
+      });
+
+      it('should not run events that are added by callbacks while skipping', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 100 });
+        const typeAgain = () => instance.typeString('x').callFunction(typeAgain);
+        instance.typeString('a').callFunction(typeAgain);
+
+        instance.skipToEnd();
+
+        expect(instance.state.elements.wrapper.textContent).toEqual('a');
+        expect(instance.state.eventQueue).toHaveLength(2);
+      });
+    });
+
+    describe('initialText', () => {
+      it('should show the initial text straight away', () => {
+        const instance = new Typewriter(wrapperElement, { initialText: 'Hello <b>world</b>' });
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('Hello <b>world</b>');
+        expect(instance.state.eventQueue).toEqual([]);
+      });
+
+      it('should let the initial text be deleted one character at a time', () => {
+        const instance = new Typewriter(wrapperElement, { initialText: 'Hello', delay: 1, deleteSpeed: 1 });
+        instance.deleteChars(2).typeString('p!').start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.textContent).toEqual('Help!');
+      });
+
+      it('should not type the initial text again when looping', () => {
+        const instance = new Typewriter(wrapperElement, {
+          initialText: 'Hi',
+          delay: 1,
+          deleteSpeed: 1,
+          loop: true,
+        });
+        instance.typeString(' there').start();
+        clock.tick(5000);
+        expect(instance.state.calledEvents.every(event => !event.eventArgs.temp)).toEqual(true);
+        expect(instance.state.elements.wrapper.textContent).not.toContain('Hi');
+      });
+    });
+
+    describe('deleteOnLoop', () => {
+      it('should delete everything when the loop starts again by default', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1, loop: true });
+        instance.typeString('ab').start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.textContent.length).toBeLessThanOrEqual(2);
+      });
+
+      it('should keep the text when the loop starts again when set to false', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, loop: true, deleteOnLoop: false });
+        instance.typeString('ab').start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.textContent.startsWith('ababab')).toEqual(true);
+      });
+    });
+
+    describe('useGraphemeSplitter', () => {
+      it('should split emojis into broken characters by default', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1 });
+        instance.typeString('a😋').start();
+        clock.tick(5000);
+        expect(instance.state.visibleNodes).toHaveLength(3);
+      });
+
+      it('should type and delete emojis as a single character', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1, useGraphemeSplitter: true });
+        instance.typeString('a😋👨‍👩‍👧').deleteChars(1).start();
+        clock.tick(5000);
+        expect(instance.state.visibleNodes.map(node => node.character)).toEqual(['a', '😋']);
+        expect(instance.state.elements.wrapper.textContent).toEqual('a😋');
+      });
+    });
+
+    describe('mergeTextNodes', () => {
+      it('should create a text node for each character by default', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1 });
+        instance.typeString('abc').start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.childNodes).toHaveLength(3);
+      });
+
+      it('should add typed characters to a single text node', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, mergeTextNodes: true });
+        instance.typeString('abc').start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.childNodes).toHaveLength(1);
+        expect(instance.state.elements.wrapper.textContent).toEqual('abc');
+      });
+
+      it('should keep html tags and delete characters from the merged text node', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1, mergeTextNodes: true });
+        instance.typeString('ab<b>cd</b>ef').deleteChars(3).typeString('XY').start();
+        clock.tick(5000);
+
+        const { wrapper } = instance.state.elements;
+
+        expect(wrapper.innerHTML).toEqual('ab<b>c</b>XY');
+        expect(wrapper.childNodes).toHaveLength(3);
+      });
+
+      it('should remove everything with deleteAll', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1, mergeTextNodes: true });
+        instance.typeString('ab<b>cd</b>ef').deleteAll().start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('');
+      });
+
+      it('should create a text node for each character when onCreateTextNode is set', () => {
+        const instance = new Typewriter(wrapperElement, {
+          delay: 1,
+          mergeTextNodes: true,
+          onCreateTextNode: (character) => document.createTextNode(character),
+        });
+        instance.typeString('abc').start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.childNodes).toHaveLength(3);
+      });
+    });
+
+    describe('pasteAsCharacters', () => {
+      it('should delete a pasted string as one character by default', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1 });
+        instance.typeString('a').pasteString('hello').deleteChars(1).start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.textContent).toEqual('a');
+      });
+
+      it('should let deleteChars delete pasted text one character at a time', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 1, pasteAsCharacters: true });
+        instance.typeString('a').pasteString('hello').deleteChars(2).start();
+        clock.tick(5000);
+        expect(instance.state.elements.wrapper.textContent).toEqual('ahel');
+      });
+    });
+
+    describe('onlyDelayVisibleChanges', () => {
+      const typeAndWait = (options, time) => {
+        const instance = new Typewriter(wrapperElement, { delay: 50, ...options });
+        instance.typeString('ab').start();
+        clock.tick(time);
+        return instance.state.elements.wrapper.textContent;
+      };
+
+      it('should spend a typing delay on every event by default', () => {
+        expect(typeAndWait({}, 150)).toEqual('');
+      });
+
+      it('should only spend a delay on events that change the text', () => {
+        expect(typeAndWait({ onlyDelayVisibleChanges: true }, 150)).toEqual('ab');
+      });
+
+      it('should use the delete speed once for each deleted character', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 1, deleteSpeed: 30, onlyDelayVisibleChanges: true });
+        instance.logInDevMode = jest.fn();
+        instance.typeString('a<b>b</b>').deleteChars(2).callFunction(() => {}).start();
+        clock.tick(5000);
+
+        expect(getLoggedDelays(instance, EVENT_NAMES.REMOVE_CHARACTER)).toEqual([0, 0]);
+        expect(getLoggedDelays(instance, EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE)).toEqual([30, 0, 30]);
+        expect(getLoggedDelays(instance, EVENT_NAMES.CALL_FUNCTION)).toEqual([0]);
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('');
+      });
+
+      it('should paste a html string in one step', () => {
+        const instance = new Typewriter(wrapperElement, { delay: 50, onlyDelayVisibleChanges: true });
+        instance.pasteString('<b>a</b><i>b</i>c').start();
+        clock.tick(FRAME_TIME);
+        expect(instance.state.elements.wrapper.innerHTML).toEqual('<b>a</b><i>b</i>c');
+      });
     });
   });
 });

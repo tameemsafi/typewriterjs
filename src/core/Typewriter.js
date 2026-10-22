@@ -5,6 +5,8 @@ import {
   addStyles,
   isValueMissing,
   isVoidElement,
+  isDelayRange,
+  splitIntoGraphemes,
   requestFrame,
   cancelFrame,
 } from './../utils';
@@ -12,6 +14,8 @@ import {
   EVENT_NAMES,
   VISIBLE_NODE_TYPES,
   STYLES,
+  NATURAL_TYPING_DELAY,
+  NATURAL_DELETE_DELAY,
 } from './constants';
 
 class Typewriter {
@@ -48,21 +52,19 @@ class Typewriter {
     onRemoveNode: null,
     maxCatchUpDelta: null,
     parseHTML: true,
+    initialText: null,
+    keepLastString: false,
+    deleteOnLoop: true,
+    cursorBlink: true,
+    useGraphemeSplitter: false,
+    mergeTextNodes: false,
+    pasteAsCharacters: false,
+    onlyDelayVisibleChanges: false,
   }
 
   constructor(container, options) {
     if(container) {
-      if(typeof container === 'string') {
-        const containerElement = document.querySelector(container);
-  
-        if(!containerElement) {
-          throw new Error('Could not find container element');
-        }
-  
-        this.state.elements.container = containerElement;
-      } else {
-        this.state.elements.container = container;
-      }
+      this.state.elements.container = this.getContainerElement(container);
     }
 
     if(options) {
@@ -81,16 +83,54 @@ class Typewriter {
   init() {
     this.setupWrapperElement();
     this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor }, true);
-    this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null, true);
+    this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, { isLoopStart: true }, true);
 
     if(window && !window.___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
       addStyles(STYLES);
       window.___TYPEWRITER_JS_STYLES_ADDED___ = true;
     }
 
+    if(this.options.initialText) {
+      this.showInitialText();
+    }
+
     if(this.options.autoStart === true && this.options.strings) {
       this.typeOutAllStrings().start();
 		}
+  }
+
+  /**
+   * Get the container element from a CSS selector or an HTML element
+   *
+   * @param {String|HTMLElement} container CSS selector or HTML element
+   * @return {HTMLElement}
+   */
+  getContainerElement = (container) => {
+    if(typeof container === 'string') {
+      return this.findContainerElement(container);
+    }
+
+    if(typeof container.appendChild !== 'function') {
+      throw new Error('Container must be an HTML element or a CSS selector string');
+    }
+
+    return container;
+  }
+
+  /**
+   * Find the container element using a CSS selector
+   *
+   * @param {String} selector CSS selector of the container element
+   * @return {HTMLElement}
+   */
+  findContainerElement = (selector) => {
+    const containerElement = document.querySelector(selector);
+
+    if(!containerElement) {
+      throw new Error(`Could not find container element: ${selector}`);
+    }
+
+    return containerElement;
   }
 
   /**
@@ -106,12 +146,29 @@ class Typewriter {
 
     this.state.elements.wrapper.className = this.options.wrapperClassName;
     this.state.elements.cursor.className = this.options.cursorClassName;
+    this.state.elements.cursor.setAttribute('aria-hidden', 'true');
+
+    if(this.options.cursorBlink === false) {
+      this.state.elements.cursor.style.animation = 'none';
+    }
 
     this.state.elements.cursor.innerHTML = this.options.cursor;
     this.state.elements.container.innerHTML = '';
 
     this.state.elements.container.appendChild(this.state.elements.wrapper);
     this.state.elements.container.appendChild(this.state.elements.cursor);
+  }
+
+  /**
+   * Add the initialText option to the page straight away.
+   * These events are not replayed when looping.
+   */
+  showInitialText = () => {
+    const firstEventIndex = this.state.eventQueue.length;
+
+    this.typeString(this.options.initialText);
+    this.updateEventsFrom(firstEventIndex, { temp: true });
+    this.skipToEnd();
   }
 
   /**
@@ -151,6 +208,50 @@ class Typewriter {
   }
 
   /**
+   * Run every event that is currently in the queue straight away,
+   * without any delay or pause. Events added by callbacks while
+   * skipping stay in the queue.
+   *
+   * @return {Typewriter}
+   */
+  skipToEnd = () => {
+    const { eventQueue } = this.state;
+    const lastEvent = eventQueue[eventQueue.length - 1];
+
+    this.runEventsUntil(lastEvent);
+    this.state.pauseUntil = null;
+
+    return this;
+  }
+
+  /**
+   * Run events from the start of the queue until the last event has run
+   *
+   * @param {Object} lastEvent Last event to run
+   */
+  runEventsUntil = (lastEvent) => {
+    let currentEvent = null;
+
+    while(this.state.eventQueue.length && currentEvent !== lastEvent) {
+      currentEvent = this.state.eventQueue.shift();
+      this.processEvent(currentEvent, 0);
+    }
+  }
+
+  /**
+   * Remove every event that has not run yet
+   *
+   * @return {Typewriter}
+   */
+  clearQueue = () => {
+    this.state.eventQueue = [];
+    this.state.calledEvents = [];
+    this.state.pauseUntil = null;
+
+    return this;
+  }
+
+  /**
    * Add pause event to queue for ms provided
    *
    * @param {Number} ms Time in ms to pause for
@@ -179,13 +280,32 @@ class Typewriter {
       return this;
     }
 
-    this.options.strings.forEach(string => {
+    this.options.strings.forEach((string, index) => {
       this.typeString(string)
-        .pauseFor(this.options.pauseFor)
-        .deleteAll(this.options.deleteSpeed);
+        .pauseFor(this.options.pauseFor);
+
+      if(this.shouldDeleteString(index)) {
+        this.deleteAll(this.options.deleteSpeed);
+      }
     });
 
     return this;
+  }
+
+  /**
+   * Check if a string from the strings option should be deleted after it is typed
+   *
+   * @param {Number} index Index of the string in the strings option
+   * @return {Boolean}
+   */
+  shouldDeleteString = (index) => {
+    const isLastString = index === this.options.strings.length - 1;
+
+    if(!isLastString || this.options.loop) {
+      return true;
+    }
+
+    return !this.options.keepLastString;
   }
 
   /**
@@ -207,12 +327,30 @@ class Typewriter {
 
   typeText = (string, node = null) => {
     if(string) {
-      const { stringSplitter } = this.options || {};
-      const characters = typeof stringSplitter === 'function' ? stringSplitter(string) : string.split('');
-      this.typeCharacters(characters, node);
+      this.typeCharacters(this.splitString(string), node);
     }
 
     return this;
+  }
+
+  /**
+   * Split a string into the characters that will be typed
+   *
+   * @param {String} string String to split
+   * @return {Array}
+   */
+  splitString = (string) => {
+    const { stringSplitter, useGraphemeSplitter } = this.options;
+
+    if(typeof stringSplitter === 'function') {
+      return stringSplitter(string);
+    }
+
+    if(useGraphemeSplitter) {
+      return splitIntoGraphemes(string);
+    }
+
+    return string.split('');
   }
 
   /**
@@ -226,10 +364,29 @@ class Typewriter {
    */
   pasteString = (string, node = null) => {
     if(this.shouldParseAsHTML(string)) {
-      return this.typeOutHTMLString(string, node, true);
+      return this.pasteHTMLString(string, node);
     }
 
     return this.pasteText(string, node);
+  }
+
+  /**
+   * Add events to paste a string which contains HTML tags
+   *
+   * @param {String} string String to paste
+   * @param {HTMLElement} node Node to add string inside of
+   * @return {Typewriter}
+   */
+  pasteHTMLString = (string, node) => {
+    const firstEventIndex = this.state.eventQueue.length;
+
+    this.typeOutHTMLString(string, node, true);
+
+    if(this.options.onlyDelayVisibleChanges) {
+      this.updateEventsFrom(firstEventIndex + 1, { skipDelay: true });
+    }
+
+    return this;
   }
 
   pasteText = (string, node = null) => {
@@ -315,6 +472,16 @@ class Typewriter {
   }
 
   /**
+   * Add event to remove everything that is visible straight away
+   *
+   * @return {Typewriter}
+   */
+  clear = () => {
+    this.addEventToQueue(EVENT_NAMES.CLEAR);
+    return this;
+  }
+
+  /**
    * Change delete speed
    *
    * @param {Number} speed Speed to use for deleting characters
@@ -359,7 +526,7 @@ class Typewriter {
    * @author Y.Paing <ye@y3p.io>
    */
   changeCursor = (cursor) => {
-    if(!cursor) {
+    if(isValueMissing(cursor)) {
       throw new Error('Must provide new cursor');
     }
 
@@ -494,6 +661,20 @@ class Typewriter {
   }
 
   /**
+   * Add extra event args to every event from an index in the queue
+   *
+   * @param {Number} firstEventIndex Index of the first event to update
+   * @param {Object} newEventArgs Event args to add
+   */
+  updateEventsFrom = (firstEventIndex, newEventArgs) => {
+    const events = this.state.eventQueue.slice(firstEventIndex);
+
+    events.forEach(event => {
+      Object.assign(event.eventArgs, newEventArgs);
+    });
+  }
+
+  /**
    * Run the event loop and do anything inside of the queue
    *
    * @author Tameem Safi <tamem@safi.me.uk>
@@ -503,26 +684,16 @@ class Typewriter {
       this.state.lastFrameTime = Date.now();
     }
 
-    // Setup variables to calculate if this frame should run
     const nowTime = Date.now();
-    const { maxCatchUpDelta } = this.options;
-    const canCatchUp = typeof maxCatchUpDelta === 'number' && maxCatchUpDelta > 0;
-    let delta = nowTime - this.state.lastFrameTime;
-
-    // Cap the elapsed time so returning to an inactive tab does not freeze the page
-    if(canCatchUp) {
-      delta = Math.min(delta, maxCatchUpDelta);
-    }
+    const canCatchUp = this.isCatchUpEnabled();
+    let delta = this.getFrameDelta(nowTime, canCatchUp);
 
     if(!this.state.eventQueue.length) {
       if(!this.options.loop) {
         return;
       }
 
-      // Reset event queue if we are looping
-      this.state.eventQueue = [...this.state.calledEvents];
-      this.state.calledEvents = [];
-      this.options = {...this.state.initialOptions};
+      this.restartLoop();
     }
 
     // Request next frame
@@ -550,63 +721,200 @@ class Typewriter {
       }
     }
 
-    // Make a clone of event queue
-    const eventQueue = [...this.state.eventQueue];
-    let processedAny = false;
+    const { timeLeft, processedDelayedEvent } = this.processEventsForFrame(delta, canCatchUp);
 
-    // Without catch up only a single event runs per frame
-    while(eventQueue.length && (canCatchUp || !processedAny)) {
-      // Get first event from queue
-      const currentEvent = eventQueue.shift();
+    if(processedDelayedEvent) {
+      this.state.lastFrameTime = canCatchUp ? nowTime - timeLeft : nowTime;
+    }
+  }
 
-      // Setup delay variable
-      let delay = 0;
+  /**
+   * Check if the maxCatchUpDelta option is set
+   *
+   * @return {Boolean}
+   */
+  isCatchUpEnabled = () => {
+    const { maxCatchUpDelta } = this.options;
+    return typeof maxCatchUpDelta === 'number' && maxCatchUpDelta > 0;
+  }
 
-      // Check if frame should run or be
-      // skipped based on fps interval
-      if(
-        currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE ||
-        currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
-      ) {
-        delay = this.options.deleteSpeed === 'natural' ? getRandomInteger(40, 80) : this.options.deleteSpeed;
-      } else {
-        delay = this.options.delay === 'natural' ? getRandomInteger(120, 160) : this.options.delay;
-      }
+  /**
+   * Get the time in ms since the last frame that ran an event
+   *
+   * @param {Number} nowTime Current time in ms
+   * @param {Boolean} canCatchUp Whether maxCatchUpDelta is set
+   * @return {Number}
+   */
+  getFrameDelta = (nowTime, canCatchUp) => {
+    const delta = nowTime - this.state.lastFrameTime;
 
-      if(delta <= delay) {
-        eventQueue.unshift(currentEvent);
+    if(canCatchUp) {
+      return Math.min(delta, this.options.maxCatchUpDelta);
+    }
+
+    return delta;
+  }
+
+  /**
+   * Add every called event back to the queue so the loop starts again
+   */
+  restartLoop = () => {
+    this.state.eventQueue = [...this.state.calledEvents];
+    this.state.calledEvents = [];
+    this.options = {...this.state.initialOptions};
+  }
+
+  /**
+   * Run the events that have enough time to run in this frame
+   *
+   * @param {Number} delta Time in ms that can be used by events
+   * @param {Boolean} canCatchUp Whether more than one delayed event can run
+   * @return {Object} Time left and whether a delayed event ran
+   */
+  processEventsForFrame = (delta, canCatchUp) => {
+    let timeLeft = delta;
+    let processedDelayedEvent = false;
+
+    while(this.state.eventQueue.length) {
+      const currentEvent = this.state.eventQueue[0];
+      const isInstant = this.isInstantEvent(currentEvent);
+      const delay = isInstant ? 0 : this.getEventDelay(currentEvent);
+      const canRunDelayedEvent = canCatchUp || !processedDelayedEvent;
+
+      if(!isInstant && (!canRunDelayedEvent || timeLeft <= delay)) {
         break;
       }
 
-      this.processEvent(currentEvent, eventQueue, delay);
+      this.state.eventQueue.shift();
+      this.processEvent(currentEvent, delay);
+      timeLeft -= delay;
+      processedDelayedEvent = processedDelayedEvent || !isInstant;
 
-      delta -= delay;
-      processedAny = true;
-
-      // A pause event stops processing until pauseUntil has passed
-      if(this.state.pauseUntil) {
+      if(this.shouldStopProcessingEvents()) {
         break;
       }
     }
 
-    if(processedAny) {
-      // Replace state event queue with cloned queue
-      this.state.eventQueue = eventQueue;
+    return { timeLeft, processedDelayedEvent };
+  }
 
-      // Set last frame time so it can be used to calculate next frame,
-      // keeping leftover time when catching up
-      this.state.lastFrameTime = canCatchUp ? nowTime - delta : nowTime;
+  /**
+   * Check if a pause has started so no more events run in this frame
+   *
+   * @return {Boolean}
+   */
+  shouldStopProcessingEvents = () => {
+    return Boolean(this.state.pauseUntil) || this.state.eventLoopPaused;
+  }
+
+  /**
+   * Check if an event should run without waiting for a delay
+   *
+   * @param {Object} currentEvent Event to check
+   * @return {Boolean}
+   */
+  isInstantEvent = (currentEvent) => {
+    const eventArgs = currentEvent.eventArgs || {};
+
+    if(eventArgs.skipDelay || currentEvent.eventName === EVENT_NAMES.CLEAR) {
+      return true;
     }
+
+    if(!this.options.onlyDelayVisibleChanges) {
+      return false;
+    }
+
+    return !this.changesVisibleText(currentEvent);
+  }
+
+  /**
+   * Check if an event adds or removes a visible character
+   *
+   * @param {Object} currentEvent Event to check
+   * @return {Boolean}
+   */
+  changesVisibleText = ({ eventName, eventArgs }) => {
+    switch(eventName) {
+      case EVENT_NAMES.TYPE_CHARACTER:
+      case EVENT_NAMES.PASTE_STRING:
+        return true;
+
+      case EVENT_NAMES.ADD_HTML_TAG_ELEMENT:
+        return isVoidElement(eventArgs.node);
+
+      case EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE:
+        return this.isLastVisibleNodeACharacter();
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Check if the last visible node is a character instead of an empty HTML tag
+   *
+   * @return {Boolean}
+   */
+  isLastVisibleNodeACharacter = () => {
+    const { visibleNodes } = this.state;
+    const lastVisibleNode = visibleNodes[visibleNodes.length - 1];
+
+    if(!lastVisibleNode) {
+      return false;
+    }
+
+    if(lastVisibleNode.type === VISIBLE_NODE_TYPES.TEXT_NODE) {
+      return true;
+    }
+
+    return isVoidElement(lastVisibleNode.node);
+  }
+
+  /**
+   * Get the delay in ms to wait before running an event
+   *
+   * @param {Object} currentEvent Event to get the delay for
+   * @return {Number}
+   */
+  getEventDelay = ({ eventName }) => {
+    const isDeleteEvent = (
+      eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE ||
+      eventName === EVENT_NAMES.REMOVE_CHARACTER
+    );
+
+    if(isDeleteEvent) {
+      return this.getDelayFromSpeed(this.options.deleteSpeed, NATURAL_DELETE_DELAY);
+    }
+
+    return this.getDelayFromSpeed(this.options.delay, NATURAL_TYPING_DELAY);
+  }
+
+  /**
+   * Get the delay in ms from a speed value
+   *
+   * @param {String|Number|Object} speed 'natural', number or { min, max } range
+   * @param {Object} naturalDelay Range to use for 'natural'
+   * @return {Number}
+   */
+  getDelayFromSpeed = (speed, naturalDelay) => {
+    if(speed === 'natural') {
+      return getRandomInteger(naturalDelay.min, naturalDelay.max);
+    }
+
+    if(isDelayRange(speed)) {
+      return getRandomInteger(speed.min, speed.max);
+    }
+
+    return speed;
   }
 
   /**
    * Run a single event from the queue
    *
    * @param {Object} currentEvent Event to run
-   * @param {Array} eventQueue Working copy of the queue, may be modified
    * @param {Number} delay Delay used for this event
    */
-  processEvent = (currentEvent, eventQueue, delay) => {
+  processEvent = (currentEvent, delay) => {
     // Get current event args
     const { eventName, eventArgs } = currentEvent;
 
@@ -616,34 +924,12 @@ class Typewriter {
     switch(eventName) {
       case EVENT_NAMES.PASTE_STRING:
       case EVENT_NAMES.TYPE_CHARACTER: {
-        const { character, node } = eventArgs;
-        const textNode = document.createTextNode(character);
-
-        let textNodeToUse = textNode
-
-        if(this.options.onCreateTextNode && typeof this.options.onCreateTextNode === 'function') {
-          textNodeToUse = this.options.onCreateTextNode(character, textNode)
-        }
-
-        if(textNodeToUse) {
-          if(node) {
-            node.appendChild(textNodeToUse);
-          } else {
-            this.state.elements.wrapper.appendChild(textNodeToUse);
-          }
-        }
-
-        this.state.visibleNodes.push({
-          type: VISIBLE_NODE_TYPES.TEXT_NODE,
-          character,
-          node: textNodeToUse,
-        });
-
+        this.addTextToPage(eventName, eventArgs);
         break;
       }
 
       case EVENT_NAMES.REMOVE_CHARACTER: {
-        eventQueue.unshift({
+        this.state.eventQueue.unshift({
           eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
           eventArgs: { removingCharacterNode: true },
         });
@@ -684,35 +970,7 @@ class Typewriter {
       }
 
       case EVENT_NAMES.REMOVE_ALL: {
-        const { visibleNodes } = this.state;
-        const { speed } = eventArgs;
-        const removeAllEventItems = [];
-
-        // Change speed before deleteing
-        if(speed) {
-          removeAllEventItems.push({
-            eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
-            eventArgs: { speed, temp: true },
-          });
-        }
-
-        for(let i = 0, length = visibleNodes.length; i < length; i++) {
-          removeAllEventItems.push({
-            eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
-            eventArgs: { removingCharacterNode: false },
-          });
-        }
-
-        // Change speed back to normal after deleteing
-        if(speed) {
-          removeAllEventItems.push({
-            eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
-            eventArgs: { speed: this.options.deleteSpeed, temp: true },
-          });
-        }
-
-        eventQueue.unshift(...removeAllEventItems);
-
+        this.addRemoveAllEventsToQueue(eventArgs);
         break;
       }
 
@@ -720,27 +978,21 @@ class Typewriter {
         const { removingCharacterNode } = currentEvent.eventArgs;
 
         if(this.state.visibleNodes.length) {
-          const { type, node, character } = this.state.visibleNodes.pop();
-
-          if(this.options.onRemoveNode && typeof this.options.onRemoveNode === 'function') {
-            this.options.onRemoveNode({
-              node,
-              character,
-            })
-          }
-
-          if(node && node.parentNode) {
-            node.parentNode.removeChild(node);
-          }
+          const { type, node } = this.removeLastVisibleNode();
 
           // Remove extra node as current deleted one is just an empty wrapper node
           if(type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode && !isVoidElement(node)) {
-            eventQueue.unshift({
+            this.state.eventQueue.unshift({
               eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
               eventArgs: { removingCharacterNode: true },
             });
           }
         }
+        break;
+      }
+
+      case EVENT_NAMES.CLEAR: {
+        this.removeAllVisibleNodes();
         break;
       }
 
@@ -765,14 +1017,282 @@ class Typewriter {
       }
     }
 
-    // Add que item to called queue if we are looping
-    if(this.options.loop) {
-      if(
-        currentEvent.eventName !== EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE &&
-        !(currentEvent.eventArgs && currentEvent.eventArgs.temp)
-      ) {
-        this.state.calledEvents.push(currentEvent);
-      }
+    this.addToCalledEvents(currentEvent);
+  }
+
+  /**
+   * Save an event so it can run again when looping
+   *
+   * @param {Object} currentEvent Event that has run
+   */
+  addToCalledEvents = (currentEvent) => {
+    if(!this.options.loop) {
+      return;
+    }
+
+    const isTemporary = currentEvent.eventArgs && currentEvent.eventArgs.temp;
+
+    if(currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE || isTemporary) {
+      return;
+    }
+
+    this.state.calledEvents.push(currentEvent);
+  }
+
+  /**
+   * Add typed or pasted text to the page
+   *
+   * @param {String} eventName Name of the event
+   * @param {Object} eventArgs Event args with the character and node
+   */
+  addTextToPage = (eventName, eventArgs) => {
+    if(this.canShareTextNodes(eventName)) {
+      this.addSharedText(eventName, eventArgs);
+      return;
+    }
+
+    this.addTextNode(eventArgs);
+  }
+
+  /**
+   * Check if text can be added to a text node shared with other characters
+   *
+   * @param {String} eventName Name of the event
+   * @return {Boolean}
+   */
+  canShareTextNodes = (eventName) => {
+    const { onCreateTextNode, mergeTextNodes, pasteAsCharacters } = this.options;
+
+    if(typeof onCreateTextNode === 'function') {
+      return false;
+    }
+
+    const isPaste = eventName === EVENT_NAMES.PASTE_STRING;
+
+    return mergeTextNodes || (pasteAsCharacters && isPaste);
+  }
+
+  /**
+   * Add a new text node for a character
+   *
+   * @param {Object} eventArgs Event args with the character and node
+   */
+  addTextNode = ({ character, node }) => {
+    const textNode = this.createTextNode(character);
+
+    if(textNode) {
+      this.getParentNode(node).appendChild(textNode);
+    }
+
+    this.state.visibleNodes.push({
+      type: VISIBLE_NODE_TYPES.TEXT_NODE,
+      character,
+      node: textNode,
+    });
+  }
+
+  /**
+   * Create a text node, using the onCreateTextNode option when it is set
+   *
+   * @param {String} character Character to create a text node for
+   * @return {Text|null}
+   */
+  createTextNode = (character) => {
+    const textNode = document.createTextNode(character);
+    const { onCreateTextNode } = this.options;
+
+    if(typeof onCreateTextNode === 'function') {
+      return onCreateTextNode(character, textNode);
+    }
+
+    return textNode;
+  }
+
+  /**
+   * Add text to a text node that can be shared with other characters
+   *
+   * @param {String} eventName Name of the event
+   * @param {Object} eventArgs Event args with the character and node
+   */
+  addSharedText = (eventName, { character, node }) => {
+    const textNode = this.getTextNodeToAddTo(this.getParentNode(node));
+    const characters = this.getCharactersToTrack(eventName, character);
+
+    textNode.appendData(character);
+
+    characters.forEach(trackedCharacter => {
+      this.state.visibleNodes.push({
+        type: VISIBLE_NODE_TYPES.TEXT_NODE,
+        character: trackedCharacter,
+        node: textNode,
+        isSharedTextNode: true,
+      });
+    });
+  }
+
+  /**
+   * Get the text node to add text to, creating a new one when needed
+   *
+   * @param {HTMLElement} parentNode Node the text is added inside of
+   * @return {Text}
+   */
+  getTextNodeToAddTo = (parentNode) => {
+    const lastTextNode = this.getLastSharedTextNode(parentNode);
+
+    if(this.options.mergeTextNodes && lastTextNode) {
+      return lastTextNode;
+    }
+
+    const textNode = document.createTextNode('');
+    parentNode.appendChild(textNode);
+
+    return textNode;
+  }
+
+  /**
+   * Get the last shared text node when it is still the last child of the parent node
+   *
+   * @param {HTMLElement} parentNode Node the text is added inside of
+   * @return {Text|null}
+   */
+  getLastSharedTextNode = (parentNode) => {
+    const { visibleNodes } = this.state;
+    const lastVisibleNode = visibleNodes[visibleNodes.length - 1];
+
+    if(!lastVisibleNode || !lastVisibleNode.isSharedTextNode) {
+      return null;
+    }
+
+    if(parentNode.lastChild !== lastVisibleNode.node) {
+      return null;
+    }
+
+    return lastVisibleNode.node;
+  }
+
+  /**
+   * Get the characters to save as visible nodes so they can be deleted
+   *
+   * @param {String} eventName Name of the event
+   * @param {String} character Character or pasted string
+   * @return {Array}
+   */
+  getCharactersToTrack = (eventName, character) => {
+    const isPaste = eventName === EVENT_NAMES.PASTE_STRING;
+
+    if(isPaste && this.options.pasteAsCharacters) {
+      return this.splitString(character);
+    }
+
+    return [character];
+  }
+
+  /**
+   * Get the node to add text inside of
+   *
+   * @param {HTMLElement} node Node passed to typeString or pasteString
+   * @return {HTMLElement}
+   */
+  getParentNode = (node) => {
+    return node || this.state.elements.wrapper;
+  }
+
+  /**
+   * Add events to the start of the queue to remove every visible node
+   *
+   * @param {Object} eventArgs Event args with the speed and isLoopStart values
+   */
+  addRemoveAllEventsToQueue = ({ speed, isLoopStart }) => {
+    if(isLoopStart && this.options.deleteOnLoop === false) {
+      return;
+    }
+
+    const removeEvents = this.createRemoveEvents(this.state.visibleNodes.length);
+
+    if(isValueMissing(speed)) {
+      this.state.eventQueue.unshift(...removeEvents);
+      return;
+    }
+
+    this.state.eventQueue.unshift(
+      this.createChangeDeleteSpeedEvent(speed),
+      ...removeEvents,
+      this.createChangeDeleteSpeedEvent(this.options.deleteSpeed),
+    );
+  }
+
+  /**
+   * Create events to remove the last visible node
+   *
+   * @param {Number} amount Number of events to create
+   * @return {Array}
+   */
+  createRemoveEvents = (amount) => {
+    return Array.from({ length: amount }, () => ({
+      eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
+      eventArgs: { removingCharacterNode: false },
+    }));
+  }
+
+  /**
+   * Create a temporary event to change the delete speed
+   *
+   * @param {String|Number|Object} speed New delete speed
+   * @return {Object}
+   */
+  createChangeDeleteSpeedEvent = (speed) => {
+    return {
+      eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
+      eventArgs: { speed, temp: true },
+    };
+  }
+
+  /**
+   * Remove every visible node straight away
+   */
+  removeAllVisibleNodes = () => {
+    while(this.state.visibleNodes.length) {
+      this.removeLastVisibleNode();
+    }
+  }
+
+  /**
+   * Remove the last visible node from the page and call the onRemoveNode option
+   *
+   * @return {Object} Visible node that was removed
+   */
+  removeLastVisibleNode = () => {
+    const lastVisibleNode = this.state.visibleNodes.pop();
+    const { node, character } = lastVisibleNode;
+
+    if(typeof this.options.onRemoveNode === 'function') {
+      this.options.onRemoveNode({
+        node,
+        character,
+      });
+    }
+
+    this.removeVisibleNodeFromPage(lastVisibleNode);
+
+    return lastVisibleNode;
+  }
+
+  /**
+   * Remove a visible node from the page. Characters inside a shared
+   * text node are removed from the end of the text node.
+   *
+   * @param {Object} visibleNode Visible node to remove
+   */
+  removeVisibleNodeFromPage = ({ node, character, isSharedTextNode }) => {
+    const hasOtherCharacters = isSharedTextNode && node.data.length > character.length;
+
+    if(hasOtherCharacters) {
+      node.deleteData(node.data.length - character.length, character.length);
+      return;
+    }
+
+    if(node && node.parentNode) {
+      node.parentNode.removeChild(node);
     }
   }
 

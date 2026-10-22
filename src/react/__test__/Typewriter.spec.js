@@ -1,6 +1,7 @@
 import React, { StrictMode } from 'react';
 import { render } from '@testing-library/react';
 import Typewriter from './../Typewriter';
+import TypewriterEntry from './../index';
 import TypewriterCore from './../../core';
 
 jest.mock('./../../core', () => {
@@ -114,5 +115,46 @@ describe('Typewriter component', () => {
         expect(TypewriterCore).toHaveBeenCalledTimes(2);
         expect(firstInstance.stop).toHaveBeenCalledTimes(1);
         expect(secondInstance.stop).not.toHaveBeenCalled();
+    });
+
+    it('should add the className prop after the default class name', () => {
+        const { getByTestId } = render(<Typewriter className='hero-title'/>);
+
+        expect(getByTestId('typewriter-wrapper').className).toEqual('Typewriter hero-title');
+    });
+
+    it('should pass other props such as data and aria attributes to the element', () => {
+        const { getByTestId } = render(
+            <Typewriter
+                component='span'
+                id='hero'
+                translate='no'
+                aria-label='Hello World'
+                data-scroll='true'
+                options={{ strings: ['test-1'] }}
+                onInit={jest.fn()}
+            />
+        );
+
+        const element = getByTestId('typewriter-wrapper');
+
+        expect(element.tagName).toEqual('SPAN');
+        expect(element.id).toEqual('hero');
+        expect(element.getAttribute('translate')).toEqual('no');
+        expect(element.getAttribute('aria-label')).toEqual('Hello World');
+        expect(element.getAttribute('data-scroll')).toEqual('true');
+        expect(element.hasAttribute('options')).toEqual(false);
+        expect(element.hasAttribute('oninit')).toEqual(false);
+    });
+
+    it('should not render children inside the element', () => {
+        const { getByTestId } = render(<Typewriter>Hello</Typewriter>);
+
+        expect(getByTestId('typewriter-wrapper').textContent).toEqual('');
+    });
+
+    it('should export the core typewriter class as TypewriterClass', () => {
+        expect(TypewriterEntry).toBe(Typewriter);
+        expect(TypewriterEntry.TypewriterClass).toBe(TypewriterCore);
     });
 });
