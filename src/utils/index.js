@@ -5,5 +5,7 @@ export { default as addStyles } from './add-styles';
 export { default as isValueMissing } from './is-value-missing';
 export { default as areOptionsEqual } from './are-options-equal';
 export { default as isVoidElement } from './is-void-element';
+export { default as isDelayRange } from './is-delay-range';
+export { default as splitIntoGraphemes } from './split-into-graphemes';
 export { default as requestFrame } from './request-frame';
 export { default as cancelFrame } from './cancel-frame';

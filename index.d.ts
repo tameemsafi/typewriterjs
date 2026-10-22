@@ -1,5 +1,16 @@
 declare module "typewriter-effect" {
-  export type Speed = "natural" | number
+  export interface DelayRange {
+    /**
+     * Smallest delay in milliseconds.
+     */
+    min: number
+    /**
+     * Largest delay in milliseconds.
+     */
+    max: number
+  }
+
+  export type Speed = "natural" | number | DelayRange
 
   export interface Options {
     /**
@@ -15,13 +26,15 @@ declare module "typewriter-effect" {
      */
     cursor?: string
     /**
-     * The delay between each key when typing.
+     * The delay between each key when typing. Use a `{ min, max }` range to
+     * pick a random delay between two values.
      *
      * @default "natural"
      */
     delay?: Speed
     /**
-     * The delay between deleting each character.
+     * The delay between deleting each character. Use a `{ min, max }` range
+     * to pick a random delay between two values.
      *
      * @default "natural"
      */
@@ -64,7 +77,9 @@ declare module "typewriter-effect" {
      */
     wrapperClassName?: string
     /**
-     * Class name for the cursor element.
+     * Class name for the cursor element. The default blinking animation uses
+     * the `Typewriter__cursor` class, so include it to keep the blinking,
+     * for example `"Typewriter__cursor my-cursor"`.
      *
      * @default "Typewriter__cursor"
      */
@@ -108,6 +123,67 @@ declare module "typewriter-effect" {
      * @default true
      */
     parseHTML?: boolean
+    /**
+     * Text that is shown straight away when the typewriter is created.
+     * It can be deleted like typed text and is not typed again when looping.
+     *
+     * @default null
+     */
+    initialText?: string | null
+    /**
+     * Keep the last string of the `strings` option on the page instead of
+     * deleting it. Only used when `loop` is false.
+     *
+     * @default false
+     */
+    keepLastString?: boolean
+    /**
+     * Whether to delete everything when the loop starts again. Set to false
+     * to keep adding text on every loop.
+     *
+     * @default true
+     */
+    deleteOnLoop?: boolean
+    /**
+     * Whether the cursor blinks.
+     *
+     * @default true
+     */
+    cursorBlink?: boolean
+    /**
+     * Split strings into graphemes, so emojis like 👨‍👩‍👧 and letters with
+     * accents or marks are typed and deleted as one character.
+     * Ignored when `stringSplitter` is set.
+     *
+     * @default false
+     */
+    useGraphemeSplitter?: boolean
+    /**
+     * Add typed characters to a single text node instead of one text node
+     * for each character. Fixes text shaping in Safari for scripts such as
+     * Arabic or Thai and makes long text faster. Ignored when
+     * `onCreateTextNode` is set.
+     *
+     * @default false
+     */
+    mergeTextNodes?: boolean
+    /**
+     * Let `deleteChars` delete pasted text one character at a time instead of
+     * deleting the whole pasted string at once. Ignored when
+     * `onCreateTextNode` is set.
+     *
+     * @default false
+     */
+    pasteAsCharacters?: boolean
+    /**
+     * Only wait for `delay` or `deleteSpeed` when a character is typed,
+     * pasted or deleted. Other events such as `callFunction`, `pauseFor`,
+     * `changeDelay` and empty HTML tags run straight away, and `pasteString`
+     * with HTML is pasted in one step.
+     *
+     * @default false
+     */
+    onlyDelayVisibleChanges?: boolean
   }
 
   export interface TypewriterState {
@@ -136,6 +212,19 @@ declare module "typewriter-effect" {
      * Pause the typewriter effect.
      */
     pause(): TypewriterClass
+
+    /**
+     * Run every event in the queue straight away, without any delay or
+     * pause. Useful for a skip button. When looping, call `stop()` after it
+     * to keep the final text on the page.
+     */
+    skipToEnd(): TypewriterClass
+
+    /**
+     * Remove every event that has not run yet. Call `start()` again after
+     * adding new events.
+     */
+    clearQueue(): TypewriterClass
 
     /**
      * Pause for milliseconds
@@ -177,6 +266,12 @@ declare module "typewriter-effect" {
     deleteAllWithDeleteSpeed(): TypewriterClass
 
     /**
+     * Remove everything that is visible inside of the typewriter wrapper
+     * element straight away, without a delete animation.
+     */
+    clear(): TypewriterClass
+
+    /**
      * Delete and amount of characters, starting at the end of the visible
      * string.
      *
@@ -211,18 +306,21 @@ declare module "typewriter-effect" {
     changeDelay(delay: Speed): TypewriterClass
 
     /**
-     * Change the cursor
+     * Change the cursor. Use an empty string to hide the cursor.
      *
      * @param cursor String to use as the cursor
      */
     changeCursor(cursor: string): TypewriterClass
   }
 
-  const TypewriterComponent: React.FunctionComponent<{
+  export interface TypewriterComponentProps
+    extends Omit<React.HTMLAttributes<HTMLElement>, "children"> {
     component?: React.ElementType
     onInit?: (typewriter: TypewriterClass) => void
     options?: Partial<Options>
-  }>
+  }
+
+  const TypewriterComponent: React.FunctionComponent<TypewriterComponentProps>
 
   export default TypewriterComponent
 }

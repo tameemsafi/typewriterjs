@@ -1,5 +1,36 @@
 # Changelog
 
+## 3.1.0
+
+All new behaviour is opt-in, so existing code keeps working the same way.
+
+### Added
+
+- `clear()` method to remove everything straight away, without a delete animation.
+- `clearQueue()` method to remove every event that has not run yet.
+- `skipToEnd()` method to run every queued event straight away, for example for a skip button.
+- `initialText` option to show text straight away that can be deleted like typed text.
+- `keepLastString` option to keep the last string of the `strings` option when `loop` is false.
+- `deleteOnLoop` option. Set it to `false` to keep the text when the loop starts again.
+- `cursorBlink` option to turn off the cursor blinking.
+- `useGraphemeSplitter` option to type emojis and letters with accents or marks as one character.
+- `mergeTextNodes` option to add typed characters to a single text node. This fixes Arabic, Thai and other scripts not joining in Safari and makes long text faster.
+- `pasteAsCharacters` option so `deleteChars` can delete pasted text one character at a time.
+- `onlyDelayVisibleChanges` option so only typed, pasted or deleted characters wait for a delay. `deleteChars` then uses `deleteSpeed` once per character, and `pasteString` with HTML is pasted in one step.
+- `delay` and `deleteSpeed` accept a `{ min, max }` range for a random delay.
+- `changeCursor('')` hides the cursor. Before, an empty string threw an error.
+- React: extra props such as `className`, `id`, `style`, `translate`, `aria-*` and `data-*` are passed to the element.
+- React: the core class is exported as `TypewriterClass`, matching the TypeScript types.
+- React: the build includes `'use client'` so it works in Next.js server components.
+- The cursor has `aria-hidden="true"` so screen readers do not read it.
+- FAQ section in the readme and new examples.
+
+### Fixed
+
+- Events added inside `callFunction`, such as `typeString`, were lost.
+- `deleteAll(0)` used the `deleteSpeed` option instead of a speed of zero.
+- Passing something that is not an HTML element as the container now throws a clear error, and the selector is included in the `Could not find container element` error.
+
 ## 3.0.0
 
 ### Breaking changes

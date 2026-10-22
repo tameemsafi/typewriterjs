@@ -3,7 +3,9 @@
 exports[`Typewriter methods deleteChars should add event items for amount of characters 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -58,7 +60,9 @@ exports[`Typewriter methods deleteChars should add event items for amount of cha
 exports[`Typewriter methods pasteString should correctly add event items to queue if string does not contain html 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -80,7 +84,9 @@ exports[`Typewriter methods pasteString should correctly add event items to queu
 exports[`Typewriter methods removeCharacters should add event items for amount of characters 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -162,7 +168,9 @@ exports[`Typewriter methods runEventLoop valid delta REMOVE_ALL should correctly
 exports[`Typewriter methods typeCharacters should add event items for amount of characters 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -212,7 +220,9 @@ exports[`Typewriter methods typeCharacters should add event items for amount of 
 exports[`Typewriter methods typeOutAllStrings should correctly add event item to queue when options.strings is a string 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -317,7 +327,9 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
 exports[`Typewriter methods typeOutAllStrings should correctly add multiple event items to queue when options.strings is an array 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -553,7 +565,9 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
 exports[`Typewriter methods typeOutHTMLString should correctly add event item when string contains only string 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -596,7 +610,9 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event item wh
 exports[`Typewriter methods typeOutHTMLString should correctly add event items for html wrapper and all string characters 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -877,7 +893,9 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
 exports[`Typewriter methods typeOutHTMLString should correctly add event items for nested html and parent node 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -956,7 +974,9 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
 exports[`Typewriter methods typeString should correctly add event items to queue if string does not contain html 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
@@ -1063,12 +1083,14 @@ exports[`Typewriter shoud setup correctly with default settings 1`] = `
         class="Typewriter__wrapper"
       />
       <span
+        aria-hidden="true"
         class="Typewriter__cursor"
       >
         |
       </span>
     </div>,
     "cursor": <span
+      aria-hidden="true"
       class="Typewriter__cursor"
     >
       |
@@ -1081,7 +1103,9 @@ exports[`Typewriter shoud setup correctly with default settings 1`] = `
   "eventLoopPaused": false,
   "eventQueue": [
     {
-      "eventArgs": {},
+      "eventArgs": {
+        "isLoopStart": true,
+      },
       "eventName": "REMOVE_ALL",
     },
     {
@@ -1094,19 +1118,27 @@ exports[`Typewriter shoud setup correctly with default settings 1`] = `
   "initialOptions": {
     "autoStart": false,
     "cursor": "|",
+    "cursorBlink": true,
     "cursorClassName": "Typewriter__cursor",
     "delay": "natural",
+    "deleteOnLoop": true,
     "deleteSpeed": "natural",
     "devMode": false,
+    "initialText": null,
+    "keepLastString": false,
     "loop": false,
     "maxCatchUpDelta": null,
+    "mergeTextNodes": false,
     "onCreateTextNode": null,
     "onRemoveNode": null,
+    "onlyDelayVisibleChanges": false,
     "parseHTML": true,
+    "pasteAsCharacters": false,
     "pauseFor": 1500,
     "skipAddStyles": false,
     "stringSplitter": null,
     "strings": null,
+    "useGraphemeSplitter": false,
     "wrapperClassName": "Typewriter__wrapper",
   },
   "lastFrameTime": null,
@@ -1119,19 +1151,27 @@ exports[`Typewriter shoud setup correctly with default settings 2`] = `
 {
   "autoStart": false,
   "cursor": "|",
+  "cursorBlink": true,
   "cursorClassName": "Typewriter__cursor",
   "delay": "natural",
+  "deleteOnLoop": true,
   "deleteSpeed": "natural",
   "devMode": false,
+  "initialText": null,
+  "keepLastString": false,
   "loop": false,
   "maxCatchUpDelta": null,
+  "mergeTextNodes": false,
   "onCreateTextNode": null,
   "onRemoveNode": null,
+  "onlyDelayVisibleChanges": false,
   "parseHTML": true,
+  "pasteAsCharacters": false,
   "pauseFor": 1500,
   "skipAddStyles": false,
   "stringSplitter": null,
   "strings": null,
+  "useGraphemeSplitter": false,
   "wrapperClassName": "Typewriter__wrapper",
 }
 `;
@@ -1144,6 +1184,7 @@ exports[`Typewriter should correctly setup container element with element 1`] = 
     class="Typewriter__wrapper"
   />
   <span
+    aria-hidden="true"
     class="Typewriter__cursor"
   >
     |
@@ -1159,6 +1200,7 @@ exports[`Typewriter should correctly setup container element with selector 1`] =
     class="Typewriter__wrapper"
   />
   <span
+    aria-hidden="true"
     class="Typewriter__cursor"
   >
     |
@@ -1169,7 +1211,9 @@ exports[`Typewriter should correctly setup container element with selector 1`] =
 exports[`Typewriter should correctly setup queue if autostart is set to true 1`] = `
 [
   {
-    "eventArgs": {},
+    "eventArgs": {
+      "isLoopStart": true,
+    },
     "eventName": "REMOVE_ALL",
   },
   {
